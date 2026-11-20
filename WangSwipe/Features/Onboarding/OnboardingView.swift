@@ -49,7 +49,8 @@ struct OnboardingView: View {
 
                 HStack(spacing: 12) {
                     PhotosPicker(selection: $pickerItem, matching: .images) {
-                        Label(selected == nil ? "Choose photo" : "Choose another", systemImage: "photo.on.rectangle")
+                        Label(selected == nil ? "Library" : "Change", systemImage: "photo.on.rectangle")
+                            .lineLimit(1)
                             .frame(maxWidth: .infinity)
                     }
                     .buttonStyle(.bordered)
@@ -58,7 +59,9 @@ struct OnboardingView: View {
                         Button {
                             showingCamera = true
                         } label: {
-                            Label("Take photo", systemImage: "camera").frame(maxWidth: .infinity)
+                            Label("Camera", systemImage: "camera")
+                                .lineLimit(1)
+                                .frame(maxWidth: .infinity)
                         }
                         .buttonStyle(.bordered)
                     }
