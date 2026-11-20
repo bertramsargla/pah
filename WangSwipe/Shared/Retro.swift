@@ -120,7 +120,7 @@ struct RetroTitleBar: View {
         .textCase(.uppercase)
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
-        .background(Retro.navy)
+        .background(Retro.navy, ignoresSafeAreaEdges: [])
         // The status bar sits on lavender so its dark text stays readable.
         .background(Retro.lavender.ignoresSafeArea(edges: .top))
     }

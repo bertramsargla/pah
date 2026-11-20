@@ -38,8 +38,9 @@ struct MainTabView: View {
             SettingsView()
                 .tabItem { Label("Setup", systemImage: "gearshape") }
         }
-        .tint(Retro.navy)
-        .toolbarBackground(Retro.lavender, for: .tabBar)
+        .tint(Retro.lavender)
+        .toolbarBackground(Retro.navy, for: .tabBar)
         .toolbarBackground(.visible, for: .tabBar)
+        .toolbarColorScheme(.dark, for: .tabBar)
     }
 }

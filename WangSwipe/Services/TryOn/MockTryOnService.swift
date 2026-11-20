@@ -1,3 +1,4 @@
+import CoreImage
 import UIKit
 import Vision
 
@@ -14,14 +15,55 @@ struct MockTryOnService: TryOnService {
         let base = person.normalizedUp().resized(maxDimension: 1280)
         let body = BodyLandmarks.detect(in: base)
         let region = Self.region(for: product.category, body: body, in: base.size)
+        let mask = Self.personMask(for: base)
 
         let format = UIGraphicsImageRendererFormat()
         format.scale = 1
-        return UIGraphicsImageRenderer(size: base.size, format: format).image { _ in
-            base.draw(in: CGRect(origin: .zero, size: base.size))
+        return UIGraphicsImageRenderer(size: base.size, format: format).image { renderer in
+            let bounds = CGRect(origin: .zero, size: base.size)
+            base.draw(in: bounds)
+
+            let cg = renderer.cgContext
+            cg.saveGState()
+            if let mask {
+                // Only paint where the person is, so the garment never sticks out
+                // past their body. CG draws masks bottom-up, so flip while clipping.
+                cg.translateBy(x: 0, y: bounds.height)
+                cg.scaleBy(x: 1, y: -1)
+                cg.clip(to: bounds, mask: mask)
+                cg.scaleBy(x: 1, y: -1)
+                cg.translateBy(x: 0, y: -bounds.height)
+            }
             // Stretch to the body region so the garment covers what the person is wearing.
             garment.draw(in: region, blendMode: .normal, alpha: 1)
+            cg.restoreGState()
         }
+    }
+
+    /// Grayscale mask of where the person is (white) in the image, at image size.
+    /// Returns nil if Vision can't find a person.
+    static func personMask(for image: UIImage) -> CGImage? {
+        guard let cgImage = image.cgImage else { return nil }
+        let request = VNGeneratePersonSegmentationRequest()
+        request.qualityLevel = .accurate
+        request.outputPixelFormat = kCVPixelFormatType_OneComponent8
+        let handler = VNImageRequestHandler(cgImage: cgImage, orientation: .up)
+        guard (try? handler.perform([request])) != nil,
+              let buffer = request.results?.first?.pixelBuffer
+        else { return nil }
+
+        let size = image.size
+        let mask = CIImage(cvPixelBuffer: buffer)
+        let scaled = mask.transformed(by: CGAffineTransform(
+            scaleX: size.width / mask.extent.width,
+            y: size.height / mask.extent.height
+        ))
+        return CIContext().createCGImage(
+            scaled,
+            from: CGRect(origin: .zero, size: size),
+            format: .L8,
+            colorSpace: CGColorSpaceCreateDeviceGray()
+        )
     }
 
     /// Where the garment goes, in image points.
