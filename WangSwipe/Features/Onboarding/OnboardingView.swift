@@ -53,8 +53,12 @@ struct OnboardingView: View {
                             .buttonStyle(.bevel)
                         }
 
-                        Button("Demo") { selected = AppModel.demoPhoto }
-                            .buttonStyle(.bevel)
+                        Button {
+                            selected = AppModel.demoPhoto
+                        } label: {
+                            Label("Demo", systemImage: "person.fill")
+                        }
+                        .buttonStyle(.bevel)
                     }
                     .frame(height: 50)
 

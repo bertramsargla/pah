@@ -16,6 +16,15 @@ enum GarmentCategory: String, Codable, CaseIterable, Sendable {
         }
     }
 
+    var pluralName: String {
+        switch self {
+        case .top: "Tops"
+        case .bottom: "Bottoms"
+        case .dress: "Dresses"
+        case .outerwear: "Outerwear"
+        }
+    }
+
     /// Best-effort guess from free text such as a store's product type or title.
     /// Returns nil when the text doesn't look like clothing we can try on.
     static func infer(from text: String) -> GarmentCategory? {

@@ -23,8 +23,6 @@ targets:
         INFOPLIST_KEY_CFBundleDisplayName: WangSwipe
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
         INFOPLIST_KEY_UISupportedInterfaceOrientations: UIInterfaceOrientationPortrait
-        INFOPLIST_KEY_UIStatusBarStyle: UIStatusBarStyleLightContent
-        INFOPLIST_KEY_UIViewControllerBasedStatusBarAppearance: NO
         INFOPLIST_KEY_NSCameraUsageDescription: WangSwipe uses the camera so you can take a full-body photo to try clothes on.
         INFOPLIST_KEY_NSPhotoLibraryUsageDescription: WangSwipe lets you pick a full-body photo of yourself to try clothes on.
         TARGETED_DEVICE_FAMILY: "1"

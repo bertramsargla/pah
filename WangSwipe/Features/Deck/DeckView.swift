@@ -86,7 +86,7 @@ struct DeckView: View {
                 ProgressView().tint(Retro.navy)
                 Text("Loading wardrobe…").font(Retro.font(16))
             } else {
-                Text(deck.categoryFilter == nil ? "That's the whole wardrobe" : "No more \(deck.categoryFilter!.displayName.lowercased())s")
+                Text(deck.categoryFilter == nil ? "That's the whole wardrobe" : "No more \(deck.categoryFilter!.pluralName.lowercased())")
                     .font(Retro.font(18))
                     .multilineTextAlignment(.center)
                 Text("Turn on more stores in Setup, or check your closet.")
@@ -114,7 +114,7 @@ struct CategoryStrip: View {
         HStack(spacing: 0) {
             item("All", isOn: selected == nil) { onSelect(nil) }
             ForEach(GarmentCategory.allCases, id: \.self) { category in
-                item(category.displayName + "s", isOn: selected == category) { onSelect(category) }
+                item(category.pluralName, isOn: selected == category) { onSelect(category) }
             }
         }
         .padding(.horizontal, 6)

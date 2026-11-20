@@ -23,7 +23,21 @@ struct GarmentArtView: View {
             }
             GarmentShape(category: category)
                 .fill(color)
-                .overlay(GarmentShape(category: category).stroke(.black.opacity(0.18), lineWidth: 2))
+                // Soft light-to-shadow shading so it reads as fabric, not a flat cutout.
+                .overlay(
+                    GarmentShape(category: category).fill(
+                        LinearGradient(
+                            colors: [.white.opacity(0.22), .clear, .black.opacity(0.25)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                )
+                .overlay(
+                    GarmentDetails(category: category)
+                        .stroke(.black.opacity(0.3), style: StrokeStyle(lineWidth: 2, lineCap: .round, dash: [6, 4]))
+                )
+                .overlay(GarmentShape(category: category).stroke(.black.opacity(0.45), lineWidth: 2.5))
                 .aspectRatio(0.75, contentMode: .fit)
                 .padding(showsBackground ? 36 : 0)
         }
@@ -66,6 +80,42 @@ struct GarmentShape: Shape {
             if index == 0 { path.move(to: p) } else { path.addLine(to: p) }
         }
         path.closeSubpath()
+        return path
+    }
+}
+
+/// Seams, necklines and stitching drawn on top of a `GarmentShape`.
+struct GarmentDetails: Shape {
+    let category: GarmentCategory
+
+    func path(in rect: CGRect) -> Path {
+        func p(_ x: CGFloat, _ y: CGFloat) -> CGPoint {
+            CGPoint(x: rect.minX + x * rect.width, y: rect.minY + y * rect.height)
+        }
+        var path = Path()
+        switch category {
+        case .top:
+            path.move(to: p(0.38, 0.08))
+            path.addQuadCurve(to: p(0.62, 0.08), control: p(0.5, 0.2))
+            path.move(to: p(0.25, 0.90)); path.addLine(to: p(0.75, 0.90))
+            path.move(to: p(0.10, 0.33)); path.addLine(to: p(0.17, 0.37))
+            path.move(to: p(0.90, 0.33)); path.addLine(to: p(0.83, 0.37))
+        case .outerwear:
+            path.move(to: p(0.38, 0.06)); path.addLine(to: p(0.5, 0.30)); path.addLine(to: p(0.62, 0.06))
+            path.move(to: p(0.5, 0.30)); path.addLine(to: p(0.5, 0.95))
+            path.move(to: p(0.28, 0.62)); path.addLine(to: p(0.42, 0.62))
+            path.move(to: p(0.58, 0.62)); path.addLine(to: p(0.72, 0.62))
+        case .dress:
+            path.move(to: p(0.40, 0.04))
+            path.addQuadCurve(to: p(0.60, 0.04), control: p(0.5, 0.14))
+            path.move(to: p(0.34, 0.40)); path.addLine(to: p(0.66, 0.40))
+            path.move(to: p(0.15, 0.93)); path.addLine(to: p(0.85, 0.93))
+        case .bottom:
+            path.move(to: p(0.245, 0.11)); path.addLine(to: p(0.755, 0.11))
+            path.move(to: p(0.5, 0.11)); path.addLine(to: p(0.5, 0.30))
+            path.move(to: p(0.30, 0.16)); path.addQuadCurve(to: p(0.42, 0.24), control: p(0.33, 0.24))
+            path.move(to: p(0.70, 0.16)); path.addQuadCurve(to: p(0.58, 0.24), control: p(0.67, 0.24))
+        }
         return path
     }
 }

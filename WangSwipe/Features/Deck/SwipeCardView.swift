@@ -17,12 +17,11 @@ struct SwipeCardView: View {
     var body: some View {
         GeometryReader { geo in
             VStack(spacing: 0) {
-                ZStack {
-                    Retro.periwinkle
-                    imageLayer
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .clipped()
+                // Color.clear takes exactly the space offered; the image fills it
+                // without pushing the layout bigger.
+                Retro.periwinkle
+                    .overlay { imageLayer }
+                    .clipped()
                 .overlay(Rectangle().stroke(Retro.ink, lineWidth: 2))
                 .overlay(alignment: .topLeading) { statusTag.padding(8) }
                 .overlay(alignment: .top) { stamps.padding(.top, 36) }
@@ -30,10 +29,11 @@ struct SwipeCardView: View {
                 info
             }
             .padding(10)
+            .frame(width: geo.size.width, height: geo.size.height)
             .background(Retro.lavender)
             .overlay(Bevel(raised: true, width: 4))
             .overlay(Rectangle().stroke(Retro.ink, lineWidth: 2))
-            .shadow(color: .black.opacity(0.35), radius: 0, x: 5, y: 5)
+            .background(Rectangle().fill(.black.opacity(0.35)).offset(x: 5, y: 5))
             .offset(offset)
             .rotationEffect(.degrees(Double(offset.width / 20)), anchor: .bottom)
             .contentShape(Rectangle())

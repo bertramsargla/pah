@@ -19,7 +19,8 @@ struct MockTryOnService: TryOnService {
         format.scale = 1
         return UIGraphicsImageRenderer(size: base.size, format: format).image { _ in
             base.draw(in: CGRect(origin: .zero, size: base.size))
-            garment.draw(in: aspectFit(garment.size, into: region), blendMode: .normal, alpha: 0.93)
+            // Stretch to the body region so the garment covers what the person is wearing.
+            garment.draw(in: region, blendMode: .normal, alpha: 1)
         }
     }
 
@@ -35,17 +36,17 @@ struct MockTryOnService: TryOnService {
 
             switch category {
             case .top:
-                let width = shoulderWidth * 1.8
-                return CGRect(x: centerX - width / 2, y: shoulderY - torso * 0.15, width: width, height: torso * 1.3)
+                let width = shoulderWidth * 2.3
+                return CGRect(x: centerX - width / 2, y: shoulderY - torso * 0.2, width: width, height: torso * 1.4)
             case .outerwear:
-                let width = shoulderWidth * 2.1
-                return CGRect(x: centerX - width / 2, y: shoulderY - torso * 0.18, width: width, height: torso * 1.5)
+                let width = shoulderWidth * 2.5
+                return CGRect(x: centerX - width / 2, y: shoulderY - torso * 0.22, width: width, height: torso * 1.6)
             case .dress:
-                let width = shoulderWidth * 1.9
-                return CGRect(x: centerX - width / 2, y: shoulderY - torso * 0.1, width: width, height: (ankleY - shoulderY) * 0.85)
+                let width = shoulderWidth * 2.1
+                return CGRect(x: centerX - width / 2, y: shoulderY - torso * 0.15, width: width, height: (ankleY - shoulderY) * 0.9)
             case .bottom:
-                let width = shoulderWidth * 1.4
-                return CGRect(x: centerX - width / 2, y: hipY - torso * 0.1, width: width, height: ankleY - hipY + torso * 0.1)
+                let width = shoulderWidth * 1.5
+                return CGRect(x: centerX - width / 2, y: hipY - torso * 0.12, width: width, height: ankleY - hipY + torso * 0.1)
             }
         }
 
@@ -61,18 +62,6 @@ struct MockTryOnService: TryOnService {
             y: size.height * fractions.y,
             width: size.width * fractions.w,
             height: size.height * fractions.h
-        )
-    }
-
-    private func aspectFit(_ size: CGSize, into rect: CGRect) -> CGRect {
-        guard size.width > 0, size.height > 0 else { return rect }
-        let scale = min(rect.width / size.width, rect.height / size.height)
-        let fitted = CGSize(width: size.width * scale, height: size.height * scale)
-        return CGRect(
-            x: rect.midX - fitted.width / 2,
-            y: rect.midY - fitted.height / 2,
-            width: fitted.width,
-            height: fitted.height
         )
     }
 }

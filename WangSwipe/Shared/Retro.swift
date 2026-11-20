@@ -120,7 +120,9 @@ struct RetroTitleBar: View {
         .textCase(.uppercase)
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
-        .background(Retro.navy.ignoresSafeArea(edges: .top))
+        .background(Retro.navy)
+        // The status bar sits on lavender so its dark text stays readable.
+        .background(Retro.lavender.ignoresSafeArea(edges: .top))
     }
 }
 
@@ -141,10 +143,11 @@ struct Scanlines: View {
 
 // MARK: - Leopard print
 
-/// Procedural leopard print: tan ground, brown rosettes with broken dark rims.
-/// Seeded, so it looks the same every time.
+/// Procedural leopard print: tan ground, rosettes made of a warm brown center
+/// ringed by broken dark blobs, plus small solid spots. Seeded, so it looks
+/// the same every time.
 struct LeopardPattern: View {
-    var tile: CGFloat = 120
+    var tile: CGFloat = 110
 
     var body: some View {
         Canvas { context, size in
@@ -154,30 +157,54 @@ struct LeopardPattern: View {
             for row in 0..<rows {
                 for column in 0..<columns {
                     var rng = SeededRandom(seed: UInt64(row &* 7919 &+ column &* 104_729 &+ 17))
-                    for _ in 0..<5 {
+                    // Two rosettes per tile, jittered.
+                    for slot in 0..<2 {
                         let center = CGPoint(
+                            x: (CGFloat(column) + CGFloat(slot) * 0.5 + rng.next() * 0.35) * tile,
+                            y: (CGFloat(row) + CGFloat(slot) * 0.5 + rng.next() * 0.35) * tile
+                        )
+                        Self.rosette(in: &context, at: center, radius: 14 + rng.next() * 8, rng: &rng)
+                    }
+                    // A few small solid spots between rosettes.
+                    for _ in 0..<3 {
+                        let point = CGPoint(
                             x: (CGFloat(column) + rng.next()) * tile,
                             y: (CGFloat(row) + rng.next()) * tile
                         )
-                        let w = 18 + rng.next() * 16
-                        let h = 14 + rng.next() * 12
-                        let rect = CGRect(x: center.x - w / 2, y: center.y - h / 2, width: w, height: h)
-                        let angle = Angle.degrees(Double(rng.next()) * 180)
-                        let transform = CGAffineTransform(translationX: center.x, y: center.y)
-                            .rotated(by: CGFloat(angle.radians))
-                            .translatedBy(x: -center.x, y: -center.y)
-                        let shape = Path(ellipseIn: rect).applying(transform)
-                        context.fill(shape, with: .color(Retro.spot))
-                        context.stroke(
-                            shape,
-                            with: .color(Retro.spotRim),
-                            style: StrokeStyle(lineWidth: 4, lineCap: .round, dash: [9 + rng.next() * 6, 5 + rng.next() * 4])
+                        let r = 2.5 + rng.next() * 3
+                        context.fill(
+                            Path(ellipseIn: CGRect(x: point.x - r, y: point.y - r * 0.8, width: r * 2, height: r * 1.6)),
+                            with: .color(Retro.spotRim)
                         )
                     }
                 }
             }
         }
         .allowsHitTesting(false)
+    }
+
+    private static func rosette(in context: inout GraphicsContext, at center: CGPoint, radius: CGFloat, rng: inout SeededRandom) {
+        // Warm center, slightly irregular.
+        let inner = CGRect(
+            x: center.x - radius * 0.8, y: center.y - radius * 0.65,
+            width: radius * 1.6, height: radius * 1.3
+        )
+        context.fill(Path(ellipseIn: inner), with: .color(Retro.spot))
+
+        // 4-6 dark blobs around the edge, with gaps between them.
+        let blobs = 4 + Int(rng.next() * 3)
+        let start = rng.next() * .pi * 2
+        for index in 0..<blobs {
+            let angle = start + CGFloat(index) / CGFloat(blobs) * .pi * 2 + (rng.next() - 0.5) * 0.4
+            let point = CGPoint(x: center.x + cos(angle) * radius, y: center.y + sin(angle) * radius * 0.85)
+            let length = radius * (0.55 + rng.next() * 0.35)
+            let thickness = radius * (0.28 + rng.next() * 0.15)
+            let blob = Path(roundedRect: CGRect(x: -length / 2, y: -thickness / 2, width: length, height: thickness),
+                            cornerRadius: thickness / 2)
+                .applying(CGAffineTransform(rotationAngle: angle + .pi / 2))
+                .applying(CGAffineTransform(translationX: point.x, y: point.y))
+            context.fill(blob, with: .color(Retro.spotRim))
+        }
     }
 }
 
