@@ -21,7 +21,19 @@ Tests: `xcodebuild test -scheme WangSwipe -destination 'platform=iOS Simulator,n
 (use any simulator you have installed).
 
 Out of the box the app uses three sample stores and the free on-device
-preview, so it needs no keys and costs nothing.
+preview, so it needs no keys and costs nothing. The first screen starts with a
+bundled demo photo selected (`DemoPerson` in the asset catalog), so a demo is
+one tap. To skip onboarding entirely, launch with `-demoMode YES`
+(Xcode: Product > Scheme > Edit Scheme > Arguments, or
+`xcrun simctl launch booted com.wangswipe.app -demoMode YES`).
+
+## Look
+
+The UI is styled as an early-90s "virtual wardrobe" computer: navy title bars,
+periwinkle display panels, beveled buttons, procedural leopard print, chunky
+monospaced type and faint scanlines. The pieces live in `Shared/Retro.swift`.
+Swipe right (or **Dress Me**) to keep an item, left (or **Pass**) to skip, and
+filter by garment type with the strip at the bottom.
 
 ## How it fits together
 

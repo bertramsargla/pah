@@ -5,47 +5,65 @@ struct LikedView: View {
     @Environment(AppModel.self) private var appModel
 
     var body: some View {
-        NavigationStack {
-            Group {
+        VStack(spacing: 0) {
+            RetroTitleBar(title: "My Closet")
+
+            ZStack {
+                LeopardPattern()
+
                 if appModel.liked.isEmpty {
-                    ContentUnavailableView(
-                        "Nothing liked yet",
-                        systemImage: "heart",
-                        description: Text("Swipe right on something you'd wear.")
-                    )
-                } else {
-                    List {
-                        ForEach(appModel.liked.reversed()) { product in
-                            row(product)
-                                .swipeActions {
-                                    Button("Remove", role: .destructive) { appModel.unlike(product) }
-                                }
+                    RetroPanel(padding: 20) {
+                        VStack(spacing: 8) {
+                            Text("Closet's empty").font(Retro.font(20))
+                            Text("Hit Dress Me on something you'd wear.").font(Retro.font(13, weight: .medium))
                         }
+                        .textCase(.uppercase)
+                        .multilineTextAlignment(.center)
+                        .foregroundStyle(Retro.ink)
                     }
-                    .listStyle(.plain)
+                    .padding(24)
+                } else {
+                    ScrollView {
+                        LazyVStack(spacing: 12) {
+                            ForEach(appModel.liked.reversed()) { product in
+                                row(product)
+                            }
+                        }
+                        .padding(16)
+                    }
                 }
             }
-            .navigationTitle("Liked")
         }
+        .overlay(Scanlines())
     }
 
     private func row(_ product: Product) -> some View {
-        HStack(spacing: 12) {
-            thumbnail(product)
-                .frame(width: 64, height: 84)
-                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+        RetroPanel(padding: 8) {
+            HStack(spacing: 10) {
+                thumbnail(product)
+                    .frame(width: 72, height: 96)
+                    .clipped()
+                    .overlay(Rectangle().stroke(Retro.ink, lineWidth: 1.5))
 
-            VStack(alignment: .leading, spacing: 2) {
-                Text(product.title).font(.headline).lineLimit(2)
-                Text(product.storeName).font(.subheadline).foregroundStyle(.secondary)
-                Text(product.formattedPrice).font(.subheadline)
-            }
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(product.title).font(Retro.font(14)).lineLimit(2)
+                    Text(product.storeName).font(Retro.font(11, weight: .bold)).opacity(0.7)
+                    Text(product.formattedPrice).font(Retro.font(13, weight: .bold))
+                }
+                .textCase(.uppercase)
+                .foregroundStyle(Retro.ink)
 
-            Spacer()
+                Spacer(minLength: 0)
 
-            if let url = product.productURL {
-                Link("Shop", destination: url)
-                    .buttonStyle(.bordered)
+                VStack(spacing: 8) {
+                    if let url = product.productURL {
+                        Link(destination: url) { Text("Shop").padding(.horizontal, 4) }
+                            .buttonStyle(BevelButtonStyle(size: 12))
+                    }
+                    Button("Toss") { withAnimation { appModel.unlike(product) } }
+                        .buttonStyle(BevelButtonStyle(size: 12))
+                }
+                .frame(width: 76)
             }
         }
     }

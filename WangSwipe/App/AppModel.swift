@@ -36,7 +36,15 @@ final class AppModel {
         }
         tryOn.configure(person: userPhoto, service: makeTryOnService())
         deck.onLike = { [weak self] product in self?.like(product) }
+
+        // `-demoMode YES` as a launch argument skips onboarding with the demo photo.
+        if userPhoto == nil, defaults.bool(forKey: "demoMode"), let demo = Self.demoPhoto {
+            setPhoto(demo)
+        }
     }
+
+    /// The bundled sample photo, so the app can be shown without taking one.
+    nonisolated static var demoPhoto: UIImage? { UIImage(named: "DemoPerson") }
 
     // MARK: Photo
 

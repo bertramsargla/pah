@@ -1,7 +1,8 @@
 import SwiftUI
 
-/// One draggable card. Shows the try-on result when it's ready, otherwise the
-/// product photo with a progress badge. Tap to flip between "on you" and the original.
+/// One draggable card in a sunken display panel. Shows the try-on result when
+/// it's ready, otherwise the product photo with a status tag. Tap to flip
+/// between "on you" and the original.
 struct SwipeCardView: View {
     let product: Product
     let state: TryOnCoordinator.State
@@ -15,19 +16,24 @@ struct SwipeCardView: View {
 
     var body: some View {
         GeometryReader { geo in
-            ZStack(alignment: .bottom) {
-                imageLayer
-                    .frame(width: geo.size.width, height: geo.size.height)
-                    .clipped()
-
-                LinearGradient(colors: [.clear, .black.opacity(0.75)], startPoint: .center, endPoint: .bottom)
+            VStack(spacing: 0) {
+                ZStack {
+                    Retro.periwinkle
+                    imageLayer
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .clipped()
+                .overlay(Rectangle().stroke(Retro.ink, lineWidth: 2))
+                .overlay(alignment: .topLeading) { statusTag.padding(8) }
+                .overlay(alignment: .top) { stamps.padding(.top, 36) }
 
                 info
             }
-            .overlay(alignment: .topLeading) { statusBadge.padding(12) }
-            .overlay(alignment: .top) { stamps.padding(.top, 40) }
-            .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
-            .shadow(color: .black.opacity(0.2), radius: 8, y: 4)
+            .padding(10)
+            .background(Retro.lavender)
+            .overlay(Bevel(raised: true, width: 4))
+            .overlay(Rectangle().stroke(Retro.ink, lineWidth: 2))
+            .shadow(color: .black.opacity(0.35), radius: 0, x: 5, y: 5)
             .offset(offset)
             .rotationEffect(.degrees(Double(offset.width / 20)), anchor: .bottom)
             .contentShape(Rectangle())
@@ -50,80 +56,89 @@ struct SwipeCardView: View {
     }
 
     private var info: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(product.storeName.uppercased())
-                .font(.caption.weight(.semibold))
-                .opacity(0.8)
-            Text(product.title)
-                .font(.title2.bold())
-                .lineLimit(2)
-            HStack {
-                Text(product.formattedPrice).font(.headline)
-                Text("· \(product.category.displayName)").font(.subheadline).opacity(0.8)
-                Spacer()
-                if let url = product.productURL {
-                    Link(destination: url) {
-                        Image(systemName: "bag").font(.headline)
-                    }
+        HStack(alignment: .bottom, spacing: 8) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(product.storeName)
+                    .font(Retro.font(11, weight: .bold))
+                    .opacity(0.7)
+                Text(product.title)
+                    .font(Retro.font(17))
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.7)
+                Text("\(product.formattedPrice) · \(product.category.displayName)")
+                    .font(Retro.font(14, weight: .bold))
+            }
+            Spacer(minLength: 0)
+            if let url = product.productURL {
+                Link(destination: url) {
+                    Text("Shop")
+                        .font(Retro.font(13))
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 6)
+                        .background(Retro.buttonGray)
+                        .overlay(Bevel(raised: true, width: 3))
+                        .overlay(Rectangle().stroke(Retro.ink, lineWidth: 1.5))
                 }
             }
         }
-        .foregroundStyle(.white)
-        .padding(20)
+        .textCase(.uppercase)
+        .foregroundStyle(Retro.ink)
+        .padding(.top, 10)
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     @ViewBuilder
-    private var statusBadge: some View {
+    private var statusTag: some View {
         switch state {
         case .idle:
             EmptyView()
         case .working:
-            badge {
-                ProgressView().controlSize(.small).tint(.white)
-                Text("Putting it on you…")
+            tag {
+                ProgressView().controlSize(.mini).tint(Retro.lavender)
+                Text("Dressing you…")
             }
         case .ready:
-            badge {
-                Image(systemName: showOriginal ? "photo" : "person.fill.checkmark")
-                Text(showOriginal ? "Original · tap to try on" : "\(serviceLabel) · tap for original")
+            tag {
+                Text(showOriginal ? "Original · tap" : "\(serviceLabel) · tap")
             }
         case .failed(let message):
             Button(action: onRetry) {
-                badge {
-                    Image(systemName: "exclamationmark.triangle.fill")
-                    Text("Try-on failed · retry")
-                }
+                tag { Text("Failed · retry") }
             }
             .accessibilityHint(message)
         }
     }
 
-    private func badge<Content: View>(@ViewBuilder _ content: () -> Content) -> some View {
+    private func tag<Content: View>(@ViewBuilder _ content: () -> Content) -> some View {
         HStack(spacing: 6, content: content)
-            .font(.caption.weight(.semibold))
-            .foregroundStyle(.white)
-            .padding(.horizontal, 10)
-            .padding(.vertical, 6)
-            .background(.black.opacity(0.55), in: Capsule())
+            .font(Retro.font(11, weight: .bold))
+            .textCase(.uppercase)
+            .foregroundStyle(Retro.lavender)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 5)
+            .background(Retro.navy)
+            .overlay(Rectangle().stroke(Retro.lavender, lineWidth: 1))
     }
 
     private var stamps: some View {
         let progress = min(abs(offset.width) / 120, 1)
         return ZStack {
-            stamp("LIKE", color: .green, angle: -15)
+            stamp("Dress me", color: Retro.electricBlue, angle: -12)
                 .opacity(offset.width > 0 ? progress : 0)
-            stamp("NOPE", color: .red, angle: 15)
+            stamp("As if!", color: .red, angle: 12)
                 .opacity(offset.width < 0 ? progress : 0)
         }
     }
 
     private func stamp(_ text: String, color: Color, angle: Double) -> some View {
         Text(text)
-            .font(.system(size: 40, weight: .heavy))
+            .font(Retro.font(32))
+            .textCase(.uppercase)
             .foregroundStyle(color)
-            .padding(.horizontal, 12)
-            .overlay(RoundedRectangle(cornerRadius: 8).stroke(color, lineWidth: 4))
+            .padding(.horizontal, 10)
+            .padding(.vertical, 2)
+            .background(Retro.lavender.opacity(0.85))
+            .overlay(Rectangle().stroke(color, lineWidth: 4))
             .rotationEffect(.degrees(angle))
     }
 
@@ -165,8 +180,8 @@ struct ProductImageView: View {
                     GarmentArtView(category: product.category, hex: product.swatchHex)
                 default:
                     ZStack {
-                        Color(white: 0.92)
-                        ProgressView()
+                        Retro.periwinkle
+                        ProgressView().tint(Retro.navy)
                     }
                 }
             }

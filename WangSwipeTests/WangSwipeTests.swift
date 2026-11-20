@@ -129,3 +129,25 @@ final class SwipeAndMockTryOnTests: XCTestCase {
         XCTAssertEqual(result.size.height, person.size.height, accuracy: 1)
     }
 }
+
+@MainActor
+final class DeckAndDemoTests: XCTestCase {
+    func testDemoPhotoIsBundled() {
+        XCTAssertNotNil(AppModel.demoPhoto)
+    }
+
+    func testCategoryFilterShowsOnlyThatCategory() async {
+        let deck = DeckViewModel(
+            catalog: ProductCatalog(providers: MockStores.all.map { store in
+                var fast = store
+                fast.latency = .zero
+                return fast
+            }),
+            tryOn: TryOnCoordinator()
+        )
+        deck.setFilter(.dress)
+        await deck.loadMoreIfNeeded()
+        XCTAssertFalse(deck.visibleCards.isEmpty)
+        XCTAssertTrue(deck.visibleCards.allSatisfy { $0.category == .dress })
+    }
+}

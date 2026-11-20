@@ -2,79 +2,84 @@ import PhotosUI
 import SwiftUI
 
 /// First screen: the user adds a full-body photo that every try-on uses.
+/// Starts with the bundled demo photo selected, so a demo is one tap.
 struct OnboardingView: View {
     @Environment(AppModel.self) private var appModel
     @State private var pickerItem: PhotosPickerItem?
-    @State private var selected: UIImage?
+    @State private var selected: UIImage? = AppModel.demoPhoto
     @State private var showingCamera = false
     @State private var loadError: String?
 
     var body: some View {
-        VStack(spacing: 24) {
-            VStack(spacing: 8) {
-                Text("WangSwipe")
-                    .font(.largeTitle.bold())
-                Text("Add a photo of yourself, then swipe through clothes from different stores, already on you.")
-                    .font(.body)
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
-            }
-            .padding(.top, 32)
+        VStack(spacing: 0) {
+            RetroTitleBar(title: "New Client")
 
-            photoPreview
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            ZStack {
+                LeopardPattern()
 
-            VStack(alignment: .leading, spacing: 6) {
-                Label("Full body, standing, facing the camera", systemImage: "figure.stand")
-                Label("Plain background and good light", systemImage: "sun.max")
-                Label("Fitted clothes work best", systemImage: "tshirt")
-            }
-            .font(.footnote)
-            .foregroundStyle(.secondary)
-
-            if let loadError {
-                Text(loadError).font(.footnote).foregroundStyle(.red)
-            }
-
-            VStack(spacing: 12) {
-                if let selected {
-                    Button {
-                        appModel.setPhoto(selected)
-                    } label: {
-                        Text("Start swiping").frame(maxWidth: .infinity)
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .controlSize(.large)
-                }
-
-                HStack(spacing: 12) {
-                    PhotosPicker(selection: $pickerItem, matching: .images) {
-                        Label(selected == nil ? "Library" : "Change", systemImage: "photo.on.rectangle")
-                            .lineLimit(1)
-                            .frame(maxWidth: .infinity)
-                    }
-                    .buttonStyle(.bordered)
-
-                    if CameraPicker.isAvailable {
-                        Button {
-                            showingCamera = true
-                        } label: {
-                            Label("Camera", systemImage: "camera")
-                                .lineLimit(1)
-                                .frame(maxWidth: .infinity)
+                VStack(spacing: 14) {
+                    RetroPanel {
+                        VStack(spacing: 10) {
+                            photoPreview
+                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            Text("Full body · facing camera · plain background")
+                                .font(Retro.font(11, weight: .bold))
+                                .textCase(.uppercase)
+                                .multilineTextAlignment(.center)
+                                .foregroundStyle(Retro.ink)
                         }
-                        .buttonStyle(.bordered)
                     }
+
+                    if let loadError {
+                        Text(loadError)
+                            .font(Retro.font(12, weight: .bold))
+                            .foregroundStyle(.white)
+                            .padding(6)
+                            .background(.red)
+                    }
+
+                    HStack(spacing: 12) {
+                        PhotosPicker(selection: $pickerItem, matching: .images) {
+                            Label("Library", systemImage: "photo.on.rectangle")
+                        }
+                        .buttonStyle(.bevel)
+
+                        if CameraPicker.isAvailable {
+                            Button {
+                                showingCamera = true
+                            } label: {
+                                Label("Camera", systemImage: "camera")
+                            }
+                            .buttonStyle(.bevel)
+                        }
+
+                        Button("Demo") { selected = AppModel.demoPhoto }
+                            .buttonStyle(.bevel)
+                    }
+                    .frame(height: 50)
+
+                    Button {
+                        if let selected { appModel.setPhoto(selected) }
+                    } label: {
+                        Text("Dress Me")
+                    }
+                    .buttonStyle(.bevelPrimary)
+                    .frame(height: 62)
+                    .disabled(selected == nil)
                 }
-                .controlSize(.large)
+                .padding(20)
             }
 
-            Text("Your photo stays on this phone. It's only sent to a try-on service if you turn one on in Settings.")
-                .font(.caption2)
-                .foregroundStyle(.tertiary)
+            Text("Your photo stays on this phone unless you turn on AI try-on in Setup.")
+                .font(Retro.font(10, weight: .medium))
+                .textCase(.uppercase)
                 .multilineTextAlignment(.center)
+                .foregroundStyle(Retro.lavender)
+                .frame(maxWidth: .infinity)
+                .padding(10)
+                .background(Retro.navy)
         }
-        .padding()
+        .overlay(Scanlines())
         .onChange(of: pickerItem) { _, item in
             guard let item else { return }
             Task { await load(item) }
@@ -91,14 +96,14 @@ struct OnboardingView: View {
             Image(uiImage: selected)
                 .resizable()
                 .scaledToFit()
-                .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+                .overlay(Rectangle().stroke(Retro.ink, lineWidth: 2))
         } else {
-            RoundedRectangle(cornerRadius: 20, style: .continuous)
-                .fill(.quaternary)
+            Rectangle()
+                .fill(Retro.periwinkle)
                 .overlay {
                     Image(systemName: "person.crop.rectangle")
                         .font(.system(size: 64))
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Retro.navy)
                 }
         }
     }
@@ -108,7 +113,7 @@ struct OnboardingView: View {
             guard let data = try await item.loadTransferable(type: Data.self),
                   let image = UIImage(data: data)
             else {
-                loadError = "Couldn't open that photo. Try another one."
+                loadError = "Couldn't open that photo"
                 return
             }
             loadError = nil

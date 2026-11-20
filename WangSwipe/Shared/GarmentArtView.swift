@@ -16,7 +16,7 @@ struct GarmentArtView: View {
         ZStack {
             if showsBackground {
                 LinearGradient(
-                    colors: [Color(white: 0.96), Color(white: 0.86)],
+                    colors: [Retro.lavender, Retro.periwinkle],
                     startPoint: .top,
                     endPoint: .bottom
                 )

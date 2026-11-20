@@ -8,6 +8,7 @@ struct WangSwipeApp: App {
         WindowGroup {
             RootView()
                 .environment(appModel)
+                .preferredColorScheme(.light)
         }
     }
 }
@@ -31,11 +32,14 @@ struct MainTabView: View {
     var body: some View {
         TabView {
             DeckView()
-                .tabItem { Label("Discover", systemImage: "rectangle.stack") }
+                .tabItem { Label("Wardrobe", systemImage: "hanger") }
             LikedView()
-                .tabItem { Label("Liked", systemImage: "heart") }
+                .tabItem { Label("Closet", systemImage: "heart") }
             SettingsView()
-                .tabItem { Label("Settings", systemImage: "gearshape") }
+                .tabItem { Label("Setup", systemImage: "gearshape") }
         }
+        .tint(Retro.navy)
+        .toolbarBackground(Retro.lavender, for: .tabBar)
+        .toolbarBackground(.visible, for: .tabBar)
     }
 }

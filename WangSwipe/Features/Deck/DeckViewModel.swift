@@ -23,6 +23,14 @@ final class DeckViewModel {
     private(set) var cards: [Product] = []
     private(set) var isLoading = false
     private(set) var isExhausted = false
+    /// Only show this kind of garment, or everything when nil.
+    private(set) var categoryFilter: GarmentCategory? = nil
+
+    /// Cards that match the current filter, in deck order.
+    var visibleCards: [Product] {
+        guard let categoryFilter else { return cards }
+        return cards.filter { $0.category == categoryFilter }
+    }
 
     /// How many cards ahead to prepare try-ons for.
     var lookahead = 3
@@ -46,7 +54,7 @@ final class DeckViewModel {
 
     func loadMoreIfNeeded() async {
         defer { refreshTryOns() }
-        guard !isLoading, !isExhausted, cards.count < 6 else { return }
+        guard !isLoading, !isExhausted, visibleCards.count < 6 else { return }
         isLoading = true
         let catalog = self.catalog
         let batch = await catalog.nextBatch()
@@ -58,7 +66,7 @@ final class DeckViewModel {
         cards.append(contentsOf: fresh)
         isExhausted = batch.isEmpty && exhausted
         if batch.isEmpty && !exhausted { return }  // a store errored; wait for the next swipe
-        if cards.count < 6 { await loadMoreIfNeeded() }
+        if visibleCards.count < 6 { await loadMoreIfNeeded() }
     }
 
     func swipe(_ product: Product, _ direction: SwipeDirection) {
@@ -67,7 +75,12 @@ final class DeckViewModel {
         Task { await loadMoreIfNeeded() }
     }
 
+    func setFilter(_ category: GarmentCategory?) {
+        categoryFilter = category
+        Task { await loadMoreIfNeeded() }
+    }
+
     func refreshTryOns() {
-        tryOn.request(Array(cards.prefix(lookahead)))
+        tryOn.request(Array(visibleCards.prefix(lookahead)))
     }
 }

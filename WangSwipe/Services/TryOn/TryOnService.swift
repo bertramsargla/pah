@@ -18,7 +18,7 @@ enum TryOnError: LocalizedError, Equatable {
 
     var errorDescription: String? {
         switch self {
-        case .missingAPIKey: "Add your fal.ai key in Settings to use AI try-on."
+        case .missingAPIKey: "Add your fal.ai key in Setup to use AI try-on."
         case .encodingFailed: "Couldn't prepare the photos for upload."
         case .httpStatus(let code, let body): "Try-on service error \(code): \(body)"
         case .unexpectedResponse: "The try-on service sent back something unexpected."

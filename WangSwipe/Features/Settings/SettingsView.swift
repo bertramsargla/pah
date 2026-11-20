@@ -9,13 +9,16 @@ struct SettingsView: View {
     @State private var newDomain = ""
 
     var body: some View {
-        NavigationStack {
+        VStack(spacing: 0) {
+            RetroTitleBar(title: "Setup")
             Form {
                 photoSection
                 tryOnSection
                 storesSection
             }
-            .navigationTitle("Settings")
+            .scrollContentBackground(.hidden)
+            .background(LeopardPattern())
+            .tint(Retro.electricBlue)
             .onAppear { apiKeyDraft = appModel.falAPIKey }
             .onChange(of: pickerItem) { _, item in
                 guard let item else { return }
