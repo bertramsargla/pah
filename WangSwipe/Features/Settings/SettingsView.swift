@@ -17,7 +17,7 @@ struct SettingsView: View {
                 storesSection
             }
             .scrollContentBackground(.hidden)
-            .background(LeopardPattern())
+            .background(Retro.periwinkle)
             .tint(Retro.electricBlue)
             .onAppear { apiKeyDraft = appModel.falAPIKey }
             .onChange(of: pickerItem) { _, item in
