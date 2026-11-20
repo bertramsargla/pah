@@ -52,15 +52,25 @@ final class Dresser {
         guard let person, !items.isEmpty else { return }
         let service = self.service
         let generation = self.generation
-        states[key] = .working(step: 1, of: items.count, item: items[0].title)
+        states[key] = service.dressesWholeOutfit
+            ? .working(step: 1, of: 1, item: "Whole outfit")
+            : .working(step: 1, of: items.count, item: items[0].title)
 
         tasks[key] = Task { [weak self, garments] in
             var current = person
             do {
-                for (index, item) in items.enumerated() {
-                    self?.update(key, .working(step: index + 1, of: items.count, item: item.title), generation)
-                    let garment = try await garments.image(for: item)
-                    current = try await service.render(person: current, garment: garment, product: item)
+                if service.dressesWholeOutfit {
+                    // One call for the whole outfit.
+                    self?.update(key, .working(step: 1, of: 1, item: "Whole outfit"), generation)
+                    var images: [UIImage] = []
+                    for item in items { images.append(try await garments.image(for: item)) }
+                    current = try await service.renderOutfit(person: person, garments: images, products: items)
+                } else {
+                    for (index, item) in items.enumerated() {
+                        self?.update(key, .working(step: index + 1, of: items.count, item: item.title), generation)
+                        let garment = try await garments.image(for: item)
+                        current = try await service.render(person: current, garment: garment, product: item)
+                    }
                 }
                 self?.finish(key, .ready(current), generation)
             } catch is CancellationError {

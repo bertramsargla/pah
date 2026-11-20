@@ -87,13 +87,15 @@ Two seams make the app pluggable:
 - **`TryOnService`**: takes your photo and a garment image and returns you
   wearing it. Included: `MockTryOnService` (free, finds your shoulders and hips
   with Apple's Vision and lays the item over them; a stand-in, not a real try-on)
-  and `FalTryOnService` (calls Google Virtual Try-On or Kling Kolors on fal.ai).
+  and `FalTryOnService` (calls Google Virtual Try-On, FASHN, Nano Banana or Kling Kolors on fal.ai).
   `AppModel.makeTryOnService()` picks one.
 
 `Dresser` runs try-on only when you press Dress Me, one garment after the
 other (top, then bottom on the result), and keeps each finished look so the
-same outfit is never paid for twice. With fal.ai a full outfit is two calls
-(about $0.14) and takes roughly a minute.
+same outfit is never paid for twice. With fal.ai, Google's model takes about
+35 s per piece; FASHN v1.6 (fast mode) should take a few seconds per piece at
+the same price; Nano Banana dresses the whole outfit in one call (about $0.04)
+but is a general image editor, so faces and poses may drift.
 
 ## Turning on real try-on
 

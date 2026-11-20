@@ -6,15 +6,16 @@ committing to one.
 ## Virtual try-on
 
 All of these take a photo of a person and a photo of a garment and return an
-image of the person wearing it. The app's `FalTryOnService` supports the two
+image of the person wearing it. The app's `FalTryOnService` supports the ones
 marked "wired up"; the others need a few lines in `FalTryOnModel` and
 `FalTryOnService.requestBody`.
 
 | Model (fal.ai endpoint) | Price | Inputs | Notes |
 |---|---|---|---|
-| Google Virtual Try-On (`google/virtual-try-on`), wired up | $0.075 per image | `person_image_url`, `product_image_url`, `num_images` (1-4) | Output `images[].url`. |
+| Google Virtual Try-On (`google/virtual-try-on`), wired up | $0.075 per image | `person_image_url`, `product_image_url`, `num_images` (1-4) | Output `images[].url`. About 35 s per garment in our test. |
+| FASHN v1.6 (`fal-ai/fashn/tryon/v1.6`), wired up | $0.075 per image | `model_image`, `garment_image`, `category` (tops, bottoms, one-pieces, auto), `mode` (performance, balanced, quality) | App uses performance mode. FASHN quotes ~7 s performance, ~10 s balanced, ~19 s quality (not yet measured in the app). 864x1296 output. |
+| Nano Banana edit (`fal-ai/nano-banana/edit`), wired up | $0.0398 per image | `prompt`, `image_urls` (photo + every garment) | General image editor, not a try-on model: dresses the whole outfit in one call, but may alter face or pose. Speed not published. |
 | Kling Kolors v1.5 (`fal-ai/kling/v1-5/kolors-virtual-try-on`), wired up | $0.07 per image | `human_image_url`, `garment_image_url` | Keeps pose, skin tone and body shape. |
-| FASHN v1.6 | $0.075 per image | `model_image`, `garment_image`, `category`, `mode` | 864x1296 output, good with prints and text on garments; quality modes. |
 | FASHN v1.5 (`fal-ai/fashn/tryon/v1.5`) | $0.075 per image | as above | 576x864 output; commercial use allowed. |
 | image-apps-v2 virtual try-on | $0.04 per image | `person_image_url`, `clothing_image_url` | Cheapest listed. |
 | FLUX Virtual Try-On Pro (`fal-ai/flux-pro/v1/vto`) | about $0.04+ per image, billed per megapixel | person + garment + styling prompt | |
@@ -31,14 +32,17 @@ Checked with a real call (Google Virtual Try-On): image inputs accept base64
 data URIs, so the app sends photos without hosting them first. One image took
 about 35 seconds.
 
-**Cost sense check:** at $0.07 per image, a full outfit (top + bottom) is two
-calls, about $0.14 per Dress Me. The app only calls the model when Dress Me is
+**Cost sense check:** with Google or FASHN, a full outfit (top + bottom) is two
+calls, about $0.15 per Dress Me; with Nano Banana it is one call, about $0.04. The app only calls the model when Dress Me is
 pressed and reuses the result for the same outfit. A real launch still needs
 server-side caching (same photo + same product = same result) and a spend cap.
 
 Sources: [fal.ai try-on comparison](https://fal.ai/learn/tools/best-virtual-try-on-apis-2026) (written by fal, so treat rankings as marketing; prices are theirs),
 [Google Virtual Try-On on fal](https://fal.ai/models/google/virtual-try-on/llms.txt),
-[FASHN v1.5 on fal](https://fal.ai/models/fal-ai/fashn/tryon/v1.5).
+[FASHN v1.5 on fal](https://fal.ai/models/fal-ai/fashn/tryon/v1.5),
+[FASHN v1.6 on fal](https://fal.ai/models/fal-ai/fashn/tryon/v1.6/llms.txt),
+[FASHN v1.6 speeds](https://fashn.ai/blog/fashn-v1-6-our-best-virtual-try-on-model-yet-now-at-864-x-1296-resolution),
+[Nano Banana edit on fal](https://fal.ai/models/fal-ai/nano-banana/edit/llms.txt).
 
 ## Clothing from many stores
 

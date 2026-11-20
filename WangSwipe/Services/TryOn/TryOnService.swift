@@ -7,6 +7,23 @@ protocol TryOnService: Sendable {
     /// Short label shown in the mirror, such as "Preview" or "AI try-on".
     var label: String { get }
     func render(person: UIImage, garment: UIImage, product: Product) async throws -> UIImage
+
+    /// True when `renderOutfit` dresses everything in one call (faster and cheaper than one per piece).
+    var dressesWholeOutfit: Bool { get }
+    /// Puts every garment on at once. Garments and products are in the same order.
+    func renderOutfit(person: UIImage, garments: [UIImage], products: [Product]) async throws -> UIImage
+}
+
+extension TryOnService {
+    var dressesWholeOutfit: Bool { false }
+
+    func renderOutfit(person: UIImage, garments: [UIImage], products: [Product]) async throws -> UIImage {
+        var current = person
+        for (garment, product) in zip(garments, products) {
+            current = try await render(person: current, garment: garment, product: product)
+        }
+        return current
+    }
 }
 
 enum TryOnError: LocalizedError, Equatable {

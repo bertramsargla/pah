@@ -86,6 +86,28 @@ final class FalTryOnTests: XCTestCase {
         XCTAssertEqual(kling["garment_image_url"] as? String, "g")
     }
 
+    func testFashnUsesFastModeAndTheRightCategory() {
+        let top = FalTryOnService.requestBody(model: .fashn, personImage: "p", garmentImage: "g", category: .outerwear)
+        XCTAssertEqual(top["model_image"] as? String, "p")
+        XCTAssertEqual(top["garment_image"] as? String, "g")
+        XCTAssertEqual(top["category"] as? String, "tops")
+        XCTAssertEqual(top["mode"] as? String, "performance")
+        let bottom = FalTryOnService.requestBody(model: .fashn, personImage: "p", garmentImage: "g", category: .bottom)
+        XCTAssertEqual(bottom["category"] as? String, "bottoms")
+    }
+
+    func testNanoBananaSendsPhotoAndWholeOutfitInOneCall() {
+        let products = Array(CuratedStores.all.flatMap(\.products).filter { $0.category != .bottom }.prefix(1))
+            + Array(CuratedStores.all.flatMap(\.products).filter { $0.category == .bottom }.prefix(1))
+        let body = FalTryOnService.outfitRequestBody(personImage: "p", garmentImages: ["top", "bottom"], products: products)
+        XCTAssertEqual(body["image_urls"] as? [String], ["p", "top", "bottom"])
+        let prompt = body["prompt"] as? String ?? ""
+        XCTAssertTrue(prompt.contains("image 2 is the top"))
+        XCTAssertTrue(prompt.contains("image 3 is the bottom"))
+        XCTAssertTrue(FalTryOnModel.nanoBanana.dressesWholeOutfit)
+        XCTAssertFalse(FalTryOnModel.fashn.dressesWholeOutfit)
+    }
+
     func testReadsResultURLFromEitherShape() throws {
         let list = Data(#"{"images": [{"url": "https://fal.media/a.png"}]}"#.utf8)
         XCTAssertEqual(try FalTryOnService.resultImageURL(from: list).absoluteString, "https://fal.media/a.png")
@@ -250,6 +272,21 @@ private struct RecordingTryOnService: TryOnService {
     }
 }
 
+/// Dresses the whole outfit in one call and records how it was called.
+private struct OneCallTryOnService: TryOnService {
+    let log: CallLog
+    var label: String { "Test" }
+    var dressesWholeOutfit: Bool { true }
+    func render(person: UIImage, garment: UIImage, product: Product) async throws -> UIImage {
+        await log.add("single:" + product.title)
+        return person
+    }
+    func renderOutfit(person: UIImage, garments: [UIImage], products: [Product]) async throws -> UIImage {
+        await log.add("outfit:" + products.map(\.title).joined(separator: "+"))
+        return person
+    }
+}
+
 @MainActor
 final class DresserTests: XCTestCase {
     private func product(_ title: String, _ category: GarmentCategory) -> Product {
@@ -284,6 +321,18 @@ final class DresserTests: XCTestCase {
         try await Task.sleep(for: .milliseconds(100))
         let again = await log.titles
         XCTAssertEqual(again.count, 2, "pressing Dress Me again on the same outfit reuses the result")
+    }
+
+    func testWholeOutfitServiceIsCalledOnce() async throws {
+        let log = CallLog()
+        let dresser = Dresser()
+        let person = UIGraphicsImageRenderer(size: CGSize(width: 30, height: 40)).image { _ in }
+        dresser.configure(person: person, service: OneCallTryOnService(log: log))
+        let outfit = [product("Shirt", .top), product("Jeans", .bottom)]
+        dresser.dress(outfit)
+        try await waitUntilDone(dresser, outfit)
+        let calls = await log.titles
+        XCTAssertEqual(calls, ["outfit:Shirt+Jeans"])
     }
 
     func testDressWithoutAPhotoDoesNothing() {

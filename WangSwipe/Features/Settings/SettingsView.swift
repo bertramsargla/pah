@@ -94,8 +94,9 @@ struct SettingsView: View {
         } footer: {
             Text("""
             Preview is free and runs on this phone, but it only lays the item over your photo. \
-            fal.ai uses a real try-on model and charges per image (about $0.07 to $0.08 as of November 2026), \
-            and your photo is sent to it. The key is kept in this phone's Keychain. For a public release, \
+            fal.ai uses a real try-on model and charges per call, and your photo is sent to it. \
+            Google and FASHN make one call per piece (about $0.075 each; FASHN is much faster). \
+            Nano Banana dresses the whole outfit in one call (about $0.04) but may change your face or pose more. The key is kept in this phone's Keychain. For a public release, \
             make these calls from your own server instead.
             """)
         }
