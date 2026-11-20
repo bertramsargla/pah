@@ -34,6 +34,7 @@ final class AppModel {
            let saved = try? JSONDecoder().decode([Product].self, from: data) {
             self.liked = saved
         }
+        deck.lookahead = settings.tryOnBackend == .fal ? 2 : 3
         tryOn.configure(person: userPhoto, service: makeTryOnService())
         deck.onLike = { [weak self] product in self?.like(product) }
 
@@ -117,6 +118,8 @@ final class AppModel {
     }
 
     private func reloadTryOnService() {
+        // Paid calls: prepare fewer cards ahead so skipped cards cost less.
+        deck.lookahead = settings.tryOnBackend == .fal ? 2 : 3
         tryOn.configure(person: userPhoto, service: makeTryOnService())
         deck.refreshTryOns()
     }

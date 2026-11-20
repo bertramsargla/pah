@@ -102,10 +102,18 @@ struct SwipeCardView: View {
                 Text(showOriginal ? "Original · tap" : "\(serviceLabel) · tap")
             }
         case .failed(let message):
-            Button(action: onRetry) {
-                tag { Text("Failed · retry") }
+            VStack(alignment: .leading, spacing: 4) {
+                Button(action: onRetry) {
+                    tag { Text("Failed · retry") }
+                }
+                Text(message)
+                    .font(Retro.font(10, weight: .medium))
+                    .foregroundStyle(Retro.lavender)
+                    .lineLimit(4)
+                    .padding(6)
+                    .background(Retro.navy.opacity(0.85))
             }
-            .accessibilityHint(message)
+            .padding(.trailing, 40)
         }
     }
 

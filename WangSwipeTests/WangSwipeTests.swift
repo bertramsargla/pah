@@ -136,6 +136,31 @@ final class DeckAndDemoTests: XCTestCase {
         XCTAssertNotNil(AppModel.demoPhoto)
     }
 
+    func testPlainBackgroundSegmenterFindsTheDemoPerson() throws {
+        let photo = try XCTUnwrap(AppModel.demoPhoto)
+        let result = try XCTUnwrap(PlainBackgroundSegmenter.segment(photo))
+        let body = result.body
+        XCTAssertEqual(result.mask.width, Int(photo.size.width))
+        // Shoulders sit in the upper third and the middle of the frame.
+        XCTAssertLessThan(body.shoulderLeft.y, photo.size.height * 0.4)
+        XCTAssertGreaterThan(body.shoulderLeft.x, photo.size.width * 0.15)
+        XCTAssertLessThan(body.shoulderRight.x, photo.size.width * 0.85)
+        XCTAssertGreaterThan(body.hipLeft.y, body.shoulderLeft.y)
+    }
+
+    func testFlattenRemovesTransparency() throws {
+        let clear = UIGraphicsImageRenderer(size: CGSize(width: 4, height: 4)).image { _ in }
+        let flat = clear.flattened(on: .white)
+        let data = try XCTUnwrap(flat.jpegData(compressionQuality: 1))
+        let decoded = try XCTUnwrap(UIImage(data: data)?.cgImage)
+        let context = CGContext(data: nil, width: 1, height: 1, bitsPerComponent: 8, bytesPerRow: 4,
+                                space: CGColorSpaceCreateDeviceRGB(),
+                                bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
+        context.draw(decoded, in: CGRect(x: 0, y: 0, width: 1, height: 1))
+        let pixel = context.data!.assumingMemoryBound(to: UInt8.self)
+        XCTAssertGreaterThan(pixel[0], 240, "transparent areas should become white, not black")
+    }
+
     func testCategoryFilterShowsOnlyThatCategory() async {
         let deck = DeckViewModel(
             catalog: ProductCatalog(providers: MockStores.all.map { store in

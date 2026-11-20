@@ -34,7 +34,7 @@ struct FalTryOnService: TryOnService {
         guard !apiKey.isEmpty else { throw TryOnError.missingAPIKey }
         guard
             let personURI = person.normalizedUp().resized(maxDimension: 1024).jpegDataURI(),
-            let garmentURI = garment.normalizedUp().resized(maxDimension: 1024).jpegDataURI()
+            let garmentURI = garment.normalizedUp().resized(maxDimension: 1024).flattened(on: .white).jpegDataURI()
         else { throw TryOnError.encodingFailed }
 
         var request = URLRequest(url: URL(string: "https://fal.run/\(model.rawValue)")!)

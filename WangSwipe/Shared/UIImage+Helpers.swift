@@ -25,6 +25,18 @@ extension UIImage {
         }
     }
 
+    /// Fills transparent areas with a solid color (JPEG would turn them black).
+    func flattened(on background: UIColor) -> UIImage {
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = scale
+        format.opaque = true
+        return UIGraphicsImageRenderer(size: size, format: format).image { context in
+            background.setFill()
+            context.fill(CGRect(origin: .zero, size: size))
+            draw(in: CGRect(origin: .zero, size: size))
+        }
+    }
+
     func jpegDataURI(quality: CGFloat = 0.85) -> String? {
         guard let data = jpegData(compressionQuality: quality) else { return nil }
         return "data:image/jpeg;base64," + data.base64EncodedString()

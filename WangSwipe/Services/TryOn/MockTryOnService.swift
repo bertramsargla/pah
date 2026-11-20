@@ -13,9 +13,14 @@ struct MockTryOnService: TryOnService {
     func render(person: UIImage, garment: UIImage, product: Product) async throws -> UIImage {
         try await Task.sleep(for: latency)
         let base = person.normalizedUp().resized(maxDimension: 1280)
-        let body = BodyLandmarks.detect(in: base)
+        var body = BodyLandmarks.detect(in: base)
+        var mask = Self.personMask(for: base)
+        if body == nil || mask == nil, let fallback = PlainBackgroundSegmenter.segment(base) {
+            // Vision isn't available (for example in the Simulator).
+            body = body ?? fallback.body
+            mask = mask ?? fallback.mask
+        }
         let region = Self.region(for: product.category, body: body, in: base.size)
-        let mask = Self.personMask(for: base)
 
         let format = UIGraphicsImageRendererFormat()
         format.scale = 1
