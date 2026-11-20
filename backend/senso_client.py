@@ -33,6 +33,8 @@ class SensoClient:
 
     def _request(self, method: str, path: str, **kwargs):
         resp = self._client.request(method, path, **kwargs)
+        if resp.status_code == 202 and path.startswith("/org/evals"):
+            return resp.json()
         if resp.status_code >= 400:
             raise SensoError(f"{method} {path} -> {resp.status_code}: {resp.text}")
         return resp.json()
@@ -115,7 +117,8 @@ class SensoClient:
         payload = {"text": text, "author": author, "wait": wait}
         if question:
             payload["question"] = question
-        return self._request("POST", "/org/evals/text", json=payload)
+        # Senso holds a waiting check open for up to about a minute.
+        return self._request("POST", "/org/evals/text", json=payload, timeout=120.0)
 
     def get_eval_run(self, eval_run_id: str) -> dict:
         """GET /org/evals/runs/{eval_run_id} - poll a fact-check that didn't finish inline."""

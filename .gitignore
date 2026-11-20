@@ -5,3 +5,5 @@ __pycache__/
 *.pyc
 .venv/
 backend/context_ids.json
+.sessions/
+backend/.sessions/
