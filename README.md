@@ -22,12 +22,21 @@ and what action it took — is shown live in the UI.
 - **Verification**: before giving the shopper a final answer, the agent sends its draft to
   `POST /org/evals/text` (Senso's fact-check). Verdicts (`verified`/`conflict`/`unsupported`/
   `not_verifiable`) are shown in the trail; the agent corrects conflicting claims and flags
-  unsupported ones instead of asserting them. **Important setup detail we hit while building
-  this**: fact-check only scores a claim once Senso knows what "your brand" is — without a brand
-  kit, every claim about Harvest Basket comes back `about_brand: false`, `passed: null` (silently
-  unscored, not an error). `ingest.py` calls `PUT /org/brand-kit` with `brand_name: "Harvest
-  Basket Grocery"` before ingesting content, which is what makes real verdicts (verified /
-  conflict / unsupported) show up instead of nulls.
+  unsupported ones instead of asserting them. **Two things we learned from testing this live, not
+  just reading the docs**:
+  1. Fact-check only scores a claim once Senso knows what "your brand" is — without a brand
+     kit, every claim about Harvest Basket comes back `about_brand: false`, `passed: null`
+     (silently unscored, not an error). `ingest.py` calls `PUT /org/brand-kit` with
+     `brand_name: "Harvest Basket Grocery"` before ingesting content, which is what makes real
+     verdicts (verified / conflict / unsupported) show up instead of nulls.
+  2. Even with a brand kit set, a claim only gets scored if it's tied to *Harvest Basket itself* —
+     a claim purely about a name-brand item Harvest Basket stocks (e.g. "Terra Verde olive oil
+     costs $12.99") comes back unscored (`about_brand: false`), the same as a claim about the
+     customer/order history rather than the brand. This matters directly for the price-comparison
+     flow: a lot of what the agent compares *is* a name-brand price. `agent.py`'s system prompt
+     tells the agent to lean on `search_context` citations for those claims instead of waiting on
+     a fact-check verdict that won't arrive, and to name "Harvest Basket" explicitly when the
+     claim is about its own product or policy so it actually gets scored.
 - **Action**: the agent calls a small mock storefront (`backend/mock_store.py`) to add items to
   a cart and check out. Senso does not complete purchases — per the challenge FAQ, that's the
   app's job — so every mock-store action is labeled `mode: "simulated"` in the trail and the UI.
