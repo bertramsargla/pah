@@ -19,7 +19,11 @@ final class AppModel {
     private static let likedKey = "liked-products-v1"
 
     init(defaults: UserDefaults = .standard, photoStore: PhotoStore = PhotoStore()) {
-        let settings = AppSettings.load(from: defaults)
+        var settings = AppSettings.load(from: defaults)
+        // `-skin matrix` (or clueless / doom) as a launch argument shows that skin, for demos and screenshots.
+        if let raw = defaults.string(forKey: "skin"), let skin = Skin(rawValue: raw) {
+            settings.skin = skin
+        }
         self.defaults = defaults
         self.photoStore = photoStore
         self.settings = settings
