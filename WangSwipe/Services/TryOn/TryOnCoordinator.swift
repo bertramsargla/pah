@@ -97,14 +97,32 @@ final class GarmentImageLoader {
         if let cached = cache[product.id] { return cached }
         let image: UIImage
         if let url = product.imageURL {
-            let (data, _) = try await URLSession.shared.data(from: url)
-            guard let decoded = UIImage(data: data) else { throw TryOnError.badImage }
-            image = decoded
+            image = try await Self.download(url)
         } else {
             guard let drawn = GarmentArtView.renderImage(for: product) else { throw TryOnError.badImage }
             image = drawn
         }
         cache[product.id] = image
         return image
+    }
+
+    /// Store CDNs (Farfetch's especially) sometimes refuse a request, so try a few times.
+    private static func download(_ url: URL, attempts: Int = 3) async throws -> UIImage {
+        var lastError: Error = TryOnError.badImage
+        for attempt in 0..<attempts {
+            if attempt > 0 { try await Task.sleep(for: .milliseconds(600 * attempt)) }
+            do {
+                let (data, response) = try await URLSession.shared.data(from: url)
+                if let http = response as? HTTPURLResponse, !(200..<300).contains(http.statusCode) {
+                    lastError = TryOnError.httpStatus(http.statusCode, "garment photo")
+                    continue
+                }
+                if let image = UIImage(data: data) { return image }
+                lastError = TryOnError.badImage
+            } catch {
+                lastError = error
+            }
+        }
+        throw lastError
     }
 }
