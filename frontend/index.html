@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Harvest Basket — Grocery Restock Agent</title>
+<style>
+  :root {
+    --bg: #0f1419;
+    --panel: #161c24;
+    --panel-2: #1c2430;
+    --border: #2a3441;
+    --text: #e6edf3;
+    --muted: #8b98a5;
+    --accent: #5ec2a6;
+    --accent-2: #e8a34a;
+    --danger: #e5676b;
+    --ok: #5ec2a6;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  }
+  header {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+  }
+  header h1 { font-size: 16px; margin: 0; }
+  header span { color: var(--muted); font-size: 12px; }
+  .layout {
+    display: grid;
+    grid-template-columns: 1fr 420px;
+    height: calc(100vh - 49px);
+  }
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; height: auto; }
+  }
+  .chat-col { display: flex; flex-direction: column; border-right: 1px solid var(--border); min-height: 0; }
+  .messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+  .msg { max-width: 80%; padding: 10px 12px; border-radius: 10px; line-height: 1.4; white-space: pre-wrap; font-size: 14px; }
+  .msg.user { align-self: flex-end; background: var(--accent); color: #06231c; }
+  .msg.agent { align-self: flex-start; background: var(--panel-2); border: 1px solid var(--border); }
+  .msg.system { align-self: center; color: var(--muted); font-size: 12px; }
+  .composer { display: flex; gap: 8px; padding: 12px; border-top: 1px solid var(--border); }
+  .composer input { flex: 1; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--panel); color: var(--text); font-size: 14px; }
+  .composer button { padding: 10px 16px; border-radius: 8px; border: none; background: var(--accent); color: #06231c; font-weight: 600; cursor: pointer; }
+  .composer button:disabled { opacity: 0.5; cursor: default; }
+  .trail-col { display: flex; flex-direction: column; min-height: 0; background: var(--panel); }
+  .trail-header { padding: 12px 16px; border-bottom: 1px solid var(--border); font-size: 13px; color: var(--muted); }
+  .trail { flex: 1; overflow-y: auto; padding: 12px 16px; display: flex; flex-direction: column; gap: 10px; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; font-size: 12.5px; }
+  .card .tag { display: inline-block; font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; padding: 2px 6px; border-radius: 4px; margin-bottom: 6px; }
+  .tag.search { background: #1f3a52; color: #7ec8ff; }
+  .tag.factcheck { background: #3a2f1f; color: var(--accent-2); }
+  .tag.store { background: #1f3a2a; color: var(--accent); }
+  .citation { border-top: 1px dashed var(--border); padding-top: 6px; margin-top: 6px; color: var(--muted); }
+  .citation code { color: var(--text); }
+  .verdict { display: inline-block; padding: 1px 6px; border-radius: 4px; font-size: 10.5px; margin-right: 6px; }
+  .verdict.verified { background: #1f3a2a; color: var(--ok); }
+  .verdict.conflict { background: #3a1f22; color: var(--danger); }
+  .verdict.unsupported { background: #3a2f1f; color: var(--accent-2); }
+  .verdict.not_verifiable { background: #22262c; color: var(--muted); }
+  .cart-box { border-top: 1px solid var(--border); padding: 12px 16px; font-size: 13px; }
+  .cart-box h3 { margin: 0 0 6px; font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+  .cart-line { display: flex; justify-content: space-between; padding: 3px 0; }
+  .sim-badge { color: var(--accent-2); font-size: 11px; }
+  .empty { color: var(--muted); font-size: 12.5px; padding: 8px 0; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Harvest Basket — Grocery Restock Agent</h1>
+  <span>Fictional grocery retailer · grounded in Senso's Context Layer · hackathon demo, all actions simulated</span>
+</header>
+<div class="layout">
+  <div class="chat-col">
+    <div class="messages" id="messages">
+      <div class="msg system">Try: "It's been about 2 weeks since our last order, can you restock what we usually need?"
+Or: "We're almost out of peanut butter and olive oil, what should we get given our allergy and budget preferences?"</div>
+    </div>
+    <div class="composer">
+      <input id="input" type="text" placeholder="Describe your restock or shopping need..." />
+      <button id="send">Send</button>
+    </div>
+  </div>
+  <div class="trail-col">
+    <div class="trail-header">Audit trail — Senso queries, citations, fact-checks &amp; actions</div>
+    <div class="trail" id="trail"><div class="empty">Nothing yet. Send a message to see the agent's trail.</div></div>
+    <div class="cart-box">
+      <h3>Cart (simulated)</h3>
+      <div id="cart"><div class="empty">Empty</div></div>
+    </div>
+  </div>
+</div>
+<script>
+const API_BASE = window.SENSO_DEMO_API_BASE || "http://localhost:8000";
+
+const messagesEl = document.getElementById("messages");
+const trailEl = document.getElementById("trail");
+const cartEl = document.getElementById("cart");
+const input = document.getElementById("input");
+const sendBtn = document.getElementById("send");
+
+function addMessage(role, text) {
+  const div = document.createElement("div");
+  div.className = "msg " + role;
+  div.textContent = text;
+  messagesEl.appendChild(div);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+}
+
+function renderTrail(trail) {
+  trailEl.innerHTML = "";
+  const relevant = trail.filter(t => t.kind !== "user_message" && t.kind !== "agent_reply");
+  if (relevant.length === 0) {
+    trailEl.innerHTML = '<div class="empty">No tool calls yet.</div>';
+    return;
+  }
+  for (const entry of relevant) {
+    const card = document.createElement("div");
+    card.className = "card";
+    if (entry.kind === "senso_search_context") {
+      const cites = (entry.citations || []).map(c => `
+        <div class="citation">
+          score ${c.score != null ? c.score.toFixed ? c.score.toFixed(3) : c.score : "?"} · rank ${c.rank} ·
+          content_id <code>${c.content_id}</code><br/>${(c.chunk_text || "").slice(0, 180)}${(c.chunk_text||"").length > 180 ? "…" : ""}
+        </div>`).join("");
+      card.innerHTML = `<span class="tag search">Senso search_context</span><div><strong>query:</strong> ${entry.query}</div>${cites || '<div class="citation">No results.</div>'}`;
+    } else if (entry.kind === "senso_fact_check") {
+      const claims = (entry.result && entry.result.claims) || [];
+      const claimsHtml = claims.map(c => `
+        <div class="citation">
+          <span class="verdict ${c.verdict || 'not_verifiable'}">${c.verdict || (c.about_brand === false ? "not about brand" : "unscored")}</span>${c.claim_text || ""}
+          ${c.quote ? `<br/><em>evidence:</em> ${c.quote.slice(0, 140)}${c.quote.length > 140 ? "…" : ""}` : ""}
+        </div>`).join("");
+      card.innerHTML = `<span class="tag factcheck">Senso fact_check</span><div><strong>draft:</strong> ${entry.draft}</div>${claimsHtml || '<div class="citation">No claims extracted.</div>'}`;
+    } else if (entry.kind === "mock_store") {
+      card.innerHTML = `<span class="tag store">Mock store · ${entry.action}</span><div>${JSON.stringify(entry.result).slice(0, 300)}</div><div class="sim-badge">SIMULATED — no real purchase</div>`;
+    } else {
+      card.innerHTML = `<pre>${JSON.stringify(entry, null, 2)}</pre>`;
+    }
+    trailEl.appendChild(card);
+  }
+  trailEl.scrollTop = trailEl.scrollHeight;
+}
+
+function renderCart(cart) {
+  if (!cart || !cart.lines || cart.lines.length === 0) {
+    cartEl.innerHTML = '<div class="empty">Empty</div>';
+    return;
+  }
+  let html = cart.lines.map(l => `<div class="cart-line"><span>${l.qty}× ${l.name}${l.no_substitutions ? " (no subs)" : ""}</span><span>$${(l.price * l.qty).toFixed(2)}</span></div>`).join("");
+  html += `<div class="cart-line"><strong>Subtotal</strong><strong>$${cart.subtotal.toFixed(2)}</strong></div>`;
+  if (cart.checked_out) html += `<div class="sim-badge">Order ${cart.order_id} — SIMULATED checkout</div>`;
+  cartEl.innerHTML = html;
+}
+
+async function send() {
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = "";
+  sendBtn.disabled = true;
+  addMessage("user", text);
+  try {
+    const res = await fetch(`${API_BASE}/api/chat`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: text }),
+    });
+    if (!res.ok) throw new Error(await res.text());
+    const data = await res.json();
+    addMessage("agent", data.reply);
+    renderTrail(data.trail || []);
+    renderCart(data.cart);
+  } catch (err) {
+    addMessage("system", "Error: " + err.message);
+  } finally {
+    sendBtn.disabled = false;
+    input.focus();
+  }
+}
+
+sendBtn.addEventListener("click", send);
+input.addEventListener("keydown", e => { if (e.key === "Enter") send(); });
+</script>
+</body>
+</html>
