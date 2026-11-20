@@ -8,7 +8,6 @@ struct WangSwipeApp: App {
         WindowGroup {
             RootView()
                 .environment(appModel)
-                .preferredColorScheme(appModel.settings.skin.isDark ? .dark : .light)
         }
     }
 }
@@ -37,6 +36,8 @@ struct RootView: View {
                     .zIndex(1)
             }
         }
+        // Dark skins, and the dark hanger screen, need the light status bar.
+        .preferredColorScheme(showsLaunch || appModel.settings.skin.isDark ? .dark : .light)
         .task {
             // The hangers stay up a moment while the wardrobe loads behind them.
             try? await Task.sleep(for: .seconds(2.5))

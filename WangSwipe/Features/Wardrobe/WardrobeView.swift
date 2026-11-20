@@ -195,7 +195,8 @@ struct SectionStrip: View {
             ForEach(MensSection.allCases) { section in
                 item(section.title, isOn: selected == section) { onSelect(section) }
                     .disabled(!available.contains(section))
-                    .opacity(available.contains(section) ? 1 : 0.4)
+                    .opacity(available.contains(section) ? 1 : 0.6)
+                    .strikethrough(!available.contains(section), color: Retro.onBar)
             }
             Spacer(minLength: 2)
             Button { onSelect(nil) } label: {
