@@ -2,7 +2,10 @@ import SwiftUI
 
 @main
 struct WangSwipeApp: App {
-    @State private var appModel = AppModel()
+    /// Created once. SwiftUI can re-create this struct, and `@State var x = AppModel()`
+    /// would build (and throw away) a fresh model each time, re-running its setup.
+    private static let sharedModel = AppModel()
+    @State private var appModel = WangSwipeApp.sharedModel
 
     var body: some Scene {
         WindowGroup {
@@ -18,6 +21,8 @@ struct RootView: View {
     @State private var tab = MainTab.wardrobe
 
     var body: some View {
+        // Keep the drawing skin in step with the saved one before any screen draws.
+        let _ = (Skin.current = appModel.settings.skin)
         ZStack {
             Group {
                 if appModel.userPhoto == nil {
