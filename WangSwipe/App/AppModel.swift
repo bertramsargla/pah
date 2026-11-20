@@ -23,6 +23,7 @@ final class AppModel {
         self.defaults = defaults
         self.photoStore = photoStore
         self.settings = settings
+        Skin.current = settings.skin
         self.dresser = Dresser()
         self.wardrobe = WardrobeModel(
             catalog: ProductCatalog(providers: ProviderRegistry.providers(for: settings))
@@ -84,6 +85,7 @@ final class AppModel {
         change(&next)
         guard next != settings else { return }
         let old = settings
+        Skin.current = next.skin
         settings = next
         next.save(to: defaults)
 

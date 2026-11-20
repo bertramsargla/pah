@@ -23,6 +23,21 @@ struct AppSettings: Codable, Equatable {
     var disabledStoreIDs: Set<String> = []
     /// Extra Shopify stores to browse, by domain.
     var shopifyDomains: [String] = []
+    /// The app's look.
+    var skin: Skin = .clueless
+
+    init() {}
+
+    /// Settings saved by an older version may lack newer fields; those get defaults.
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let defaults = AppSettings()
+        tryOnBackend = try container.decodeIfPresent(TryOnBackend.self, forKey: .tryOnBackend) ?? defaults.tryOnBackend
+        falModel = try container.decodeIfPresent(FalTryOnModel.self, forKey: .falModel) ?? defaults.falModel
+        disabledStoreIDs = try container.decodeIfPresent(Set<String>.self, forKey: .disabledStoreIDs) ?? defaults.disabledStoreIDs
+        shopifyDomains = try container.decodeIfPresent([String].self, forKey: .shopifyDomains) ?? defaults.shopifyDomains
+        skin = (try? container.decodeIfPresent(Skin.self, forKey: .skin)) ?? defaults.skin
+    }
 
     private static let key = "app-settings-v1"
 

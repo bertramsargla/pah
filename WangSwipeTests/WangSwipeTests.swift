@@ -294,3 +294,26 @@ final class DresserTests: XCTestCase {
         XCTAssertEqual(dresser.state(for: outfit), .idle)
     }
 }
+
+final class SkinTests: XCTestCase {
+    func testThreeSkinsWithTheRequestedNames() {
+        XCTAssertEqual(Skin.allCases.map(\.displayName), ["Clueless Meme 1995", "The Matrix", "Doom"])
+        XCTAssertEqual(Skin.clueless.next, .matrix)
+        XCTAssertEqual(Skin.doom.next, .clueless)
+    }
+
+    func testOlderSavedSettingsKeepTheirValuesAndGetTheDefaultSkin() throws {
+        let old = #"{"tryOnBackend":"fal","falModel":"google/virtual-try-on","disabledStoreIDs":["grailed"],"shopifyDomains":[]}"#
+        let settings = try JSONDecoder().decode(AppSettings.self, from: Data(old.utf8))
+        XCTAssertEqual(settings.tryOnBackend, .fal)
+        XCTAssertEqual(settings.disabledStoreIDs, ["grailed"])
+        XCTAssertEqual(settings.skin, .clueless)
+    }
+
+    func testSkinRoundTrips() throws {
+        var settings = AppSettings()
+        settings.skin = .doom
+        let decoded = try JSONDecoder().decode(AppSettings.self, from: JSONEncoder().encode(settings))
+        XCTAssertEqual(decoded.skin, .doom)
+    }
+}

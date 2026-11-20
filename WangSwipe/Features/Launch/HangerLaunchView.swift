@@ -8,7 +8,7 @@ struct HangerLaunchView: View {
 
     var body: some View {
         ZStack {
-            Color("LaunchBackground")
+            Skin.current.palette.launch
 
             TimelineView(.animation) { timeline in
                 let time = timeline.date.timeIntervalSinceReferenceDate
@@ -29,12 +29,12 @@ struct HangerLaunchView: View {
                 }
             }
             .textCase(.uppercase)
-            .foregroundStyle(Retro.lavender)
+            .foregroundStyle(Retro.onBar)
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
-            .background(Retro.navy)
-            .overlay(Rectangle().stroke(Retro.lavender, lineWidth: 2))
-            .shadow(color: Retro.lavender.opacity(0.5), radius: 10)
+            .background(Retro.bar)
+            .overlay(Rectangle().stroke(Retro.onBar, lineWidth: 2))
+            .shadow(color: Retro.onBar.opacity(0.5), radius: 10)
         }
         .overlay(Scanlines())
         .ignoresSafeArea()
@@ -66,9 +66,9 @@ struct HangerLaunchView: View {
         // Soft glow underneath, then the crisp wire.
         context.drawLayer { glow in
             glow.addFilter(.blur(radius: 4))
-            glow.stroke(wires, with: .color(Retro.periwinkle.opacity(0.9)), style: StrokeStyle(lineWidth: 4, lineCap: .round, lineJoin: .round))
+            glow.stroke(wires, with: .color(Skin.current.palette.hangerGlow.opacity(0.9)), style: StrokeStyle(lineWidth: 4, lineCap: .round, lineJoin: .round))
         }
-        context.stroke(wires, with: .color(Color.white.opacity(0.92)), style: style)
+        context.stroke(wires, with: .color(Skin.current.palette.hanger), style: style)
     }
 
     /// One wire hanger: a curled hook, a twisted neck and a triangular body.

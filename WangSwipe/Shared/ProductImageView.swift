@@ -19,8 +19,8 @@ struct ProductImageView: View {
                     GarmentArtView(category: product.category, hex: product.swatchHex)
                 default:
                     ZStack {
-                        Retro.periwinkle
-                        ProgressView().tint(Retro.navy)
+                        Retro.panelAlt
+                        ProgressView().tint(Retro.ink)
                     }
                 }
             }

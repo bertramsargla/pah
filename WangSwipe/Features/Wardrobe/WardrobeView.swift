@@ -11,10 +11,14 @@ struct WardrobeView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            RetroTitleBar(title: "Fall Fashions")
+            RetroTitleBar(title: Skin.current.wardrobeTitle)
+                .contentShape(Rectangle())
+                .onTapGesture { appModel.updateSettings { $0.skin = $0.skin.next } }
+                .accessibilityAddTraits(.isButton)
+                .accessibilityHint("Switches to the next skin")
 
             ZStack {
-                LeopardPattern()
+                SkinBackdrop()
 
                 VStack(spacing: 10) {
                     panel(.upper)
@@ -105,7 +109,7 @@ struct GarmentPanel: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            Retro.lavender
+            Retro.panel
                 .overlay {
                     if let product {
                         ProductImageView(product: product, fill: false)
@@ -113,7 +117,7 @@ struct GarmentPanel: View {
                             .id(product.id)
                             .transition(.opacity)
                     } else if isLoading {
-                        ProgressView().tint(Retro.navy)
+                        ProgressView().tint(Retro.ink)
                     } else {
                         Text("Nothing here").font(Retro.font(14)).foregroundStyle(Retro.ink)
                     }
@@ -136,7 +140,7 @@ struct GarmentPanel: View {
             }
             .padding(6)
             .frame(height: 52)
-            .background(Retro.periwinkle)
+            .background(Retro.panelAlt)
         }
         .overlay(Rectangle().stroke(Retro.ink, lineWidth: 2))
     }
@@ -162,10 +166,10 @@ struct GarmentPanel: View {
                 }
             }
             .textCase(.uppercase)
-            .foregroundStyle(Retro.lavender)
+            .foregroundStyle(Retro.onBar)
             .padding(.horizontal, 7)
             .padding(.vertical, 4)
-            .background(Retro.navy.opacity(0.85))
+            .background(Retro.bar.opacity(0.85))
             .padding(6)
         }
     }
@@ -175,7 +179,7 @@ struct GarmentPanel: View {
             Image(systemName: systemImage)
                 .font(.system(size: 16, weight: .black))
         }
-        .buttonStyle(BevelButtonStyle(text: Retro.navy, size: 16))
+        .buttonStyle(BevelButtonStyle(size: 16))
     }
 }
 
@@ -198,17 +202,17 @@ struct SectionStrip: View {
                 Text("More")
                     .font(Retro.font(12, weight: .bold))
                     .textCase(.uppercase)
-                    .foregroundStyle(selected == nil ? Retro.navy : Retro.lavender)
+                    .foregroundStyle(selected == nil ? Retro.bar : Retro.onBar)
                     .padding(.horizontal, 6)
                     .padding(.vertical, 5)
-                    .background(selected == nil ? Retro.lavender : .clear)
-                    .overlay(Rectangle().stroke(Retro.lavender, lineWidth: 1.5))
+                    .background(selected == nil ? Retro.onBar : .clear)
+                    .overlay(Rectangle().stroke(Retro.onBar, lineWidth: 1.5))
             }
             .buttonStyle(.plain)
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 6)
-        .background(Retro.navy)
+        .background(Retro.bar)
     }
 
     private func item(_ title: String, isOn: Bool, action: @escaping () -> Void) -> some View {
@@ -217,10 +221,10 @@ struct SectionStrip: View {
                 .font(Retro.font(12, weight: .bold))
                 .lineLimit(1)
                 .minimumScaleFactor(0.6)
-                .foregroundStyle(isOn ? Retro.navy : Retro.lavender)
+                .foregroundStyle(isOn ? Retro.bar : Retro.onBar)
                 .padding(.horizontal, 4)
                 .padding(.vertical, 5)
-                .background(isOn ? Retro.lavender : .clear)
+                .background(isOn ? Retro.onBar : .clear)
         }
         .buttonStyle(.plain)
     }

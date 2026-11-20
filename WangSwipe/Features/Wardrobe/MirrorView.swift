@@ -15,7 +15,7 @@ struct MirrorView: View {
         VStack(spacing: 0) {
             RetroTitleBar(left: outfit.map { $0.brand ?? $0.storeName }.joined(separator: " + "), title: "Mirror")
 
-            Retro.periwinkle
+            Retro.panelAlt
                 .overlay { picture }
                 .overlay(alignment: .top) { status.padding(10) }
                 .clipped()
@@ -34,7 +34,7 @@ struct MirrorView: View {
             }
             .frame(height: 58)
             .padding(10)
-            .background(Retro.lavender)
+            .background(Retro.panel)
         }
         .overlay(Rectangle().stroke(Retro.ink, lineWidth: 2))
         .background(Rectangle().fill(.black.opacity(0.35)).offset(x: 5, y: 5))
@@ -57,7 +57,7 @@ struct MirrorView: View {
             EmptyView()
         case .working(let step, let total, let item):
             tag {
-                ProgressView().controlSize(.mini).tint(Retro.lavender)
+                ProgressView().controlSize(.mini).tint(Retro.onBar)
                 Text("Dressing you \(step)/\(total): \(item)")
             }
         case .ready:
@@ -67,10 +67,10 @@ struct MirrorView: View {
                 tag { Text("Couldn't dress you") }
                 Text(message)
                     .font(Retro.font(10, weight: .medium))
-                    .foregroundStyle(Retro.lavender)
+                    .foregroundStyle(Retro.onBar)
                     .lineLimit(4)
                     .padding(6)
-                    .background(Retro.navy.opacity(0.85))
+                    .background(Retro.bar.opacity(0.85))
             }
         }
     }
@@ -81,10 +81,10 @@ struct MirrorView: View {
             .textCase(.uppercase)
             .lineLimit(1)
             .minimumScaleFactor(0.7)
-            .foregroundStyle(Retro.lavender)
+            .foregroundStyle(Retro.onBar)
             .padding(.horizontal, 8)
             .padding(.vertical, 5)
-            .background(Retro.navy)
-            .overlay(Rectangle().stroke(Retro.lavender, lineWidth: 1))
+            .background(Retro.bar)
+            .overlay(Rectangle().stroke(Retro.onBar, lineWidth: 1))
     }
 }

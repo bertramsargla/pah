@@ -8,7 +8,7 @@ struct WangSwipeApp: App {
         WindowGroup {
             RootView()
                 .environment(appModel)
-                .preferredColorScheme(.light)
+                .preferredColorScheme(appModel.settings.skin.isDark ? .dark : .light)
         }
     }
 }
@@ -16,6 +16,7 @@ struct WangSwipeApp: App {
 struct RootView: View {
     @Environment(AppModel.self) private var appModel
     @State private var showsLaunch = true
+    @State private var tab = MainTab.wardrobe
 
     var body: some View {
         ZStack {
@@ -23,10 +24,12 @@ struct RootView: View {
                 if appModel.userPhoto == nil {
                     OnboardingView()
                 } else {
-                    MainTabView()
+                    MainTabView(selection: $tab)
                 }
             }
             .animation(.default, value: appModel.userPhoto == nil)
+            // Rebuild every screen when the skin changes so they all pick up its colors.
+            .id(appModel.settings.skin)
 
             if showsLaunch {
                 HangerLaunchView()
@@ -42,16 +45,25 @@ struct RootView: View {
     }
 }
 
+enum MainTab: Hashable {
+    case wardrobe, closet, setup
+}
+
 struct MainTabView: View {
+    @Binding var selection: MainTab
+
     var body: some View {
-        TabView {
+        TabView(selection: $selection) {
             WardrobeView()
                 .tabItem { Label("Wardrobe", systemImage: "hanger") }
+                .tag(MainTab.wardrobe)
             LikedView()
                 .tabItem { Label("Closet", systemImage: "heart") }
+                .tag(MainTab.closet)
             SettingsView()
                 .tabItem { Label("Setup", systemImage: "gearshape") }
+                .tag(MainTab.setup)
         }
-        .tint(Retro.navy)
+        .tint(Retro.tint)
     }
 }

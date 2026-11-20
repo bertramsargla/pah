@@ -1,21 +1,29 @@
 import SwiftUI
 
-/// The app's look: an early-90s "virtual wardrobe" computer. Navy title bars,
-/// periwinkle panels, beveled buttons, leopard print and chunky monospaced type.
+/// The app's look: an early-90s "virtual wardrobe" computer with title bars,
+/// display panels, beveled buttons and chunky type. Colors and type come from
+/// the current `Skin`.
 enum Retro {
-    static let navy = Color(red: 0.11, green: 0.12, blue: 0.29)
-    static let navyLight = Color(red: 0.20, green: 0.22, blue: 0.45)
-    static let lavender = Color(red: 0.78, green: 0.81, blue: 0.96)
-    static let periwinkle = Color(red: 0.69, green: 0.74, blue: 0.94)
-    static let buttonGray = Color(red: 0.62, green: 0.66, blue: 0.82)
-    static let electricBlue = Color(red: 0.25, green: 0.35, blue: 0.92)
-    static let ink = Color(red: 0.08, green: 0.08, blue: 0.20)
+    private static var palette: Skin.Palette { Skin.current.palette }
+
+    static var bar: Color { palette.bar }
+    static var onBar: Color { palette.onBar }
+    static var panel: Color { palette.panel }
+    static var panelAlt: Color { palette.panelAlt }
+    static var ink: Color { palette.ink }
+    static var button: Color { palette.button }
+    static var onButton: Color { palette.onButton }
+    static var primary: Color { palette.primary }
+    static var onPrimary: Color { palette.onPrimary }
+    static var tint: Color { palette.tint }
+
+    // Leopard print, used by the Clueless skin.
     static let tan = Color(red: 0.86, green: 0.77, blue: 0.66)
     static let spot = Color(red: 0.62, green: 0.40, blue: 0.27)
     static let spotRim = Color(red: 0.33, green: 0.20, blue: 0.14)
 
     static func font(_ size: CGFloat, weight: Font.Weight = .heavy) -> Font {
-        .system(size: size, weight: weight, design: .monospaced)
+        Skin.current.font(size, weight: weight)
     }
 }
 
@@ -29,8 +37,8 @@ struct Bevel: View {
     var body: some View {
         GeometryReader { geo in
             let w = geo.size.width, h = geo.size.height, i = width / 2
-            let light = Color.white.opacity(0.85)
-            let dark = Color.black.opacity(0.55)
+            let light = Skin.current.palette.bevelLight
+            let dark = Skin.current.palette.bevelDark
             ZStack {
                 Path { p in
                     p.move(to: CGPoint(x: i, y: h - i))
@@ -52,8 +60,8 @@ struct Bevel: View {
 
 /// Chunky beveled button. Presses in when tapped.
 struct BevelButtonStyle: ButtonStyle {
-    var fill: Color = Retro.buttonGray
-    var text: Color = Retro.ink
+    var fill: Color = Retro.button
+    var text: Color = Retro.onButton
     var size: CGFloat = 18
 
     func makeBody(configuration: Configuration) -> some View {
@@ -76,13 +84,13 @@ struct BevelButtonStyle: ButtonStyle {
 extension ButtonStyle where Self == BevelButtonStyle {
     static var bevel: BevelButtonStyle { BevelButtonStyle() }
     static var bevelPrimary: BevelButtonStyle {
-        BevelButtonStyle(fill: Retro.electricBlue, text: Retro.lavender, size: 22)
+        BevelButtonStyle(fill: Retro.primary, text: Retro.onPrimary, size: 22)
     }
 }
 
 // MARK: - Panels and bars
 
-/// Sunken periwinkle panel, like the wardrobe's display windows.
+/// Sunken display panel, like the wardrobe's display windows.
 struct RetroPanel<Content: View>: View {
     var padding: CGFloat = 10
     @ViewBuilder var content: Content
@@ -90,13 +98,13 @@ struct RetroPanel<Content: View>: View {
     var body: some View {
         content
             .padding(padding)
-            .background(Retro.lavender)
+            .background(Retro.panel)
             .overlay(Bevel(raised: false, width: 4))
             .overlay(Rectangle().stroke(Retro.ink, lineWidth: 2))
     }
 }
 
-/// Navy title strip: app name on the left, a boxed screen name in the middle.
+/// Title strip: app name on the left, a boxed screen name on the right.
 struct RetroTitleBar: View {
     var left = "WangSwipe's Wardrobe"
     var title: String
@@ -105,24 +113,24 @@ struct RetroTitleBar: View {
         HStack(spacing: 8) {
             Text(left)
                 .font(Retro.font(12, weight: .bold))
-                .foregroundStyle(Retro.lavender.opacity(0.85))
+                .foregroundStyle(Retro.onBar.opacity(0.85))
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
             Spacer(minLength: 4)
             Text(title)
                 .font(Retro.font(15))
-                .foregroundStyle(Retro.lavender)
+                .foregroundStyle(Retro.onBar)
                 .lineLimit(1)
                 .padding(.horizontal, 8)
                 .padding(.vertical, 3)
-                .overlay(Rectangle().stroke(Retro.lavender, lineWidth: 1.5))
+                .overlay(Rectangle().stroke(Retro.onBar, lineWidth: 1.5))
         }
         .textCase(.uppercase)
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
-        .background(Retro.navy, ignoresSafeAreaEdges: [])
-        // The status bar sits on lavender so its dark text stays readable.
-        .background(Retro.lavender.ignoresSafeArea(edges: .top))
+        .background(Retro.bar, ignoresSafeAreaEdges: [])
+        // The status bar gets its own color so its text stays readable.
+        .background(Skin.current.palette.statusBar.ignoresSafeArea(edges: .top))
     }
 }
 

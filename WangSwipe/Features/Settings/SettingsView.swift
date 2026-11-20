@@ -12,13 +12,14 @@ struct SettingsView: View {
         VStack(spacing: 0) {
             RetroTitleBar(title: "Setup")
             Form {
+                skinSection
                 photoSection
                 tryOnSection
                 storesSection
             }
             .scrollContentBackground(.hidden)
-            .background(Retro.periwinkle)
-            .tint(Retro.electricBlue)
+            .background(Retro.panelAlt)
+            .tint(Retro.tint)
             .onAppear { apiKeyDraft = appModel.falAPIKey }
             .onChange(of: pickerItem) { _, item in
                 guard let item else { return }
@@ -34,6 +35,20 @@ struct SettingsView: View {
     }
 
     // MARK: Sections
+
+    private var skinSection: some View {
+        Section {
+            Picker("Skin", selection: appModel.binding(\.skin)) {
+                ForEach(Skin.allCases) { Text($0.displayName).tag($0) }
+            }
+            .pickerStyle(.inline)
+            .labelsHidden()
+        } header: {
+            Text("Skin")
+        } footer: {
+            Text("You can also tap the box in the wardrobe's title bar to switch skins.")
+        }
+    }
 
     private var photoSection: some View {
         Section("Your photo") {

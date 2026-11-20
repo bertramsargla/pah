@@ -9,7 +9,7 @@ struct LikedView: View {
             RetroTitleBar(title: "My Closet")
 
             ZStack {
-                LeopardPattern()
+                SkinBackdrop()
 
                 if appModel.liked.isEmpty {
                     RetroPanel(padding: 20) {

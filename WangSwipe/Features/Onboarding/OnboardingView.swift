@@ -15,7 +15,7 @@ struct OnboardingView: View {
             RetroTitleBar(title: "New Client")
 
             ZStack {
-                LeopardPattern()
+                SkinBackdrop()
 
                 VStack(spacing: 14) {
                     RetroPanel {
@@ -78,10 +78,10 @@ struct OnboardingView: View {
                 .font(Retro.font(10, weight: .medium))
                 .textCase(.uppercase)
                 .multilineTextAlignment(.center)
-                .foregroundStyle(Retro.lavender)
+                .foregroundStyle(Retro.onBar)
                 .frame(maxWidth: .infinity)
                 .padding(10)
-                .background(Retro.navy)
+                .background(Retro.bar)
         }
         .overlay(Scanlines())
         .onChange(of: pickerItem) { _, item in
@@ -103,11 +103,11 @@ struct OnboardingView: View {
                 .overlay(Rectangle().stroke(Retro.ink, lineWidth: 2))
         } else {
             Rectangle()
-                .fill(Retro.periwinkle)
+                .fill(Retro.panelAlt)
                 .overlay {
                     Image(systemName: "person.crop.rectangle")
                         .font(.system(size: 64))
-                        .foregroundStyle(Retro.navy)
+                        .foregroundStyle(Retro.ink)
                 }
         }
     }
