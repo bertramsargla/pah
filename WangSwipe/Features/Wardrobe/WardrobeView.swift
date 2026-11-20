@@ -11,11 +11,20 @@ struct WardrobeView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            RetroTitleBar(title: Skin.current.wardrobeTitle)
-                .contentShape(Rectangle())
-                .onTapGesture { appModel.updateSettings { $0.skin = $0.skin.next } }
-                .accessibilityAddTraits(.isButton)
-                .accessibilityHint("Switches to the next skin")
+            RetroTitleBar(title: Skin.current.wardrobeTitle + " ▾")
+                // The boxed title opens the skin dropdown.
+                .overlay(alignment: .trailing) {
+                    Menu {
+                        Picker("UI skin", selection: appModel.binding(\.skin)) {
+                            ForEach(Skin.allCases) { Text($0.displayName).tag($0) }
+                        }
+                    } label: {
+                        Color.white.opacity(0.001)
+                            .frame(width: 170, height: 40)
+                    }
+                    .accessibilityLabel("UI skin")
+                    .accessibilityValue(Skin.current.displayName)
+                }
 
             ZStack {
                 SkinBackdrop()

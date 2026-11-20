@@ -38,15 +38,14 @@ struct SettingsView: View {
 
     private var skinSection: some View {
         Section {
-            Picker("Skin", selection: appModel.binding(\.skin)) {
+            Picker("UI skin", selection: appModel.binding(\.skin)) {
                 ForEach(Skin.allCases) { Text($0.displayName).tag($0) }
             }
-            .pickerStyle(.inline)
-            .labelsHidden()
+            .pickerStyle(.menu)
         } header: {
             Text("Skin")
         } footer: {
-            Text("You can also tap the box in the wardrobe's title bar to switch skins.")
+            Text("The same dropdown opens from the box in the wardrobe's title bar.")
         }
     }
 

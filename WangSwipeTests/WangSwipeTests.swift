@@ -346,7 +346,7 @@ final class DresserTests: XCTestCase {
 
 final class SkinTests: XCTestCase {
     func testThreeSkinsWithTheRequestedNames() {
-        XCTAssertEqual(Skin.allCases.map(\.displayName), ["Clueless Meme 1995", "The Matrix", "Doom"])
+        XCTAssertEqual(Skin.allCases.map(\.displayName), ["Clueless (1995) Wang Meme", "The Matrix (2001)", "Doom (1993)"])
         XCTAssertEqual(Skin.clueless.next, .matrix)
         XCTAssertEqual(Skin.doom.next, .clueless)
     }

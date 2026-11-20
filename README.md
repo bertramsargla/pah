@@ -39,12 +39,13 @@ periwinkle display panels, beveled buttons, procedural leopard print, chunky
 monospaced type and faint scanlines. The pieces live in `Shared/Retro.swift`.
 Launch opens on a loading screen of glowing wire hangers (`Features/Launch`).
 
-There are three skins, picked in Setup or by tapping the box in the wardrobe's
-title bar (`Shared/Skin.swift`):
+There are three UI skins, picked from a dropdown in Setup or from the box in
+the wardrobe's title bar (`Shared/Skin.swift`). Switching replays the hanger
+loading screen in the new skin.
 
-- **Clueless Meme 1995**: lavender panels, navy bars, leopard print.
-- **The Matrix**: phosphor green on black with falling code.
-- **Doom**: riveted rusty metal, blood-red buttons and a flickering fire glow.
+- **Clueless (1995) Wang Meme**: lavender panels, navy bars, leopard print.
+- **The Matrix (2001)**: phosphor green on black with falling code.
+- **Doom (1993)**: riveted rusty metal, blood-red buttons and a flickering fire glow.
 
 All three are drawn in code (no images, logos or fonts from the films or the game).
 
