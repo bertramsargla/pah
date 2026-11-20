@@ -41,13 +41,17 @@ Launch opens on a loading screen of glowing wire hangers (`Features/Launch`).
 
 There are three UI skins, picked from a dropdown in Setup or from the box in
 the wardrobe's title bar (`Shared/Skin.swift`). Switching replays the hanger
-loading screen in the new skin.
+loading screen in the new skin, with that skin's logo spinning and pulsing in
+the middle (`LogoClueless`, `LogoMatrix`, `LogoDoom` in the asset catalog).
 
 - **Clueless (1995) Wang Meme**: lavender panels, navy bars, leopard print.
 - **The Matrix (1999)**: phosphor green on black with falling code.
 - **Doom (1993)**: riveted rusty metal, blood-red buttons and a flickering fire glow.
 
-All three are drawn in code (no images, logos or fonts from the films or the game).
+The skins themselves are drawn in code. The Matrix and Doom logos on the
+loading screen are the film's and the game's own artwork, supplied for this
+private demo; they're copyrighted and trademarked, so replace them before any
+public release.
 
 On the wardrobe screen:
 

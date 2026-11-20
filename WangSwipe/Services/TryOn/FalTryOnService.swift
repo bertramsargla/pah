@@ -19,10 +19,10 @@ enum FalTryOnModel: String, Codable, CaseIterable, Identifiable, Sendable {
 
     var displayName: String {
         switch self {
-        case .googleVTO: "Google Virtual Try-On (slow, ~$0.075/piece)"
-        case .fashn: "FASHN v1.6 fast (~$0.075/piece)"
-        case .nanoBanana: "Nano Banana, whole outfit (~$0.04/outfit)"
-        case .klingKolors: "Kling Kolors v1.5 (~$0.07/piece)"
+        case .googleVTO: "Google · slow · $0.075/pc"
+        case .fashn: "FASHN fast · $0.075/pc"
+        case .nanoBanana: "Nano Banana · $0.04/outfit"
+        case .klingKolors: "Kling · $0.07/pc"
         }
     }
 

@@ -1,7 +1,8 @@
 import SwiftUI
 
-/// Loading screen shown at launch: rows of glowing wire hangers on a dark
-/// CRT screen, drifting slowly sideways, with the wardrobe's name box.
+/// Loading screen shown at launch and on every skin change: rows of glowing
+/// wire hangers drifting on a dark CRT screen, the skin's logo spinning and
+/// pulsing in the middle, and the wardrobe's name box.
 struct HangerLaunchView: View {
     /// Size of one hanger tile.
     var tile = CGSize(width: 92, height: 78)
@@ -17,6 +18,18 @@ struct HangerLaunchView: View {
                 }
             }
 
+            VStack(spacing: 28) {
+                SkinLogo(skin: Skin.current)
+                nameBox
+            }
+        }
+        .overlay(Scanlines())
+        .ignoresSafeArea()
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Loading WangSwipe's Wardrobe")
+    }
+
+    private var nameBox: some View {
             VStack(spacing: 6) {
                 Text("WangSwipe's Wardrobe")
                     .font(Retro.font(18))
@@ -35,11 +48,6 @@ struct HangerLaunchView: View {
             .background(Retro.bar)
             .overlay(Rectangle().stroke(Retro.onBar, lineWidth: 2))
             .shadow(color: Retro.onBar.opacity(0.5), radius: 10)
-        }
-        .overlay(Scanlines())
-        .ignoresSafeArea()
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel("Loading WangSwipe's Wardrobe")
     }
 
     private func drawHangers(in context: inout GraphicsContext, size: CGSize, time: TimeInterval) {
@@ -100,4 +108,63 @@ struct HangerLaunchView: View {
 
 #Preview {
     HangerLaunchView()
+}
+
+/// The current skin's logo, pulsing and spinning in the middle of the hanger screen.
+struct SkinLogo: View {
+    let skin: Skin
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    var body: some View {
+        TimelineView(.animation(paused: reduceMotion)) { timeline in
+            let t = timeline.date.timeIntervalSinceReferenceDate
+            let pulse = 1 + 0.12 * sin(t * 4)          // grow and shrink
+            logo
+                .scaleEffect(reduceMotion ? 1 : pulse)
+                .modifier(Spin(skin: skin, time: reduceMotion ? 0 : t))
+        }
+        .shadow(color: Skin.current.palette.hangerGlow.opacity(0.8), radius: 16)
+    }
+
+    @ViewBuilder
+    private var logo: some View {
+        switch skin {
+        case .clueless:
+            // The demo guy's face, round like a sticker.
+            Image("LogoClueless")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 170, height: 170)
+                .overlay(Circle().stroke(Retro.onBar, lineWidth: 4))
+        case .matrix:
+            Image("LogoMatrix")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 300)
+                .overlay(Rectangle().stroke(Retro.onBar.opacity(0.8), lineWidth: 2))
+        case .doom:
+            Image("LogoDoom")
+                .resizable()
+                .interpolation(.none)   // keep the chunky pixels
+                .scaledToFit()
+                .frame(width: 290)
+                .overlay(Rectangle().stroke(Retro.ink, lineWidth: 3))
+        }
+    }
+
+    /// Clueless spins flat like a record; Matrix and Doom flip around like a coin.
+    private struct Spin: ViewModifier {
+        let skin: Skin
+        let time: TimeInterval
+
+        func body(content: Content) -> some View {
+            let degrees = (time * 180).truncatingRemainder(dividingBy: 360)   // one turn every 2 s
+            switch skin {
+            case .clueless:
+                content.rotationEffect(.degrees(degrees))
+            case .matrix, .doom:
+                content.rotation3DEffect(.degrees(degrees), axis: (x: 0, y: 1, z: 0), perspective: 0.4)
+            }
+        }
+    }
 }

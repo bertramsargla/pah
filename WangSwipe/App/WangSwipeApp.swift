@@ -17,7 +17,11 @@ struct WangSwipeApp: App {
 
 struct RootView: View {
     @Environment(AppModel.self) private var appModel
-    @State private var showsLaunch = true
+    /// The skin whose hanger screen has finished. Until it matches the current
+    /// skin, the hanger screen covers everything; that way a skin change shows
+    /// the hangers in the very same frame, with no flash of the new screens first.
+    @State private var revealedSkin: Skin?
+    private var showsLaunch: Bool { revealedSkin != appModel.settings.skin }
     @State private var tab = MainTab.wardrobe
 
     var body: some View {
@@ -47,10 +51,10 @@ struct RootView: View {
         // opens on its own hanger screen. The hangers stay up a moment while
         // the screens behind them load.
         .task(id: appModel.settings.skin) {
-            withAnimation(.easeIn(duration: 0.2)) { showsLaunch = true }
+            let skin = appModel.settings.skin
             try? await Task.sleep(for: .seconds(2.5))
             guard !Task.isCancelled else { return }
-            withAnimation(.easeOut(duration: 0.5)) { showsLaunch = false }
+            withAnimation(.easeOut(duration: 0.5)) { revealedSkin = skin }
         }
     }
 }
