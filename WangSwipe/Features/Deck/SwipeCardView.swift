@@ -58,8 +58,9 @@ struct SwipeCardView: View {
     private var info: some View {
         HStack(alignment: .bottom, spacing: 8) {
             VStack(alignment: .leading, spacing: 2) {
-                Text(product.storeName)
+                Text([product.brand, product.storeName].compactMap { $0 }.joined(separator: " · "))
                     .font(Retro.font(11, weight: .bold))
+                    .lineLimit(1)
                     .opacity(0.7)
                 Text(product.title)
                     .font(Retro.font(17))

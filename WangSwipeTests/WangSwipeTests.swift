@@ -32,10 +32,12 @@ final class ProductCatalogTests: XCTestCase {
         XCTAssertTrue(exhausted)
     }
 
-    func testMockStoresAreNonEmptyAndUnique() {
-        let ids = MockStores.all.flatMap { $0.products.map(\.id) }
-        XCTAssertFalse(ids.isEmpty)
-        XCTAssertEqual(Set(ids).count, ids.count)
+    func testCuratedCatalogIsTenMensPiecesWithLinksAndPhotos() {
+        let products = CuratedStores.all.flatMap(\.products)
+        XCTAssertEqual(products.count, 10)
+        XCTAssertEqual(Set(products.map(\.id)).count, 10)
+        XCTAssertTrue(products.allSatisfy { $0.imageURL != nil && $0.productURL != nil })
+        XCTAssertFalse(products.contains { $0.category == .dress })
     }
 }
 
@@ -98,7 +100,7 @@ final class FalTryOnTests: XCTestCase {
         let service = FalTryOnService(apiKey: "", model: .googleVTO)
         let image = UIImage(systemName: "person")!
         do {
-            _ = try await service.render(person: image, garment: image, product: MockStores.northline.products[0])
+            _ = try await service.render(person: image, garment: image, product: CuratedStores.fwrd.products[0])
             XCTFail("expected an error")
         } catch {
             XCTAssertEqual(error as? TryOnError, .missingAPIKey)
@@ -124,7 +126,7 @@ final class SwipeAndMockTryOnTests: XCTestCase {
             ctx.fill(CGRect(x: 0, y: 0, width: 60, height: 80))
         }
         let service = MockTryOnService(latency: .zero)
-        let result = try await service.render(person: person, garment: garment, product: MockStores.northline.products[0])
+        let result = try await service.render(person: person, garment: garment, product: CuratedStores.fwrd.products[0])
         XCTAssertEqual(result.size.width, person.size.width, accuracy: 1)
         XCTAssertEqual(result.size.height, person.size.height, accuracy: 1)
     }
@@ -163,16 +165,12 @@ final class DeckAndDemoTests: XCTestCase {
 
     func testCategoryFilterShowsOnlyThatCategory() async {
         let deck = DeckViewModel(
-            catalog: ProductCatalog(providers: MockStores.all.map { store in
-                var fast = store
-                fast.latency = .zero
-                return fast
-            }),
+            catalog: ProductCatalog(providers: CuratedStores.all),
             tryOn: TryOnCoordinator()
         )
-        deck.setFilter(.dress)
+        deck.setFilter(.outerwear)
         await deck.loadMoreIfNeeded()
         XCTAssertFalse(deck.visibleCards.isEmpty)
-        XCTAssertTrue(deck.visibleCards.allSatisfy { $0.category == .dress })
+        XCTAssertTrue(deck.visibleCards.allSatisfy { $0.category == .outerwear })
     }
 }

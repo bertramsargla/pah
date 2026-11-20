@@ -88,8 +88,8 @@ struct SettingsView: View {
 
     private var storesSection: some View {
         Section {
-            ForEach(MockStores.all, id: \.id) { store in
-                Toggle(store.displayName + " (sample)", isOn: storeEnabled(store.id))
+            ForEach(CuratedStores.all, id: \.id) { store in
+                Toggle(store.displayName, isOn: storeEnabled(store.id))
             }
             ForEach(appModel.settings.shopifyDomains, id: \.self) { domain in
                 Toggle(domain, isOn: storeEnabled("shopify:\(domain)"))
@@ -110,7 +110,7 @@ struct SettingsView: View {
         } header: {
             Text("Stores")
         } footer: {
-            Text("The sample stores are built in. A Shopify store is read from its public product list, if the store allows it.")
+            Text("FWRD and Grailed are 10 hand-picked men's pieces. A Shopify store is read from its public product list, if the store allows it.")
         }
     }
 

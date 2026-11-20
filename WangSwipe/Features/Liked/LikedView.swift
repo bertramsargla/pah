@@ -47,7 +47,7 @@ struct LikedView: View {
 
                 VStack(alignment: .leading, spacing: 3) {
                     Text(product.title).font(Retro.font(14)).lineLimit(2)
-                    Text(product.storeName).font(Retro.font(11, weight: .bold)).opacity(0.7)
+                    Text([product.brand, product.storeName].compactMap { $0 }.joined(separator: " · ")).font(Retro.font(11, weight: .bold)).opacity(0.7)
                     Text(product.formattedPrice).font(Retro.font(13, weight: .bold))
                 }
                 .textCase(.uppercase)

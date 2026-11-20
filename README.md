@@ -20,8 +20,11 @@ your team under Signing & Capabilities first.
 Tests: `xcodebuild test -scheme WangSwipe -destination 'platform=iOS Simulator,name=iPhone 16'`
 (use any simulator you have installed).
 
-Out of the box the app uses three sample stores and the free on-device
-preview, so it needs no keys and costs nothing. The first screen starts with a
+Out of the box the deck shows 10 hand-picked men's pieces from FWRD and
+Grailed (`Services/Products/CuratedStores.swift`; photos load from the stores'
+CDNs, and Shop opens the real product page) with the free on-device preview,
+so it needs no keys and costs nothing. Grailed pieces are one-off resale
+listings and can sell at any time. The first screen starts with a
 bundled demo photo selected (`DemoPerson` in the asset catalog), so a demo is
 one tap. To skip onboarding entirely, launch with `-demoMode YES`
 (Xcode: Product > Scheme > Edit Scheme > Arguments, or
@@ -46,7 +49,7 @@ WangSwipe/
     Liked/        saved items with links to buy
     Settings/     change photo, pick try-on engine and key, turn stores on/off
   Services/
-    Products/     ProductProvider protocol, ProductCatalog (mixes stores), sample stores, Shopify
+    Products/     ProductProvider protocol, ProductCatalog (mixes stores), curated FWRD + Grailed picks, Shopify
     TryOn/        TryOnService protocol, mock (on device), fal.ai (hosted models), coordinator
     Storage/      photo on disk, API key in Keychain
 ```
@@ -55,7 +58,7 @@ Two seams make the app pluggable:
 
 - **`ProductProvider`**: anything that returns pages of `Product`. The catalog
   pulls from every enabled provider at once and alternates between stores.
-  Included: three sample stores, and `ShopifyStoreProvider`, which reads a
+  Included: the curated FWRD and Grailed demo catalog, and `ShopifyStoreProvider`, which reads a
   Shopify store's public product list. Add a provider and register it in
   `ProviderRegistry`.
 - **`TryOnService`**: takes your photo and a garment image and returns you

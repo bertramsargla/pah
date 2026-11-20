@@ -113,7 +113,7 @@ struct CategoryStrip: View {
     var body: some View {
         HStack(spacing: 0) {
             item("All", isOn: selected == nil) { onSelect(nil) }
-            ForEach(GarmentCategory.allCases, id: \.self) { category in
+            ForEach(CuratedStores.categories, id: \.self) { category in
                 item(category.pluralName, isOn: selected == category) { onSelect(category) }
             }
         }
