@@ -44,7 +44,7 @@ the wardrobe's title bar (`Shared/Skin.swift`). Switching replays the hanger
 loading screen in the new skin.
 
 - **Clueless (1995) Wang Meme**: lavender panels, navy bars, leopard print.
-- **The Matrix (2001)**: phosphor green on black with falling code.
+- **The Matrix (1999)**: phosphor green on black with falling code.
 - **Doom (1993)**: riveted rusty metal, blood-red buttons and a flickering fire glow.
 
 All three are drawn in code (no images, logos or fonts from the films or the game).

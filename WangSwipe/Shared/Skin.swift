@@ -15,7 +15,7 @@ enum Skin: String, Codable, CaseIterable, Identifiable, Sendable {
     var displayName: String {
         switch self {
         case .clueless: "Clueless (1995) Wang Meme"
-        case .matrix: "The Matrix (2001)"
+        case .matrix: "The Matrix (1999)"
         case .doom: "Doom (1993)"
         }
     }
