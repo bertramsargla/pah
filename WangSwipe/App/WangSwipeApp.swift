@@ -38,9 +38,13 @@ struct RootView: View {
         }
         // Dark skins, and the dark hanger screen, need the light status bar.
         .preferredColorScheme(showsLaunch || appModel.settings.skin.isDark ? .dark : .light)
-        .task {
-            // The hangers stay up a moment while the wardrobe loads behind them.
+        // Runs at launch and again whenever the skin changes, so each new skin
+        // opens on its own hanger screen. The hangers stay up a moment while
+        // the screens behind them load.
+        .task(id: appModel.settings.skin) {
+            withAnimation(.easeIn(duration: 0.2)) { showsLaunch = true }
             try? await Task.sleep(for: .seconds(2.5))
+            guard !Task.isCancelled else { return }
             withAnimation(.easeOut(duration: 0.5)) { showsLaunch = false }
         }
     }
