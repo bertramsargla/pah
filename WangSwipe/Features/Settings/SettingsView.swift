@@ -110,7 +110,7 @@ struct SettingsView: View {
         } header: {
             Text("Stores")
         } footer: {
-            Text("FWRD and Grailed are 10 hand-picked men's pieces. A Shopify store is read from its public product list, if the store allows it.")
+            Text("FWRD, Grailed and Farfetch are 10 hand-picked men's pieces. A Shopify store is read from its public product list, if the store allows it.")
         }
     }
 

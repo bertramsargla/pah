@@ -1,11 +1,11 @@
 import Foundation
 
-/// Hand-picked men's pieces from FWRD and Grailed for the demo, collected
+/// Hand-picked men's pieces from FWRD, Grailed and Farfetch for the demo, collected
 /// November 20, 2026. Images are loaded from each store's CDN and the Shop
 /// link opens the real product page. Prices and stock change: Grailed items
 /// are one-off resale listings and can sell at any time.
 enum CuratedStores {
-    static let all: [MockStoreProvider] = [fwrd, grailed]
+    static let all: [MockStoreProvider] = [fwrd, grailed, farfetch]
 
     static let fwrd = store(
         id: "fwrd",
@@ -23,9 +23,6 @@ enum CuratedStores {
             Item("LEIV-MS64", "Union Rugby Shirt", "Levi's", 55, .top,
                  image: "https://is8.fwrdassets.com/images/p/fw/z/LEIV-MS64_V1.jpg",
                  link: "https://www.fwrd.com/product-levis-union-rugby-shirt-in-amos-stripe-ponderosa-pine/LEIV-MS64/?d=Mens"),
-            Item("MUIF-MS111", "University T-shirt", "Museum of Peace and Quiet", 48, .top,
-                 image: "https://is8.fwrdassets.com/images/p/fw/z/MUIF-MS111_V1.jpg",
-                 link: "https://www.fwrd.com/product-museum-of-peace-and-quiet-university-tshirt-in-white/MUIF-MS111/?d=Mens"),
         ]
     )
 
@@ -39,15 +36,26 @@ enum CuratedStores {
             Item("112555406", "Blood Red Button Up Shirt", "Issey Miyake", 150, .top,
                  image: "https://media-assets.grailed.com/prd/listing/temp/8bcf4f622d9c4ed1983739002864cee8?w=1000",
                  link: "https://www.grailed.com/listings/112555406-issey-miyake-blood-red-button-up-shirt"),
-            Item("112475358", "Leather Jacket", "Human Made", 450, .outerwear,
-                 image: "https://media-assets.grailed.com/prd/listing/5475363/214bf3e39ad24544aebb8ed898591caa?w=1000",
-                 link: "https://www.grailed.com/listings/112475358-human-made-human-made-leather-jacket"),
-            Item("112402693", "Crash Sweater", "Visvim", 540, .top,
-                 image: "https://media-assets.grailed.com/prd/listing/47549946/1236e285c5254e0c8452747f03cf61cc?w=1000",
-                 link: "https://www.grailed.com/listings/112402693-visvim-visvim-crash-sweater"),
             Item("107361561", "Brown Coated Denim Waxed Curved Jeans", "Acne Studios", 291, .bottom,
                  image: "https://media-assets.grailed.com/prd/listing/temp/b091ad3b8de24e93aacab4b0779efbbe?w=1000",
                  link: "https://www.grailed.com/listings/107361561-acne-studios-brown-coated-denim-waxed-curved-jeans"),
+        ]
+    )
+
+    static let farfetch = store(
+        id: "farfetch",
+        name: "Farfetch",
+        items: [
+            Item("40869644", "Silk Satin Bomber", "Tom Ford", 5250, .outerwear,
+                 image: "https://cdn-images.farfetch-contents.com/40/86/96/44/40869644_99140328_1000.jpg",
+                 link: "https://www.farfetch.com/shopping/men/tom-ford-silk-satin-bomber-item-40869644.aspx"),
+            Item("40953097", "The Chalet Sweater", "Jacquemus", 891, .top,
+                 image: "https://cdn-images.farfetch-contents.com/40/95/30/97/40953097_99243163_1000.jpg",
+                 link: "https://www.farfetch.com/shopping/men/jacquemus-the-chalet-sweater-item-40953097.aspx"),
+            // On sale: $296 originally, $260 sale price (before Farfetch's extra promo code).
+            Item("40357964", "2001 D-Macro Distressed Straight-Leg Jeans", "Diesel", 260, .bottom,
+                 image: "https://cdn-images.farfetch-contents.com/40/35/79/64/40357964_98525689_1000.jpg",
+                 link: "https://www.farfetch.com/shopping/men/diesel-2001-d-macro-distressed-straight-leg-jeans-item-40357964.aspx"),
         ]
     )
 
