@@ -1,0 +1,513 @@
+<title>Harvest Basket Shop</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Inter:wght@400;500;600&display=swap">
+<style>
+  /* Layout: store header, "order due" strip, catalog grid on the left, assistant panel docked right; stacks on phones. */
+  :root {
+    --bg: #f4f6f1; --surface: #ffffff; --surface-2: #eef2ea; --line: #dde3d6; --fg: #1b2419; --muted: #5d6a57;
+    --green: #2c6a3a; --green-ink: #ffffff; --leaf: #dcebd3; --ok: #2c7a45; --warn: #9a630f; --bad: #b03a31; --info: #2d5b86;
+    --display: "Bricolage Grotesque", "Avenir Next", system-ui, sans-serif; --body: "Inter", system-ui, sans-serif;
+    --mono: ui-monospace, SFMono-Regular, Menlo, monospace; --r: 12px;
+  }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #121611; --surface: #1a2018; --surface-2: #20281e; --line: #2d372a; --fg: #e7ede2; --muted: #9ca996; --green: #86c993; --green-ink: #0e1a10; --leaf: #26372a; --ok: #86c993; --warn: #e2a54a; --bad: #ef7f76; --info: #91b9e2; color-scheme: dark; } }
+  :root[data-theme="dark"] { --bg: #121611; --surface: #1a2018; --surface-2: #20281e; --line: #2d372a; --fg: #e7ede2; --muted: #9ca996; --green: #86c993; --green-ink: #0e1a10; --leaf: #26372a; --ok: #86c993; --warn: #e2a54a; --bad: #ef7f76; --info: #91b9e2; color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { background: var(--bg); color: var(--fg); font: 14px/1.5 var(--body); }
+  button { font: inherit; color: inherit; cursor: pointer; }
+  button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
+  .wrap { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  .topbar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: var(--surface); border-bottom: 1px solid var(--line); }
+  body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--surface); }
+  .topbar .wrap { display: flex; align-items: center; gap: 12px; padding-block: 10px; flex-wrap: wrap; }
+  .logo { font: 700 20px var(--display); letter-spacing: -0.01em; display: flex; align-items: center; gap: 8px; }
+  .logo-mark { width: 26px; height: 26px; border-radius: 8px; background: var(--green); color: var(--green-ink); display: grid; place-items: center; font-size: 15px; }
+  .search { flex: 1 1 220px; min-width: 0; }
+  .search input { width: 100%; padding: 9px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface-2); color: var(--fg); font: inherit; }
+  .chip { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; padding: 4px 10px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--line); color: var(--muted); white-space: nowrap; }
+  .chip .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--bad); }
+  .cart-btn { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 999px; border: 1px solid var(--green); background: var(--green); color: var(--green-ink); font-weight: 600; }
+  .cart-count { background: var(--green-ink); color: var(--green); border-radius: 999px; padding: 0 7px; font-size: 12px; font-variant-numeric: tabular-nums; }
+  .modebar { border-bottom: 1px solid var(--line); background: var(--surface-2); }
+  .modebar .wrap { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding-block: 8px; font-size: 12px; color: var(--muted); }
+  .modebar strong { color: var(--fg); font-weight: 600; }
+  .modebar select { font: inherit; padding: 5px 8px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); }
+  .btn { padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); font-size: 12px; }
+  .btn.primary { background: var(--green); border-color: var(--green); color: var(--green-ink); font-weight: 600; }
+  .btn:disabled { opacity: 0.5; cursor: default; }
+  .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 420px); gap: 20px; padding-block: 18px 32px; align-items: start; }
+  @media (max-width: 980px) { .layout { grid-template-columns: 1fr; } }
+  .due { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 18px; border-radius: var(--r); background: var(--leaf); margin-bottom: 18px; }
+  .due h2 { font: 700 18px var(--display); margin: 0 0 2px; }
+  .due p { margin: 0; color: var(--muted); font-size: 13px; }
+  .cats { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+  .cats button { padding: 5px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); font-size: 12px; }
+  .cats button[aria-pressed="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 190px), 1fr)); gap: 12px; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 12px; display: grid; gap: 6px; align-content: start; min-width: 0; position: relative; }
+  .card.in-cart { border-color: var(--green); box-shadow: inset 0 0 0 1px var(--green); }
+  .thumb { height: 72px; border-radius: 9px; display: grid; place-items: center; font: 700 22px var(--display); color: var(--green); background: var(--surface-2); letter-spacing: -0.02em; }
+  .tags { display: flex; gap: 4px; flex-wrap: wrap; }
+  .tag { font-size: 10.5px; padding: 1px 7px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); }
+  .tag.store { color: var(--green); border-color: currentColor; }
+  .tag.bad { color: var(--bad); border-color: currentColor; }
+  .pname { font-weight: 600; line-height: 1.3; overflow-wrap: anywhere; }
+  .price { display: flex; align-items: baseline; justify-content: space-between; gap: 6px; font-variant-numeric: tabular-nums; }
+  .price b { font: 700 17px var(--display); }
+  .price span { font-size: 12px; color: var(--muted); }
+  .card .add { padding: 6px; border-radius: 8px; border: 1px solid var(--green); background: transparent; color: var(--green); font-weight: 600; font-size: 13px; }
+  .card .add:disabled { border-color: var(--line); color: var(--muted); cursor: not-allowed; }
+  .blocked-note { font-size: 11.5px; color: var(--bad); }
+  .incart-badge { position: absolute; top: 8px; right: 8px; background: var(--green); color: var(--green-ink); font-size: 11px; font-weight: 600; padding: 1px 8px; border-radius: 999px; font-variant-numeric: tabular-nums; }
+  .panel { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 70px); background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); display: flex; flex-direction: column; max-height: calc(100vh - 100px); min-height: 520px; overflow: hidden; }
+  @media (max-width: 980px) { .panel { position: static; max-height: none; } }
+  .panel-head { padding: 12px 14px; border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 10px; }
+  .avatar { width: 30px; height: 30px; border-radius: 50%; background: var(--green); color: var(--green-ink); display: grid; place-items: center; font: 700 14px var(--display); flex: none; }
+  .panel-head h3 { margin: 0; font-size: 14px; }
+  .panel-head p { margin: 0; font-size: 11.5px; color: var(--muted); }
+  .convo { flex: 1; overflow-y: auto; padding: 14px; display: grid; gap: 12px; align-content: start; }
+  .bubble { padding: 10px 12px; border-radius: 12px; max-width: 100%; overflow-wrap: anywhere; }
+  .bubble.user { justify-self: end; background: var(--green); color: var(--green-ink); max-width: 88%; }
+  .bubble.agent { background: var(--surface-2); }
+  .bubble.agent p { margin: 0 0 8px; } .bubble.agent p:last-child { margin-bottom: 0; }
+  .bubble.agent ul, .bubble.agent ol { margin: 0 0 8px; padding-left: 18px; }
+  .bubble.agent h4 { margin: 8px 0 4px; font-size: 13px; }
+  .bubble .tbl { overflow-x: auto; margin: 4px 0 8px; }
+  .bubble table { border-collapse: collapse; font-size: 12px; font-variant-numeric: tabular-nums; }
+  .bubble th, .bubble td { text-align: left; padding: 3px 8px 3px 0; border-bottom: 1px solid var(--line); vertical-align: top; min-width: 3.5em; }
+  .bubble td:first-child, .bubble th:first-child { min-width: 10em; }
+  .bubble td:last-child { min-width: 14em; }
+  .note { font-size: 12px; color: var(--muted); text-align: center; }
+  .activity { display: grid; gap: 4px; font-size: 12px; color: var(--muted); }
+  .act { display: flex; gap: 8px; align-items: baseline; min-width: 0; }
+  .act .ic { flex: none; width: 16px; text-align: center; font-weight: 700; }
+  .act .tx { overflow-wrap: anywhere; min-width: 0; }
+  .act.ok .ic { color: var(--ok); } .act.blocked .ic, .act.gated .ic, .act.conflict .ic, .act.error .ic { color: var(--bad); } .act.question .ic, .act.held .ic { color: var(--warn); }
+  .working { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); }
+  .spin { width: 12px; height: 12px; border: 2px solid var(--line); border-top-color: var(--green); border-radius: 50%; }
+  @media (prefers-reduced-motion: no-preference) { .spin { animation: spin .8s linear infinite; } @keyframes spin { to { transform: rotate(360deg); } } .bubble, .act { animation: rise .25s var(--ease, ease-out); } @keyframes rise { from { opacity: .3; transform: translateY(4px); } } }
+  details.why { border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; font-size: 12px; background: var(--surface); }
+  details.why summary { cursor: pointer; font-weight: 600; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .verify { display: inline-flex; align-items: center; gap: 4px; padding: 1px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; color: var(--ok); border: 1px solid currentColor; }
+  .verify.warn { color: var(--warn); } .verify.bad { color: var(--bad); }
+  .why h5 { margin: 10px 0 4px; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+  .src, .claim { padding: 4px 0; border-top: 1px dashed var(--line); overflow-wrap: anywhere; }
+  .src .meta { color: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+  .pill { display: inline-block; font-size: 10.5px; padding: 0 7px; border-radius: 999px; border: 1px solid currentColor; margin-right: 6px; }
+  .v-verified { color: var(--ok); } .v-unsupported { color: var(--warn); } .v-conflict { color: var(--bad); } .v-unscored { color: var(--muted); }
+  .qcard { border: 1px solid var(--warn); border-radius: 10px; padding: 10px 12px; display: grid; gap: 8px; background: var(--surface); }
+  .qcard .q { font-size: 13px; }
+  .qcard .item { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--warn); font-weight: 600; }
+  .qcard .row { display: flex; gap: 6px; flex-wrap: wrap; }
+  .composer { border-top: 1px solid var(--line); padding: 10px; display: flex; gap: 8px; }
+  .composer input { flex: 1; min-width: 0; padding: 9px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface-2); color: var(--fg); font: inherit; }
+  .drawer { position: fixed; inset: 0; z-index: 40; display: grid; justify-items: end; background: color-mix(in srgb, var(--fg) 30%, transparent); }
+  .drawer-body { width: min(400px, 100%); height: 100%; background: var(--surface); padding: calc(env(safe-area-inset-top, 0px) + 16px) max(16px, env(safe-area-inset-right, 0px)) calc(env(safe-area-inset-bottom, 0px) + 16px) 16px; display: flex; flex-direction: column; gap: 12px; overflow-y: auto; }
+  .drawer h2 { font: 700 20px var(--display); margin: 0; }
+  .line { display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; padding: 8px 0; border-bottom: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+  .line .sub { grid-column: 1 / -1; font-size: 12px; color: var(--muted); }
+  .totals { display: grid; gap: 4px; font-variant-numeric: tabular-nums; }
+  .totals div { display: flex; justify-content: space-between; }
+  .totals .grand { font-weight: 700; font-size: 16px; border-top: 1px solid var(--line); padding-top: 6px; }
+  .status { padding: 10px 12px; border-radius: 10px; font-size: 13px; background: var(--surface-2); }
+  .status.ok { color: var(--ok); } .status.held { color: var(--warn); } .status.locked { color: var(--bad); }
+  .sim { font-size: 11.5px; color: var(--muted); }
+</style>
+
+<header class="topbar">
+  <div class="wrap">
+    <div class="logo"><span class="logo-mark" aria-hidden="true">H</span>Harvest Basket</div>
+    <label class="search"><input id="search" type="search" placeholder="Search groceries" aria-label="Search groceries"></label>
+    <span class="chip" title="Recorded in your household profile"><span class="dot"></span>Rivera household · tree-nut allergy on file</span>
+    <button class="cart-btn" id="open-cart" type="button">Cart <span class="cart-count" id="cart-count">0</span></button>
+  </div>
+</header>
+
+<div class="modebar">
+  <div class="wrap">
+    <span id="mode-label"><strong>Examples</strong> · recorded live sessions with the Claude agent on Senso</span>
+    <label>Example <select id="example" aria-label="Choose an example session"></select></label>
+    <button class="btn primary" id="play" type="button">Play example</button>
+    <button class="btn" id="skip" type="button">Show result</button>
+    <span class="sim">Fictional store. Carts and checkout are simulated.</span>
+  </div>
+</div>
+
+<main class="wrap">
+  <div class="layout">
+    <section aria-label="Shop">
+      <div class="due">
+        <div>
+          <h2>Your usual order is due</h2>
+          <p id="due-text">Last order Nov 6 · you usually restock every 2 weeks.</p>
+        </div>
+        <button class="btn primary" id="restock" type="button">Restock with assistant</button>
+      </div>
+      <div class="cats" id="cats" role="group" aria-label="Filter by category"></div>
+      <div class="grid" id="grid"></div>
+    </section>
+
+    <aside class="panel" aria-label="Shopping assistant">
+      <div class="panel-head">
+        <div class="avatar" aria-hidden="true">✦</div>
+        <div>
+          <h3>Shopping assistant</h3>
+          <p>Answers from Harvest Basket's knowledge base, checked by Senso</p>
+        </div>
+      </div>
+      <div class="convo" id="convo">
+        <p class="note">Ask for a restock, a comparison, or anything about the store. Every answer shows its sources.</p>
+      </div>
+      <form class="composer" id="composer">
+        <input id="msg" type="text" autocomplete="off" placeholder="Ask the assistant…" aria-label="Message the assistant">
+        <button class="btn primary" type="submit" id="send">Send</button>
+      </form>
+    </aside>
+  </div>
+</main>
+
+<div class="drawer" id="drawer" hidden>
+  <div class="drawer-body" role="dialog" aria-modal="true" aria-labelledby="cart-title">
+    <div style="display:flex;justify-content:space-between;align-items:center"><h2 id="cart-title">Your cart</h2><button class="btn" id="close-cart" type="button">Close</button></div>
+    <div id="cart-lines"></div>
+    <div class="totals" id="totals"></div>
+    <div class="status" id="order-status"></div>
+    <p class="sim">Simulated checkout for a hackathon demo. No payment is taken and nothing ships.</p>
+  </div>
+</div>
+
+<script>
+(function () {
+  const $ = (id) => document.getElementById(id);
+  const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+  const money = (v) => "$" + Number(v || 0).toFixed(2);
+  const perUnit = (p) => p.price_per_unit == null ? "" : (p.price_per_unit < 1 ? "$" + p.price_per_unit.toFixed(3) : "$" + p.price_per_unit.toFixed(2)) + "/" + p.per_unit;
+  const DELIVERY_FEE = 5.99, FREE_OVER = 100, MINIMUM = 35;
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const sleep = (ms) => new Promise((r) => setTimeout(r, reduce ? 0 : ms));
+
+  const S = { catalog: [], examples: [], live: false, cart: { lines: [], subtotal: 0, checked_out: false, order_id: null }, gate: null, busy: false, cat: "All", query: "", playToken: 0, pending: null };
+
+  // ---- markdown (escape first, then add a few safe tags) ----
+  const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  const inline = (s) => esc(s).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>").replace(/`([^`]+)`/g, "<code>$1</code>");
+  function md(text) {
+    const lines = String(text || "").replace(/\r/g, "").split("\n");
+    let html = "", i = 0;
+    while (i < lines.length) {
+      const l = lines[i];
+      if (/^\s*\|/.test(l)) {
+        const rows = [];
+        while (i < lines.length && /^\s*\|/.test(lines[i])) { rows.push(lines[i]); i++; }
+        const cells = (r) => r.trim().replace(/^\||\|$/g, "").split("|").map((c) => c.trim());
+        const body = rows.filter((r) => !/^\s*\|[\s:|-]+\|\s*$/.test(r));
+        html += '<div class="tbl"><table>' + body.map((r, k) => "<tr>" + cells(r).map((c) => (k === 0 ? "<th>" : "<td>") + inline(c) + (k === 0 ? "</th>" : "</td>")).join("") + "</tr>").join("") + "</table></div>";
+        continue;
+      }
+      if (/^\s*([-*]|\d+\.)\s+/.test(l)) {
+        const ordered = /^\s*\d+\./.test(l);
+        const items = [];
+        while (i < lines.length && /^\s*([-*]|\d+\.)\s+/.test(lines[i])) { items.push(lines[i].replace(/^\s*([-*]|\d+\.)\s+/, "")); i++; }
+        html += (ordered ? "<ol>" : "<ul>") + items.map((t) => "<li>" + inline(t) + "</li>").join("") + (ordered ? "</ol>" : "</ul>");
+        continue;
+      }
+      if (/^#{1,4}\s/.test(l)) { html += "<h4>" + inline(l.replace(/^#+\s/, "")) + "</h4>"; i++; continue; }
+      if (!l.trim()) { i++; continue; }
+      const para = [];
+      while (i < lines.length && lines[i].trim() && !/^\s*(\||[-*]\s|\d+\.\s|#)/.test(lines[i])) { para.push(lines[i]); i++; }
+      html += "<p>" + inline(para.join(" ")) + "</p>";
+    }
+    const d = el("div");
+    d.innerHTML = html;
+    return d;
+  }
+
+  // ---- catalog ----
+  const initials = (name) => name.replace(/\(.*\)/, "").replace("Harvest Basket ", "").split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join("").toUpperCase();
+  function renderCats() {
+    const cats = ["All", ...new Set(S.catalog.map((p) => p.category))];
+    $("cats").replaceChildren(...cats.map((c) => {
+      const b = el("button", null, c);
+      b.type = "button";
+      b.setAttribute("aria-pressed", String(c === S.cat));
+      b.onclick = () => { S.cat = c; renderCats(); renderGrid(); };
+      return b;
+    }));
+  }
+  function renderGrid() {
+    const q = S.query.toLowerCase();
+    const inCart = new Map();
+    for (const l of S.cart.lines) inCart.set(l.sku, (inCart.get(l.sku) || 0) + Number(l.qty));
+    const items = S.catalog.filter((p) => (S.cat === "All" || p.category === S.cat) && (!q || (p.name + " " + p.category + " " + p.notes).toLowerCase().includes(q)));
+    $("grid").replaceChildren(...items.map((p) => {
+      const blocked = p.allergy_status !== "Allowed";
+      const c = el("article", "card" + (inCart.has(p.sku) ? " in-cart" : ""));
+      c.append(el("div", "thumb", initials(p.name)));
+      if (inCart.has(p.sku)) c.append(el("span", "incart-badge", "In cart ×" + inCart.get(p.sku)));
+      const tags = el("div", "tags");
+      tags.append(el("span", "tag" + (p.brand_tier === "store" ? " store" : ""), p.brand_tier === "store" ? "Store brand" : p.brand_tier === "name" ? "Name brand" : "Fresh"));
+      if (blocked) tags.append(el("span", "tag bad", "Allergy flag"));
+      c.append(tags, el("div", "pname", p.name));
+      const pr = el("div", "price");
+      pr.append(el("b", null, money(p.price)), el("span", null, perUnit(p)));
+      c.append(pr);
+      if (blocked) c.append(el("div", "blocked-note", "Not for your household: " + (p.notes.match(/shared lines with tree nuts/) ? "made on shared lines with tree nuts" : "matches your allergy flag")));
+      const add = el("button", "add", blocked ? "Can't add" : "Add");
+      add.type = "button";
+      add.disabled = blocked || S.busy || S.cart.checked_out;
+      add.onclick = () => manualAdd(p);
+      c.append(add);
+      return c;
+    }));
+  }
+
+  // ---- cart ----
+  function setCart(cart) {
+    S.cart = cart || S.cart;
+    const count = S.cart.lines.reduce((s, l) => s + Number(l.qty), 0);
+    $("cart-count").textContent = String(count);
+    renderGrid();
+    renderCart();
+  }
+  function renderCart() {
+    const lines = S.cart.lines;
+    $("cart-lines").replaceChildren(...(lines.length ? lines.map((l) => {
+      const d = el("div", "line");
+      d.append(el("span", null, `${l.qty}× ${l.name}`), el("span", null, money(l.price * l.qty)));
+      if (l.no_substitutions) d.append(el("span", "sub", "No substitutions"));
+      return d;
+    }) : [el("p", "note", "Your cart is empty.")]));
+    const sub = S.cart.subtotal || 0;
+    const fee = sub > FREE_OVER || sub === 0 ? 0 : DELIVERY_FEE;
+    const t = $("totals");
+    const row = (a, b, cls) => { const d = el("div", cls); d.append(el("span", null, a), el("span", null, b)); return d; };
+    t.replaceChildren(row("Subtotal", money(sub)), row("Delivery", fee ? money(fee) : sub ? "Free" : "—"), row("Total before tax", money(sub + fee), "grand"));
+    const st = $("order-status");
+    st.className = "status";
+    if (S.cart.checked_out) { st.classList.add("ok"); st.textContent = `Order ${S.cart.order_id} placed (simulated). Fact-checked by Senso before checkout.`; }
+    else if (S.gate && S.gate.status === "gated") { st.classList.add("locked"); st.textContent = S.gate.outcome; }
+    else if (S.gate && S.gate.status === "held") { st.classList.add("held"); st.textContent = S.gate.outcome; }
+    else if (sub && sub < MINIMUM) { st.classList.add("held"); st.textContent = `${money(MINIMUM - sub)} more to reach the ${money(MINIMUM)} delivery minimum.`; }
+    else st.textContent = sub ? "Ask the assistant to check out. It fact-checks your order first." : "Add items, or ask the assistant to restock.";
+  }
+
+  // ---- assistant panel ----
+  const ICON = { search_context: "⌕", list_products: "≡", add_to_cart: "+", remove_from_cart: "−", ask_shopper: "?", fact_check: "✓", checkout: "$" };
+  const LABEL = {
+    search_context: (s) => `Searched the knowledge base: “${s.summary}” · ${s.outcome}`,
+    list_products: (s) => `Read the catalog · ${s.outcome}`,
+    add_to_cart: (s) => (s.status === "ok" ? `Added ${s.summary}` : `Couldn't add ${s.summary}: ${s.outcome}`),
+    remove_from_cart: (s) => `Removed ${s.summary}`,
+    ask_shopper: (s) => `Has a question about ${s.summary}`,
+    fact_check: (s) => `Senso fact-check · ${s.outcome}`,
+    checkout: (s) => (s.status === "ok" ? `Checked out · ${s.outcome}` : `Checkout refused · ${s.outcome}`),
+  };
+  function addBubble(kind, content) {
+    const b = el("div", "bubble " + kind);
+    if (typeof content === "string") b.textContent = content; else b.append(content);
+    $("convo").append(b);
+    $("convo").scrollTop = $("convo").scrollHeight;
+    return b;
+  }
+  function activityBox() {
+    const box = el("div", "activity");
+    const w = el("div", "working");
+    w.append(el("span", "spin"), el("span", null, "Working…"));
+    box.append(w);
+    $("convo").append(box);
+    return { box, working: w };
+  }
+  function addAct(box, step) {
+    const a = el("div", "act " + step.status);
+    a.append(el("span", "ic", ICON[step.tool] || "·"), el("span", "tx", (LABEL[step.tool] || ((s) => s.tool + " · " + s.summary))(step)));
+    box.insertBefore(a, box.lastChild);
+    $("convo").scrollTop = $("convo").scrollHeight;
+  }
+  function whyPanel(steps) {
+    const checks = steps.filter((s) => s.tool === "fact_check");
+    const searches = steps.filter((s) => s.tool === "search_context");
+    if (!checks.length && !searches.length) return null;
+    const d = el("details", "why");
+    const sum = el("summary");
+    sum.append(el("span", null, "How I decided"));
+    const last = checks[checks.length - 1];
+    if (last) {
+      const claims = last.claims || [];
+      const v = claims.filter((c) => c.verdict === "verified").length;
+      const conflicts = claims.filter((c) => c.verdict === "conflict").length;
+      const unsup = claims.filter((c) => c.verdict === "unsupported").length;
+      sum.append(el("span", "verify" + (conflicts ? " bad" : unsup ? " warn" : ""), `Senso verified ${v}/${claims.length}`));
+    }
+    sum.append(el("span", "note", `${searches.length} searches`));
+    d.append(sum);
+    if (last && last.claims) {
+      d.append(el("h5", null, "Claims checked against the knowledge base"));
+      for (const c of last.claims) {
+        const r = el("div", "claim");
+        r.append(el("span", "pill v-" + c.verdict, c.verdict + (c.rechecked ? ", re-checked" : "")), document.createTextNode(c.claim));
+        d.append(r);
+      }
+      d.append(el("div", "note", "Check " + String(last.check_id || "").slice(0, 8) + (last.recheck_id ? " · re-check " + String(last.recheck_id).slice(0, 8) : "")));
+    }
+    if (searches.length) {
+      d.append(el("h5", null, "Sources"));
+      const seen = new Set();
+      for (const s of searches) for (const c of (s.citations || []).slice(0, 3)) {
+        const key = c.content_id + c.rank + s.summary;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        const r = el("div", "src");
+        r.append(el("div", "meta", `${c.document} · score ${Number(c.score).toFixed(2)} · rank ${c.rank} · for “${s.summary}”`), el("div", null, (c.chunk_text || "").replace(/\s+/g, " ").slice(0, 180) + "…"));
+        d.append(r);
+      }
+    }
+    return d;
+  }
+  function questionCards(steps, onAnswer) {
+    for (const s of steps.filter((x) => x.tool === "ask_shopper")) {
+      const q = el("div", "qcard");
+      q.append(el("div", "item", s.summary), el("div", "q", s.outcome));
+      const row = el("div", "row");
+      for (const [label, reply] of [["Yes, add it", `Yes, please add the ${s.summary}.`], ["Not this time", `No ${s.summary} this time.`]]) {
+        const b = el("button", "btn" + (label.startsWith("Yes") ? " primary" : ""), label);
+        b.type = "button";
+        b.onclick = () => { row.querySelectorAll("button").forEach((x) => (x.disabled = true)); onAnswer(reply); };
+        row.append(b);
+      }
+      q.append(row);
+      $("convo").append(q);
+    }
+  }
+  function afterTurn(steps, reply, cart) {
+    const bubble = addBubble("agent", md(reply));
+    const why = whyPanel(steps);
+    if (why) bubble.append(why);
+    const gateStep = [...steps].reverse().find((s) => s.tool === "checkout");
+    S.gate = gateStep && gateStep.status !== "ok" ? gateStep : null;
+    setCart(cart);
+  }
+
+  // ---- examples (replay recorded live sessions) ----
+  async function play(ex, fast) {
+    const token = ++S.playToken;
+    $("convo").replaceChildren(el("p", "note", `Example: ${ex.title}. Recorded from a live run of the Claude agent on Senso, ${ex.recorded}.`));
+    S.gate = null;
+    setCart({ lines: [], subtotal: 0, checked_out: false, order_id: null });
+    for (let t = 0; t < ex.turns.length; t++) {
+      const turn = ex.turns[t];
+      if (token !== S.playToken) return;
+      addBubble("user", turn.message);
+      if (!fast) await sleep(500);
+      const { box, working } = activityBox();
+      for (const step of turn.steps) {
+        if (token !== S.playToken) return;
+        addAct(box, step);
+        if (!fast) await sleep(step.tool === "fact_check" ? 1100 : 380);
+      }
+      working.remove();
+      afterTurn(turn.steps, turn.reply, turn.cart);
+      const next = ex.turns[t + 1];
+      if (next && !fast) {
+        S.pending = new Promise((resolve) => {
+          questionCards(turn.steps, resolve);
+          const cont = el("button", "btn", "Continue: “" + next.message.slice(0, 60) + (next.message.length > 60 ? "…" : "") + "”");
+          cont.type = "button";
+          cont.onclick = () => { cont.disabled = true; resolve(); };
+          $("convo").append(cont);
+        });
+        await S.pending;
+      } else if (!next) {
+        questionCards(turn.steps, (r) => addBubble("note", "In the live app this answer goes straight to the assistant: “" + r + "”"));
+      }
+    }
+  }
+
+  // ---- live mode ----
+  async function api(path, body) {
+    const r = await fetch(path, body ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) } : {});
+    if (!r.ok) throw new Error((await r.json().catch(() => ({}))).detail || r.statusText);
+    return r.json();
+  }
+  async function liveSend(text) {
+    if (!text.trim() || S.busy) return;
+    S.busy = true; $("send").disabled = true; renderGrid();
+    addBubble("user", text);
+    const { box, working } = activityBox();
+    const before = (await api("api/state").catch(() => ({ trail: [] }))).trail.length;
+    let shown = before;
+    const poll = setInterval(async () => {
+      const st = await api("api/state").catch(() => null);
+      if (!st) return;
+      for (const s of st.trail.slice(shown)) if (!["shopper", "reply"].includes(s.tool)) addAct(box, s);
+      shown = st.trail.length;
+      setCart(st.cart);
+    }, 1500);
+    try {
+      const res = await api("api/chat", { message: text });
+      clearInterval(poll);
+      for (const s of res.trail.slice(shown)) if (!["shopper", "reply"].includes(s.tool)) addAct(box, s);
+      working.remove();
+      const steps = res.trail.slice(before).filter((s) => !["shopper", "reply"].includes(s.tool));
+      afterTurn(steps, res.reply, res.cart);
+      questionCards(steps, liveSend);
+    } catch (e) {
+      clearInterval(poll);
+      working.remove();
+      addBubble("agent", "Sorry, that didn't go through: " + e.message);
+    } finally {
+      S.busy = false; $("send").disabled = false; renderGrid();
+    }
+  }
+  async function manualAdd(p) {
+    if (!S.live) {
+      const lines = [...S.cart.lines, { sku: p.sku, name: p.name, price: p.price, unit: "", qty: 1, no_substitutions: false }];
+      setCart({ ...S.cart, lines, subtotal: Math.round(lines.reduce((s, l) => s + l.price * l.qty, 0) * 100) / 100 });
+      return;
+    }
+    try { setCart((await api("api/cart/add", { sku: p.sku, qty: 1 })).cart); } catch (e) { addBubble("agent", "Couldn't add that: " + e.message); }
+  }
+
+  // ---- wiring ----
+  const RESTOCK = "It's been about 2 weeks since our last order. Can you restock what we usually need and check out?";
+  function send(text) {
+    if (S.live) return liveSend(text);
+    const ex = S.examples.find((e) => e.turns[0].message === text) || S.examples[0];
+    if (!ex) return;
+    $("example").value = ex.id;
+    play(ex, false);
+  }
+  $("composer").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const v = $("msg").value;
+    $("msg").value = "";
+    if (S.live) liveSend(v); else addBubble("note", "Examples mode replays recorded sessions. Pick one above, or run the app with its backend to chat live.");
+  });
+  $("restock").onclick = () => send(RESTOCK);
+  $("play").onclick = () => { const ex = S.examples.find((e) => e.id === $("example").value); if (ex) play(ex, false); };
+  $("skip").onclick = () => { const ex = S.examples.find((e) => e.id === $("example").value); if (ex) play(ex, true); };
+  $("search").addEventListener("input", (e) => { S.query = e.target.value; renderGrid(); });
+  $("open-cart").onclick = () => { $("drawer").hidden = false; $("close-cart").focus(); };
+  $("close-cart").onclick = () => { $("drawer").hidden = true; };
+  $("drawer").addEventListener("click", (e) => { if (e.target === $("drawer")) $("drawer").hidden = true; });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") $("drawer").hidden = true; });
+
+  async function boot() {
+    let data = { catalog: [], examples: [] };
+    try { data = await (await fetch("examples.json")).json(); } catch (e) { /* no examples file */ }
+    S.catalog = data.catalog || [];
+    S.examples = data.examples || [];
+    try {
+      const st = await api("api/state");
+      if (st && Array.isArray(st.trail)) {
+        S.live = true;
+        $("mode-label").replaceChildren(el("strong", null, "Live"), document.createTextNode(" · connected to the agent backend (" + (st.agent === "claude-code" ? "Claude Code" : "Claude API") + ")"));
+        setCart(st.cart);
+      }
+    } catch (e) { /* no backend: examples mode */ }
+    $("example").replaceChildren(...S.examples.map((e) => { const o = el("option", null, e.title); o.value = e.id; return o; }));
+    renderCats();
+    setCart(S.cart);
+    if (!S.live && S.examples.length) play(S.examples[0], true);
+  }
+  boot();
+})();
+</script>

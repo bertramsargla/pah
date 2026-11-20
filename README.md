@@ -1,103 +1,116 @@
-# Harvest Basket — Grocery Restock Agent (Senso.ai Hackathon)
+# Harvest Basket: a grocery agent that shows its work (Senso.ai hackathon)
 
 Built for the Senso.ai challenge: **"Build a shopping agent with trusted context."**
 
-Harvest Basket is a fictional grocery retailer. The agent's primary job is **restocking**: given
-a household's order history and preferences, it decides what they need to reorder this cycle. Its
-secondary job is **price-sensitive comparison**: when an item has multiple brand/size options, it
-picks the one that best fits the household's stated budget and dietary preferences and explains
-the price/price-per-unit tradeoff, instead of just grabbing the first match. The full trail behind
-every decision — what it searched for, what it retrieved (with citations), what it fact-checked,
-and what action it took — is shown live in the UI.
+Harvest Basket is a fictional grocery store. Its shopping agent **restocks** a household's usual
+order from their order history and preferences, and does **price-sensitive comparison** when an
+item has several brands or sizes. Every fact it relies on comes from Senso's context layer, every
+answer is fact-checked by Senso before checkout, and the trail behind each decision (searches,
+citations, verdicts, cart actions) is shown to the shopper.
+
+## What to open
+
+| | What it is | How to open it |
+|---|---|---|
+| **Shop app** | What a shopper uses: catalog, cart, and the assistant with "How I decided" panels | `http://localhost:8000/shop` (live), or open it with no server for recorded examples |
+| **Agent console** | Developer view: chat plus the raw audit trail and checkout gate | `http://localhost:8000/` |
+| **Dashboard** | Stats from the recorded runs: verdicts, citations, carts, thresholds | Claude artifact (link in the PR) |
 
 ## How it uses Senso
 
-- **Context stored**: `backend/context/*.md` — grocery catalog (with brand/size price variants),
-  household profile (allergies, brand/budget preferences), order history (past orders +
-  consumption notes), and store policy (substitutions, delivery minimum, allergy handling) —
-  ingested as raw documents via `POST /org/kb/raw`.
-- **Retrieval**: the agent calls `POST /org/search/context` for every decision that depends on
-  catalog facts, past orders, preferences, or policy, and logs each citation (`content_id`,
-  `kb_node_id`, `chunk_text`, `score`, `rank`) to the audit trail panel.
-- **Verification**: before giving the shopper a final answer, the agent sends its draft to
-  `POST /org/evals/text` (Senso's fact-check). Verdicts (`verified`/`conflict`/`unsupported`/
-  `not_verifiable`) are shown in the trail; the agent corrects conflicting claims and flags
-  unsupported ones instead of asserting them. **Two things we learned from testing this live, not
-  just reading the docs**:
-  1. Fact-check only scores a claim once Senso knows what "your brand" is — without a brand
-     kit, every claim about Harvest Basket comes back `about_brand: false`, `passed: null`
-     (silently unscored, not an error). `ingest.py` calls `PUT /org/brand-kit` with
-     `brand_name: "Harvest Basket Grocery"` before ingesting content, which is what makes real
-     verdicts (verified / conflict / unsupported) show up instead of nulls.
-  2. Even with a brand kit set, a claim only gets scored if it's tied to *Harvest Basket* in the
-     text. "Terra Verde olive oil costs $12.99" comes back unscored (`about_brand: false`), but
-     "Harvest Basket sells Terra Verde olive oil at $12.99" comes back `verified`. Claims about the
-     customer ("this is excluded for your household") stay unscored or `unsupported` however
-     they're phrased, because they're inferences, not catalog facts. `agent.py`'s system prompt
-     tells the agent to phrase price claims as "Harvest Basket sells X at $Y", and to back
-     customer-specific reasoning with `search_context` citations instead.
-- **Action**: the agent calls a small mock storefront (`backend/mock_store.py`) to add items to
-  a cart and check out. Senso does not complete purchases — per the challenge FAQ, that's the
-  app's job — so every mock-store action is labeled `mode: "simulated"` in the trail and the UI.
-  As a defense-in-depth safety net, the mock store also hard-blocks any item matching the
-  household's tree-nut allergy flag, independent of what the agent decides.
+- **Context**: `backend/context/*.md` (catalog with brand and size variants, household profile,
+  order history, store policy) is ingested with `POST /org/kb/raw`.
+- **Retrieval**: the agent calls `POST /org/search/context` for every decision and the trail keeps
+  each citation's `content_id`, `kb_node_id`, `version_id`, `chunk_text`, `score` and `rank`.
+- **Verification**: before checkout the agent sends its full draft answer to
+  `POST /org/evals/text`. Each claim comes back `verified`, `conflict`, `unsupported` or unscored.
+- **Action**: a mock storefront (`backend/mock_store.py`) holds the cart. Senso doesn't complete
+  purchases, so every cart action is labelled simulated.
+
+## Guards enforced in code, not just the prompt
+
+1. **Checkout gate** (`backend/tools.py`). `checkout` refuses unless a fact-check ran after the
+   last cart change, its drafts named every cart item, and the latest check found no conflicts.
+   Refusals are logged to the trail with the reason.
+2. **Re-check of unsupported claims.** Senso's judge isn't fully deterministic: the same claim came
+   back `unsupported` in one run and `verified` in another. Unsupported claims are re-checked once;
+   what still fails is shown to the shopper as unconfirmed.
+3. **Allergy hard-block.** The store refuses any item tagged with the household's tree-nut allergy
+   flag, whatever the agent asks for.
+
+## Two agent backends, same tools
+
+- **`claude-code`** (default without an API key): runs Claude Code headless (`claude -p`) with
+  every built-in tool turned off and only the shop's MCP tools (`backend/mcp_server.py`) allowed.
+  It uses the machine's Claude login, so no separate API key is needed.
+- **`api`** (default when `ANTHROPIC_API_KEY` is set): calls the Claude API directly with tool use
+  (`backend/agent.py`).
+
+Both share `backend/tools.py` and `backend/prompt.py` and write the same trail, so the UI can't
+tell them apart.
+
+## What we learned about Senso while building
+
+- **A brand kit is required for fact-checks to score anything.** Without one, every claim comes
+  back `about_brand: false` with no verdict. `ingest.py` sets `PUT /org/brand-kit` to "Harvest
+  Basket Grocery" first.
+- **Claims are scored only when tied to the store.** Phrasing like "Harvest Basket sells X at $Y"
+  usually gets name-brand prices scored, but not always. Claims about the shopper ("you bought
+  rice on Oct 23") are never scored, so the agent must back them with search citations.
+- **A waiting fact-check takes up to a minute.** The client allows 120 s; at 30 s every full-cart
+  check timed out and the agent fell back to checking a few claims at a time.
 
 ## Architecture
 
 ```
-frontend/index.html        single-page chat UI + live audit-trail panel (no build step)
+frontend/
+  shop.html            shopper-facing app (live or recorded examples)
+  examples.json        recorded live sessions, built by backend/build_examples.py
+  index.html           agent console with the raw trail
 backend/
-  senso_client.py          REST wrapper: /org/me, /org/kb/raw, /org/kb/nodes/{id},
-                           /org/search, /org/search/context, /org/evals/text, /org/evals/runs/{id}
-  context/*.md             the fictional context to ingest
-    products.md              grocery catalog, with brand/size price variants for comparison
-    household_profile.md     allergies, dietary notes, brand & budget preferences
-    order_history.md         past orders + consumption-pattern notes
-    store_policy.md          delivery, substitution, and allergy-handling policy
-  ingest.py                pushes context/*.md into Senso, polls until processed
-  mock_store.py            in-memory catalog + cart/checkout, allergy hard-block, all actions simulated
-  agent.py                 Claude tool-use loop: search_context, list_products, add_to_cart,
-                           checkout, fact_check — logs every call to `trail`
-  main.py                  FastAPI app exposing POST /api/chat
+  context/*.md         the fictional knowledge base
+  ingest.py            sets the brand kit, ingests context, waits for processing
+  senso_client.py      REST wrapper for the Senso endpoints above
+  tools.py             the agent's tools, state file, checkout gate, re-check
+  prompt.py            system prompt and tool schemas
+  mcp_server.py        the tools as an MCP server, for the Claude Code backend
+  agent_claude_code.py Claude Code headless backend
+  agent.py             Claude API backend
+  mock_store.py        catalog, cart, allergy block (simulated)
+  main.py              FastAPI: /shop, /, /api/chat, /api/state, /api/cart/add, /api/reset
+  build_examples.py    turns recorded /api/chat responses into frontend/examples.json
 ```
 
 ## Setup
 
-1. Sign up at https://docs.senso.ai/docs/overview, create an org (choose "Knowledge Base for
-   Agents"), and get an API key at https://docs.senso.ai/api-keys. Credits are pre-loaded.
-2. Get an Anthropic API key (console.anthropic.com) for the agent's own reasoning.
-3. Copy `.env.example` to `.env` in `backend/` (or project root) and fill in both keys.
+1. Create a Senso org at https://docs.senso.ai/docs/overview ("Knowledge Base for Agents") and an
+   API key at https://docs.senso.ai/api-keys.
+2. Put `SENSO_API_KEY` in `backend/.env`. Add `ANTHROPIC_API_KEY` to use the API backend, or have
+   Claude Code installed and logged in to use the Claude Code backend.
 
 ```bash
 cd backend
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
-python ingest.py        # pushes the fictional context into your Senso org
-uvicorn main:app --reload --port 8000
+python ingest.py
+uvicorn main:app --port 8000
 ```
 
-4. Open `frontend/index.html` directly in a browser (or serve it with any static server).
+Then open `http://localhost:8000/shop`.
 
 ## Try it
 
-- **Restock (primary)**: "It's been about 2 weeks since our last order, can you restock what we
-  usually need?" → agent should reason from order history (milk ×2, eggs, bread, sunflower seed
-  butter, paper towels are reordered every cycle; rice and GF bread are not always needed),
-  respect the tree-nut allergy (picks sunflower seed butter, never peanut/tree-nut items), prefer
-  store brand for everyday basics, keep the Terra Verde olive-oil exception, and simulate adding
-  items to cart.
-- **Price comparison (secondary)**: "We're almost out of peanut butter and olive oil — what
-  should we get?" → agent should compare price-per-unit across brand options, apply the
-  household's "store brand for basics, except olive oil" rule, and avoid the peanut butter option
-  entirely because of the allergy — picking sunflower seed butter instead and explaining why.
-- **Missing info**: ask something order history doesn't cover (e.g. "should we get more rice this
-  time?") → agent should say the pattern doesn't clearly establish that rather than guessing.
-- **Fact-check catch**: ask the agent to justify a questionable claim (e.g. "are store-brand eggs
-  cage-free?") → the fact-check step should flag it as conflict/unsupported rather than confirming.
+- **Restock**: "It's been about 2 weeks since our last order. Can you restock what we usually need
+  and check out?"
+- **Price comparison**: "We're almost out of peanut butter and olive oil. What should we get, and
+  why?"
+- **Unsafe request**: "Add the store-brand peanut butter since it's the cheapest, plus two dozen of
+  the store-brand cage-free eggs, then check out." In the recorded run the agent refused the peanut
+  butter (shared lines with tree nuts), Senso flagged a claim in its first draft as a conflict, and
+  the agent rewrote and re-checked it before asking two questions. Adding that peanut butter by
+  hand is refused by the store's allergy block.
 
 ## Notes
 
-- All brand names, products, prices and policies are invented for this demo (per the challenge
-  rules).
-- This is single-session/demo-grade: one shared cart and conversation per backend process, no
-  auth, no persistence. Fine for a hackathon demo, not for production.
+- All brands, products, prices and policies are invented for the demo.
+- One demo session per server process, no auth. Fine for a hackathon, not for production.

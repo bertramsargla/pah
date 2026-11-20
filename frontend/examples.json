@@ -1,0 +1,2056 @@
+{
+ "catalog": [
+  {
+   "sku": "MILK-STORE-1G",
+   "name": "Harvest Basket Whole Milk (1 gal)",
+   "category": "Milk",
+   "brand_tier": "store",
+   "price": 3.49,
+   "price_per_unit": 3.49,
+   "per_unit": "gal",
+   "notes": "store brand",
+   "allergy_status": "Allowed"
+  },
+  {
+   "sku": "MILK-NAME-1G",
+   "name": "Dairyvale Whole Milk (1 gal)",
+   "category": "Milk",
+   "brand_tier": "name",
+   "price": 4.79,
+   "price_per_unit": 4.79,
+   "per_unit": "gal",
+   "notes": "name brand, higher butterfat label claim",
+   "allergy_status": "Allowed"
+  },
+  {
+   "sku": "MILK-OAT-64OZ",
+   "name": "Oatly Oat Milk (64 oz)",
+   "category": "Milk",
+   "brand_tier": "name",
+   "price": 5.49,
+   "price_per_unit": 10.98,
+   "per_unit": "gal",
+   "notes": "lactose-free, not dairy",
+   "allergy_status": "Allowed"
+  },
+  {
+   "sku": "EGG-STORE-12",
+   "name": "Harvest Basket Large Eggs (12-ct)",
+   "category": "Eggs",
+   "brand_tier": "store",
+   "price": 3.29,
+   "price_per_unit": 0.274,
+   "per_unit": "egg",
+   "notes": "store brand",
+   "allergy_status": "Allowed"
+  },
+  {
+   "sku": "EGG-CAGEFREE-12",
+   "name": "Nestwell Cage-Free Eggs (12-ct)",
+   "category": "Eggs",
+   "brand_tier": "name",
+   "price": 5.49,
+   "price_per_unit": 0.458,
+   "per_unit": "egg",
+   "notes": "name brand, cage-free certified",
+   "allergy_status": "Allowed"
+  },
+  {
+   "sku": "BREAD-STORE-WHT",
+   "name": "Harvest Basket White Bread (20 oz)",
+   "category": "Bread",
+   "brand_tier": "store",
+   "price": 2.49,
+   "price_per_unit": null,
+   "per_unit": null,
+   "notes": "store brand",
+   "allergy_status": "Allowed"
+  },
+  {
+   "sku": "BREAD-NAME-WHL",
+   "name": "Golden Fields Whole Wheat Bread (20 oz)",
+   "category": "Bread",
+   "brand_tier": "name",
+   "price": 4.29,
+   "price_per_unit": null,
+   "per_unit": null,
+   "notes": "name brand",
+   "allergy_status": "Allowed"
+  },
+  {
+   "sku": "BREAD-GF-LOAF",
+   "name": "Harvest Basket Gluten-Free Bread (16 oz)",
+   "category": "Bread",
+   "brand_tier": "store",
+   "price": 5.99,
+   "price_per_unit": null,
+   "per_unit": null,
+   "notes": "gluten-free, made in a dedicated gluten-free facility",
+   "allergy_status": "Allowed"
+  },
+  {
+   "sku": "PB-STORE-16",
+   "name": "Harvest Basket Peanut Butter (16 oz)",
+   "category": "Peanut Butter",
+   "brand_tier": "store",
+   "price": 2.99,
+   "price_per_unit": 0.187,
+   "per_unit": "oz",
+   "notes": "store brand, made on shared lines with tree nuts",
+   "allergy_status": "Blocked (tree nut)"
+  },
+  {
+   "sku": "PB-NAME-16",
+   "name": "NuttyCo Peanut Butter (16 oz)",
+   "category": "Peanut Butter",
+   "brand_tier": "name",
+   "price": 4.49,
+   "price_per_unit": 0.281,
+   "per_unit": "oz",
+   "notes": "name brand, tree-nut-free dedicated facility",
+   "allergy_status": "Allowed"
+  },
+  {
+   "sku": "PB-SUNFLOWER-16",
+   "name": "SunSeed Sunflower Seed Butter (16 oz)",
+   "category": "Peanut Butter",
+   "brand_tier": "name",
+   "price": 6.99,
+   "price_per_unit": 0.437,
+   "per_unit": "oz",
+   "notes": "peanut-free and tree-nut-free alternative",
+   "allergy_status": "Allowed"
+  },
+  {
+   "sku": "PASTA-STORE-16",
+   "name": "Harvest Basket Spaghetti (16 oz)",
+   "category": "Pasta",
+   "brand_tier": "store",
+   "price": 1.29,
+   "price_per_unit": 0.081,
+   "per_unit": "oz",
+   "notes": "store brand",
+   "allergy_status": "Allowed"
+  },
+  {
+   "sku": "PASTA-NAME-16",
+   "name": "Romano's Spaghetti (16 oz)",
+   "category": "Pasta",
+   "brand_tier": "name",
+   "price": 2.49,
+   "price_per_unit": 0.156,
+   "per_unit": "oz",
+   "notes": "name brand, imported",
+   "allergy_status": "Allowed"
+  },
+  {
+   "sku": "PASTA-GF-12",
+   "name": "Harvest Basket Gluten-Free Penne (12 oz)",
+   "category": "Pasta",
+   "brand_tier": "store",
+   "price": 3.99,
+   "price_per_unit": 0.333,
+   "per_unit": "oz",
+   "notes": "gluten-free",
+   "allergy_status": "Allowed"
+  },
+  {
+   "sku": "RICE-STORE-5LB",
+   "name": "Harvest Basket Long Grain White Rice (5 lb)",
+   "category": "Pantry Staples",
+   "brand_tier": "store",
+   "price": 4.99,
+   "price_per_unit": null,
+   "per_unit": null,
+   "notes": "store brand",
+   "allergy_status": "Allowed"
+  },
+  {
+   "sku": "OLIVEOIL-STORE-17OZ",
+   "name": "Harvest Basket Olive Oil (17 oz)",
+   "category": "Pantry Staples",
+   "brand_tier": "store",
+   "price": 7.99,
+   "price_per_unit": 0.47,
+   "per_unit": "oz",
+   "notes": "store brand, blend",
+   "allergy_status": "Allowed"
+  },
+  {
+   "sku": "OLIVEOIL-NAME-17OZ",
+   "name": "Terra Verde Extra Virgin Olive Oil (17 oz)",
+   "category": "Pantry Staples",
+   "brand_tier": "name",
+   "price": 12.99,
+   "price_per_unit": 0.764,
+   "per_unit": "oz",
+   "notes": "name brand, single-origin, cold-pressed",
+   "allergy_status": "Allowed"
+  },
+  {
+   "sku": "BANANA-LB",
+   "name": "Bananas",
+   "category": "Produce",
+   "brand_tier": "n/a",
+   "price": 0.59,
+   "price_per_unit": 0.59,
+   "per_unit": "lb",
+   "notes": "",
+   "allergy_status": "Allowed"
+  },
+  {
+   "sku": "APPLE-GALA-LB",
+   "name": "Gala Apples",
+   "category": "Produce",
+   "brand_tier": "n/a",
+   "price": 1.79,
+   "price_per_unit": 1.79,
+   "per_unit": "lb",
+   "notes": "",
+   "allergy_status": "Allowed"
+  },
+  {
+   "sku": "PAPERTOWEL-STORE-6",
+   "name": "Harvest Basket Paper Towels (6 rolls)",
+   "category": "Household",
+   "brand_tier": "store",
+   "price": 7.99,
+   "price_per_unit": null,
+   "per_unit": null,
+   "notes": "store brand",
+   "allergy_status": "Allowed"
+  },
+  {
+   "sku": "PAPERTOWEL-NAME-6",
+   "name": "SoftGrip Paper Towels (6 rolls)",
+   "category": "Household",
+   "brand_tier": "name",
+   "price": 11.49,
+   "price_per_unit": null,
+   "per_unit": null,
+   "notes": "name brand, marketed as more absorbent",
+   "allergy_status": "Allowed"
+  }
+ ],
+ "examples": [
+  {
+   "id": "restock",
+   "title": "Restock the usual order",
+   "recorded": "Nov 20, 2026",
+   "turns": [
+    {
+     "message": "It's been about 2 weeks since our last order. Can you restock what we usually need and check out?",
+     "steps": [
+      {
+       "step": 2,
+       "turn": 1,
+       "tool": "search_context",
+       "summary": "order history consumption pattern",
+       "outcome": "5 passages, top score 0.89",
+       "status": "ok",
+       "citations": [
+        {
+         "document": "Order History",
+         "score": 0.8897589445114136,
+         "rank": 1,
+         "content_id": "fd2b0432-d6c0-4609-ac86-6ad796c7d0db",
+         "chunk_text": "ct \u2014 qty 1\n- Harvest Basket White Bread, 20 oz loaf \u2014 qty 1\n- SunSeed Sunflower Seed Butter, 16 oz \u2014 qty 1\n- Harvest Basket Spaghetti, 16 oz \u2014 qty 2\n- Harvest Basket Long Grain White Rice, 5 lb bag \u2014 qty 1\n- Terra Verde "
+        },
+        {
+         "document": "Order History",
+         "score": 0.876623809337616,
+         "rank": 2,
+         "content_id": "fd2b0432-d6c0-4609-ac86-6ad796c7d0db",
+         "chunk_text": "# Order History \u2014 The Rivera Household (Fictional, Hackathon Demo)\n\nReference date: November 20, 2026. All orders below are fictional, for demo purposes only.\n\n## Order placed 2026-11-06 (2 weeks ago)\n- Harvest Basket Wh"
+        },
+        {
+         "document": "Order History",
+         "score": 0.7553483247756958,
+         "rank": 3,
+         "content_id": "fd2b0432-d6c0-4609-ac86-6ad796c7d0db",
+         "chunk_text": ") typically runs out within the 2-week cycle; the household usually buys 2 at a\n  time to cover the period.\n- Eggs (one 12-ct carton) typically lasts the full 2-week cycle for this household.\n- Bread is restocked most cy"
+        },
+        {
+         "document": "Order History",
+         "score": 0.7284393310546875,
+         "rank": 4,
+         "content_id": "fd2b0432-d6c0-4609-ac86-6ad796c7d0db",
+         "chunk_text": "ty 1\n- SunSeed Sunflower Seed Butter, 16 oz \u2014 qty 1\n- Harvest Basket Spaghetti, 16 oz \u2014 qty 2\n- Harvest Basket Gluten-Free Penne, 12 oz \u2014 qty 1\n- Terra Verde Extra Virgin Olive Oil, 17 oz \u2014 qty 1\n- Bananas \u2014 qty 3 lb\n- H"
+        },
+        {
+         "document": "Order History",
+         "score": 0.633047342300415,
+         "rank": 5,
+         "content_id": "fd2b0432-d6c0-4609-ac86-6ad796c7d0db",
+         "chunk_text": "ers, so\n  it is not needed every time.\n- Paper towels (6-roll pack) have been reordered every cycle so far.\n- Sunflower seed butter (not peanut butter, due to the tree-nut allergy caution and because the\n  household has "
+        }
+       ]
+      },
+      {
+       "step": 3,
+       "turn": 1,
+       "tool": "search_context",
+       "summary": "household allergies brand budget preferences",
+       "outcome": "5 passages, top score 0.80",
+       "status": "ok",
+       "citations": [
+        {
+         "document": "Household Profile",
+         "score": 0.8032355308532715,
+         "rank": 1,
+         "content_id": "c8656699-74f0-44ab-bd59-d39b8462d338",
+         "chunk_text": " pasta due to a sensitivity (not celiac, but avoids\n  gluten most of the time).\n- General household preference: prefer the store brand (Harvest Basket) over name brands when\n  the difference is mainly price and not a die"
+        },
+        {
+         "document": "Household Profile",
+         "score": 0.6016871333122253,
+         "rank": 2,
+         "content_id": "c8656699-74f0-44ab-bd59-d39b8462d338",
+         "chunk_text": "il, the household has said they're willing to pay more for the\n  name-brand single-origin olive oil (Terra Verde) because they use it for a specific recipe and\n  notice the quality difference.\n- Monthly household grocery"
+        },
+        {
+         "document": "Household Profile",
+         "score": 0.5113261938095093,
+         "rank": 3,
+         "content_id": "c8656699-74f0-44ab-bd59-d39b8462d338",
+         "chunk_text": "# Household Profile \u2014 The Rivera Household (Demo Shopper), Fictional\n\n- Household of 3: two adults and one child (age 7).\n- The child has a diagnosed tree nut allergy. No tree-nut products should ever be added to the\n  o"
+        },
+        {
+         "document": "Products",
+         "score": 0.47424158453941345,
+         "rank": 4,
+         "content_id": "3d322750-bef2-4525-a09b-90c26f427670",
+         "chunk_text": " Gluten-Free Bread, 16 oz loaf \u2014 $5.99 \u2014 gluten-free, made in a dedicated gluten-free facility\n\n## Peanut Butter\n- SKU PB-STORE-16 \u2014 Harvest Basket Peanut Butter, 16 oz \u2014 $2.99 ($0.187/oz) \u2014 store brand, made on shared l"
+        },
+        {
+         "document": "Products",
+         "score": 0.46645671129226685,
+         "rank": 5,
+         "content_id": "3d322750-bef2-4525-a09b-90c26f427670",
+         "chunk_text": "## Milk\n- SKU MILK-STORE-1G \u2014 Harvest Basket Whole Milk, 1 gallon \u2014 $3.49 ($3.49/gal) \u2014 store brand\n- SKU MILK-NAME-1G \u2014 Dairyvale Whole Milk, 1 gallon \u2014 $4.79 ($4.79/gal) \u2014 name brand, higher butterfat label claim\n- SKU"
+        }
+       ]
+      },
+      {
+       "step": 4,
+       "turn": 1,
+       "tool": "search_context",
+       "summary": "store policy delivery minimum fees substitutions",
+       "outcome": "3 passages, top score 0.90",
+       "status": "ok",
+       "citations": [
+        {
+         "document": "Store Policy",
+         "score": 0.9038387537002563,
+         "rank": 1,
+         "content_id": "db23f12b-9681-494a-b1cf-cdf7c4f1733c",
+         "chunk_text": "# Harvest Basket Grocery \u2014 Delivery & Substitution Policy (Fictional, Hackathon Demo)\n\n- Delivery fee: $5.99 per order, free on orders over $100 before tax.\n- Delivery windows: next-day delivery for orders placed before "
+        },
+        {
+         "document": "Store Policy",
+         "score": 0.5288740992546082,
+         "rank": 2,
+         "content_id": "db23f12b-9681-494a-b1cf-cdf7c4f1733c",
+         "chunk_text": "k, Harvest Basket will substitute the closest\n  equivalent item **unless** the order is flagged \"no substitutions\" for that item. Substitutions\n  always respect any allergy or dietary flags on the account \u2014 an item flagg"
+        },
+        {
+         "document": "Store Policy",
+         "score": 0.43168002367019653,
+         "rank": 3,
+         "content_id": "db23f12b-9681-494a-b1cf-cdf7c4f1733c",
+         "chunk_text": "tem itself\n  does not contain tree nuts.\n- Allergy flag: accounts can mark specific allergies (e.g. tree nut) which blocks matching\n  products from being added or substituted into any order on that account, including by "
+        }
+       ]
+      },
+      {
+       "step": 5,
+       "turn": 1,
+       "tool": "list_products",
+       "summary": "Catalog",
+       "outcome": "21 products",
+       "status": "ok"
+      },
+      {
+       "step": 6,
+       "turn": 1,
+       "tool": "search_context",
+       "summary": "Order placed 2026-10-23 4 weeks ago items rice apples olive oil",
+       "outcome": "5 passages, top score 0.83",
+       "status": "ok",
+       "citations": [
+        {
+         "document": "Products",
+         "score": 0.8332432508468628,
+         "rank": 1,
+         "content_id": "3d322750-bef2-4525-a09b-90c26f427670",
+         "chunk_text": "\ufffd Harvest Basket Gluten-Free Penne (rice/corn blend), 12 oz \u2014 $3.99 ($0.333/oz) \u2014 gluten-free\n\n## Pantry Staples\n- SKU RICE-STORE-5LB \u2014 Harvest Basket Long Grain White Rice, 5 lb bag \u2014 $4.99 \u2014 store brand\n- SKU OLIVEOIL-"
+        },
+        {
+         "document": "Order History",
+         "score": 0.812926709651947,
+         "rank": 2,
+         "content_id": "fd2b0432-d6c0-4609-ac86-6ad796c7d0db",
+         "chunk_text": "ty 1\n- SunSeed Sunflower Seed Butter, 16 oz \u2014 qty 1\n- Harvest Basket Spaghetti, 16 oz \u2014 qty 2\n- Harvest Basket Gluten-Free Penne, 12 oz \u2014 qty 1\n- Terra Verde Extra Virgin Olive Oil, 17 oz \u2014 qty 1\n- Bananas \u2014 qty 3 lb\n- H"
+        },
+        {
+         "document": "Order History",
+         "score": 0.761786699295044,
+         "rank": 3,
+         "content_id": "fd2b0432-d6c0-4609-ac86-6ad796c7d0db",
+         "chunk_text": "ct \u2014 qty 1\n- Harvest Basket White Bread, 20 oz loaf \u2014 qty 1\n- SunSeed Sunflower Seed Butter, 16 oz \u2014 qty 1\n- Harvest Basket Spaghetti, 16 oz \u2014 qty 2\n- Harvest Basket Long Grain White Rice, 5 lb bag \u2014 qty 1\n- Terra Verde "
+        },
+        {
+         "document": "Order History",
+         "score": 0.6165664792060852,
+         "rank": 4,
+         "content_id": "fd2b0432-d6c0-4609-ac86-6ad796c7d0db",
+         "chunk_text": "# Order History \u2014 The Rivera Household (Fictional, Hackathon Demo)\n\nReference date: November 20, 2026. All orders below are fictional, for demo purposes only.\n\n## Order placed 2026-11-06 (2 weeks ago)\n- Harvest Basket Wh"
+        },
+        {
+         "document": "Products",
+         "score": 0.5922893285751343,
+         "rank": 5,
+         "content_id": "3d322750-bef2-4525-a09b-90c26f427670",
+         "chunk_text": "e Extra Virgin Olive Oil, 17 oz \u2014 $12.99 ($0.764/oz) \u2014 name brand, single-origin, cold-pressed\n\n## Produce\n- SKU BANANA-LB \u2014 Bananas, per lb \u2014 $0.59/lb\n- SKU APPLE-GALA-LB \u2014 Gala Apples, per lb \u2014 $1.79/lb\n\n## Household\n-"
+        }
+       ]
+      },
+      {
+       "step": 7,
+       "turn": 1,
+       "tool": "search_context",
+       "summary": "gluten-free penne bread olive oil restock frequency bananas apples",
+       "outcome": "5 passages, top score 0.78",
+       "status": "ok",
+       "citations": [
+        {
+         "document": "Order History",
+         "score": 0.7837237119674683,
+         "rank": 1,
+         "content_id": "fd2b0432-d6c0-4609-ac86-6ad796c7d0db",
+         "chunk_text": "ty 1\n- SunSeed Sunflower Seed Butter, 16 oz \u2014 qty 1\n- Harvest Basket Spaghetti, 16 oz \u2014 qty 2\n- Harvest Basket Gluten-Free Penne, 12 oz \u2014 qty 1\n- Terra Verde Extra Virgin Olive Oil, 17 oz \u2014 qty 1\n- Bananas \u2014 qty 3 lb\n- H"
+        },
+        {
+         "document": "Products",
+         "score": 0.6492228507995605,
+         "rank": 2,
+         "content_id": "3d322750-bef2-4525-a09b-90c26f427670",
+         "chunk_text": "\ufffd Harvest Basket Gluten-Free Penne (rice/corn blend), 12 oz \u2014 $3.99 ($0.333/oz) \u2014 gluten-free\n\n## Pantry Staples\n- SKU RICE-STORE-5LB \u2014 Harvest Basket Long Grain White Rice, 5 lb bag \u2014 $4.99 \u2014 store brand\n- SKU OLIVEOIL-"
+        },
+        {
+         "document": "Order History",
+         "score": 0.5327655076980591,
+         "rank": 3,
+         "content_id": "fd2b0432-d6c0-4609-ac86-6ad796c7d0db",
+         "chunk_text": ") typically runs out within the 2-week cycle; the household usually buys 2 at a\n  time to cover the period.\n- Eggs (one 12-ct carton) typically lasts the full 2-week cycle for this household.\n- Bread is restocked most cy"
+        },
+        {
+         "document": "Order History",
+         "score": 0.47229403257369995,
+         "rank": 4,
+         "content_id": "fd2b0432-d6c0-4609-ac86-6ad796c7d0db",
+         "chunk_text": "# Order History \u2014 The Rivera Household (Fictional, Hackathon Demo)\n\nReference date: November 20, 2026. All orders below are fictional, for demo purposes only.\n\n## Order placed 2026-11-06 (2 weeks ago)\n- Harvest Basket Wh"
+        },
+        {
+         "document": "Order History",
+         "score": 0.43936243653297424,
+         "rank": 5,
+         "content_id": "fd2b0432-d6c0-4609-ac86-6ad796c7d0db",
+         "chunk_text": "ct \u2014 qty 1\n- Harvest Basket White Bread, 20 oz loaf \u2014 qty 1\n- SunSeed Sunflower Seed Butter, 16 oz \u2014 qty 1\n- Harvest Basket Spaghetti, 16 oz \u2014 qty 2\n- Harvest Basket Long Grain White Rice, 5 lb bag \u2014 qty 1\n- Terra Verde "
+        }
+       ]
+      },
+      {
+       "step": 8,
+       "turn": 1,
+       "tool": "search_context",
+       "summary": "Products eggs cage-free bread pasta rice olive oil paper towels prices",
+       "outcome": "5 passages, top score 0.73",
+       "status": "ok",
+       "citations": [
+        {
+         "document": "Products",
+         "score": 0.7330507040023804,
+         "rank": 1,
+         "content_id": "3d322750-bef2-4525-a09b-90c26f427670",
+         "chunk_text": "\u2014 $3.29 ($0.274/egg) \u2014 store brand\n- SKU EGG-CAGEFREE-12 \u2014 Nestwell Cage-Free Eggs, 12-ct \u2014 $5.49 ($0.458/egg) \u2014 name brand, cage-free certified\n\n## Bread\n- SKU BREAD-STORE-WHT \u2014 Harvest Basket White Bread, 20 oz loaf \u2014 "
+        },
+        {
+         "document": "Order History",
+         "score": 0.6294102072715759,
+         "rank": 2,
+         "content_id": "fd2b0432-d6c0-4609-ac86-6ad796c7d0db",
+         "chunk_text": "ct \u2014 qty 1\n- Harvest Basket White Bread, 20 oz loaf \u2014 qty 1\n- SunSeed Sunflower Seed Butter, 16 oz \u2014 qty 1\n- Harvest Basket Spaghetti, 16 oz \u2014 qty 2\n- Harvest Basket Long Grain White Rice, 5 lb bag \u2014 qty 1\n- Terra Verde "
+        },
+        {
+         "document": "Products",
+         "score": 0.5771140456199646,
+         "rank": 3,
+         "content_id": "3d322750-bef2-4525-a09b-90c26f427670",
+         "chunk_text": "\ufffd Harvest Basket Gluten-Free Penne (rice/corn blend), 12 oz \u2014 $3.99 ($0.333/oz) \u2014 gluten-free\n\n## Pantry Staples\n- SKU RICE-STORE-5LB \u2014 Harvest Basket Long Grain White Rice, 5 lb bag \u2014 $4.99 \u2014 store brand\n- SKU OLIVEOIL-"
+        },
+        {
+         "document": "Order History",
+         "score": 0.5579416155815125,
+         "rank": 4,
+         "content_id": "fd2b0432-d6c0-4609-ac86-6ad796c7d0db",
+         "chunk_text": "ty 1\n- SunSeed Sunflower Seed Butter, 16 oz \u2014 qty 1\n- Harvest Basket Spaghetti, 16 oz \u2014 qty 2\n- Harvest Basket Gluten-Free Penne, 12 oz \u2014 qty 1\n- Terra Verde Extra Virgin Olive Oil, 17 oz \u2014 qty 1\n- Bananas \u2014 qty 3 lb\n- H"
+        },
+        {
+         "document": "Products",
+         "score": 0.4432148039340973,
+         "rank": 5,
+         "content_id": "3d322750-bef2-4525-a09b-90c26f427670",
+         "chunk_text": "e Extra Virgin Olive Oil, 17 oz \u2014 $12.99 ($0.764/oz) \u2014 name brand, single-origin, cold-pressed\n\n## Produce\n- SKU BANANA-LB \u2014 Bananas, per lb \u2014 $0.59/lb\n- SKU APPLE-GALA-LB \u2014 Gala Apples, per lb \u2014 $1.79/lb\n\n## Household\n-"
+        }
+       ]
+      },
+      {
+       "step": 9,
+       "turn": 1,
+       "tool": "add_to_cart",
+       "summary": "Harvest Basket Whole Milk (1 gal) \u00d72",
+       "outcome": "Added. Subtotal $6.98",
+       "status": "ok"
+      },
+      {
+       "step": 10,
+       "turn": 1,
+       "tool": "add_to_cart",
+       "summary": "Harvest Basket Large Eggs (12-ct) \u00d71",
+       "outcome": "Added. Subtotal $10.27",
+       "status": "ok"
+      },
+      {
+       "step": 11,
+       "turn": 1,
+       "tool": "add_to_cart",
+       "summary": "Harvest Basket White Bread (20 oz) \u00d71",
+       "outcome": "Added. Subtotal $12.76",
+       "status": "ok"
+      },
+      {
+       "step": 12,
+       "turn": 1,
+       "tool": "add_to_cart",
+       "summary": "SunSeed Sunflower Seed Butter (16 oz) \u00d71",
+       "outcome": "Added. Subtotal $19.75",
+       "status": "ok"
+      },
+      {
+       "step": 13,
+       "turn": 1,
+       "tool": "add_to_cart",
+       "summary": "Harvest Basket Spaghetti (16 oz) \u00d72",
+       "outcome": "Added. Subtotal $22.33",
+       "status": "ok"
+      },
+      {
+       "step": 14,
+       "turn": 1,
+       "tool": "add_to_cart",
+       "summary": "Terra Verde Extra Virgin Olive Oil (17 oz) \u00d71",
+       "outcome": "Added. Subtotal $35.32",
+       "status": "ok"
+      },
+      {
+       "step": 15,
+       "turn": 1,
+       "tool": "add_to_cart",
+       "summary": "Harvest Basket Paper Towels (6 rolls) \u00d71",
+       "outcome": "Added. Subtotal $43.31",
+       "status": "ok"
+      },
+      {
+       "step": 16,
+       "turn": 1,
+       "tool": "ask_shopper",
+       "summary": "Harvest Basket Gluten-Free Bread (16 oz)",
+       "outcome": "Gluten-free bread is usually restocked about every other cycle and you last got it on 2026-11-06. Do you need a loaf this time?",
+       "status": "question"
+      },
+      {
+       "step": 17,
+       "turn": 1,
+       "tool": "ask_shopper",
+       "summary": "Harvest Basket Gluten-Free Penne (12 oz)",
+       "outcome": "Gluten-free penne was only in the 2026-11-06 order. Do you need more this cycle?",
+       "status": "question"
+      },
+      {
+       "step": 18,
+       "turn": 1,
+       "tool": "ask_shopper",
+       "summary": "Harvest Basket Long Grain White Rice (5 lb)",
+       "outcome": "A 5 lb bag of rice lasts several cycles and was last bought on 2026-10-23. Are you running low?",
+       "status": "question"
+      },
+      {
+       "step": 19,
+       "turn": 1,
+       "tool": "ask_shopper",
+       "summary": "Fruit (Bananas or Gala Apples)",
+       "outcome": "The last two orders had 3 lb of bananas (11-06) and 4 lb of Gala apples (10-23). Which fruit do you want this time, and how much?",
+       "status": "question"
+      },
+      {
+       "step": 20,
+       "turn": 1,
+       "tool": "fact_check",
+       "summary": "Draft answer, 35 claims",
+       "outcome": "13 unscored, 1 unsupported, 21 verified",
+       "status": "ok",
+       "claims": [
+        {
+         "claim": "Harvest Basket sells Harvest Basket Whole Milk, 1 gallon at $3.49.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket sells Dairyvale Whole Milk, 1 gallon at $4.79.",
+         "verdict": "unscored",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket sells Harvest Basket Large Eggs, 12-ct at $3.29.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket Large Eggs cost $0.274 per egg.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket sells Nestwell Cage-Free Eggs, 12-ct at $5.49.",
+         "verdict": "unscored",
+         "rechecked": null
+        },
+        {
+         "claim": "Nestwell Cage-Free Eggs cost $0.458 per egg.",
+         "verdict": "unscored",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket sells Harvest Basket White Bread, 20 oz loaf at $2.49.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket sells Golden Fields Whole Wheat Bread, 20 oz loaf at $4.29.",
+         "verdict": "unscored",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket sells SunSeed Sunflower Seed Butter, 16 oz at $6.99.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "SunSeed Sunflower Seed Butter costs $0.437 per ounce.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "SunSeed Sunflower Seed Butter is peanut-free.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "SunSeed Sunflower Seed Butter is tree-nut-free.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket sells Harvest Basket Peanut Butter, 16 oz at $2.99.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket Peanut Butter costs $0.187 per ounce.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket Peanut Butter is made on shared lines with tree nuts.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket sells NuttyCo Peanut Butter, 16 oz at $4.49.",
+         "verdict": "unscored",
+         "rechecked": null
+        },
+        {
+         "claim": "NuttyCo Peanut Butter costs $0.281 per ounce.",
+         "verdict": "unscored",
+         "rechecked": null
+        },
+        {
+         "claim": "NuttyCo Peanut Butter is made in a tree-nut-free dedicated facility.",
+         "verdict": "unscored",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket sells Harvest Basket Spaghetti, 16 oz at $1.29.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket sells Romano's Spaghetti, 16 oz at $2.49.",
+         "verdict": "unscored",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket sells Terra Verde Extra Virgin Olive Oil, 17 oz at $12.99.",
+         "verdict": "unscored",
+         "rechecked": null
+        },
+        {
+         "claim": "Terra Verde Extra Virgin Olive Oil costs $0.764 per ounce.",
+         "verdict": "unscored",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket sells Harvest Basket Olive Oil, 17 oz at $7.99.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket Olive Oil costs $0.470 per ounce.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket sells Harvest Basket Paper Towels, 6 rolls at $7.99.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket sells SoftGrip Paper Towels, 6 rolls at $11.49.",
+         "verdict": "unscored",
+         "rechecked": null
+        },
+        {
+         "claim": "The subtotal is $43.31.",
+         "verdict": "unsupported",
+         "rechecked": true
+        },
+        {
+         "claim": "Harvest Basket's minimum order is $35 before tax and delivery fee.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket's delivery fee is $5.99 per order.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket waives the delivery fee on orders over $100 before tax.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket Gluten-Free Bread costs $5.99.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket Gluten-Free Penne costs $3.99.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket Long Grain White Rice, 5 lb, costs $4.99.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Bananas cost $0.59 per pound.",
+         "verdict": "unscored",
+         "rechecked": null
+        },
+        {
+         "claim": "Gala Apples cost $1.79 per pound.",
+         "verdict": "unscored",
+         "rechecked": null
+        }
+       ],
+       "check_id": "9196737d-22b8-4ab1-92f1-611bdf7b174b",
+       "recheck_id": "01c852ba-5280-493e-8f45-99b173f3cbb3"
+      },
+      {
+       "step": 21,
+       "turn": 1,
+       "tool": "checkout",
+       "summary": "Subtotal $43.31",
+       "outcome": "DEMO-ORDER-0001 (simulated, fact-check 9196737d)",
+       "status": "ok"
+      }
+     ],
+     "reply": "I restocked your every-cycle staples and checked out order **DEMO-ORDER-0001**. This is a simulated demo checkout, so no real payment or delivery happened.\n\n**In the cart (subtotal $43.31, plus the $5.99 delivery fee because the order is under $100):**\n| Item | Qty | Why / comparison |\n|---|---|---|\n| Harvest Basket Whole Milk (1 gal) | 2 | You buy 2 every cycle and it runs out in 2 weeks. $3.49/gal vs Dairyvale at $4.79: you prefer the store brand for basics. |\n| Harvest Basket Large Eggs (12-ct) | 1 | One carton lasts a cycle. $0.274/egg vs Nestwell Cage-Free at $0.458/egg. |\n| Harvest Basket White Bread (20 oz) | 1 | Bought every cycle. $2.49 vs Golden Fields Whole Wheat at $4.29. |\n| SunSeed Sunflower Seed Butter (16 oz) | 1 | Bought every cycle; $6.99 ($0.437/oz). It's peanut-free and tree-nut-free. Harvest Basket Peanut Butter is cheaper at $0.187/oz but is made on shared lines with tree nuts, so I left it out because of your child's allergy. I set this item to no substitutions. |\n| Harvest Basket Spaghetti (16 oz) | 2 | Two in each of the last two orders. $1.29 vs Romano's at $2.49. |\n| Terra Verde Extra Virgin Olive Oil (17 oz) | 1 | Bought both cycles. $0.764/oz vs Harvest Basket Olive Oil at $0.470/oz. You've said you'll pay more for Terra Verde. |\n| Harvest Basket Paper Towels (6 rolls) | 1 | Bought every cycle. $7.99 vs SoftGrip at $11.49. |\n\nAt $43.31 the order clears the $35 minimum and is well within your $450 monthly budget.\n\n**What I couldn't confirm:** the store's price list doesn't include the name-brand comparison prices or the fruit prices (Dairyvale, Nestwell, Golden Fields, Romano's, NuttyCo, SoftGrip, Terra Verde, bananas, apples). Those come from the product catalog. The fact check also couldn't confirm the $43.31 subtotal; that figure comes from the cart tool.\n\n**Questions (I left these out until you answer):**\n1. **Harvest Basket Gluten-Free Bread ($5.99):** You usually buy it every other cycle and last got it on 11-06. Do you need a loaf this time?\n2. **Harvest Basket Gluten-Free Penne ($3.99):** It was only in the 11-06 order. Do you need more?\n3. **Harvest Basket Long Grain White Rice, 5 lb ($4.99):** You last bought it on 10-23 and a bag lasts several cycles. Are you running low?\n4. **Fruit:** Last time was 3 lb of bananas (11-06), and before that 4 lb of Gala apples (10-23). Which do you want this time, and how much?\n\nThese extras would probably add up to less than the $35 minimum on their own. If you want any of them, it may be easiest to add them to your next order.",
+     "cart": {
+      "lines": [
+       {
+        "sku": "MILK-STORE-1G",
+        "name": "Harvest Basket Whole Milk (1 gal)",
+        "price": 3.49,
+        "unit": "1 gal",
+        "qty": 2.0,
+        "no_substitutions": false
+       },
+       {
+        "sku": "EGG-STORE-12",
+        "name": "Harvest Basket Large Eggs (12-ct)",
+        "price": 3.29,
+        "unit": "12-ct",
+        "qty": 1,
+        "no_substitutions": false
+       },
+       {
+        "sku": "BREAD-STORE-WHT",
+        "name": "Harvest Basket White Bread (20 oz)",
+        "price": 2.49,
+        "unit": "20 oz",
+        "qty": 1,
+        "no_substitutions": false
+       },
+       {
+        "sku": "PB-SUNFLOWER-16",
+        "name": "SunSeed Sunflower Seed Butter (16 oz)",
+        "price": 6.99,
+        "unit": "16 oz",
+        "qty": 1,
+        "no_substitutions": true
+       },
+       {
+        "sku": "PASTA-STORE-16",
+        "name": "Harvest Basket Spaghetti (16 oz)",
+        "price": 1.29,
+        "unit": "16 oz",
+        "qty": 2.0,
+        "no_substitutions": false
+       },
+       {
+        "sku": "OLIVEOIL-NAME-17OZ",
+        "name": "Terra Verde Extra Virgin Olive Oil (17 oz)",
+        "price": 12.99,
+        "unit": "17 oz",
+        "qty": 1,
+        "no_substitutions": false
+       },
+       {
+        "sku": "PAPERTOWEL-STORE-6",
+        "name": "Harvest Basket Paper Towels (6 rolls)",
+        "price": 7.99,
+        "unit": "6 rolls",
+        "qty": 1,
+        "no_substitutions": false
+       }
+      ],
+      "subtotal": 43.31,
+      "checked_out": true,
+      "order_id": "DEMO-ORDER-0001",
+      "mode": "simulated"
+     }
+    }
+   ]
+  },
+  {
+   "id": "compare",
+   "title": "Compare peanut butter and olive oil",
+   "recorded": "Nov 20, 2026",
+   "turns": [
+    {
+     "message": "We're almost out of peanut butter and olive oil. What should we get, and why?",
+     "steps": [
+      {
+       "step": 2,
+       "turn": 1,
+       "tool": "search_context",
+       "summary": "household allergies brand and budget preferences",
+       "outcome": "5 passages, top score 0.80",
+       "status": "ok",
+       "citations": [
+        {
+         "document": "Household Profile",
+         "score": 0.8019978404045105,
+         "rank": 1,
+         "content_id": "c8656699-74f0-44ab-bd59-d39b8462d338",
+         "chunk_text": " pasta due to a sensitivity (not celiac, but avoids\n  gluten most of the time).\n- General household preference: prefer the store brand (Harvest Basket) over name brands when\n  the difference is mainly price and not a die"
+        },
+        {
+         "document": "Household Profile",
+         "score": 0.6165664792060852,
+         "rank": 2,
+         "content_id": "c8656699-74f0-44ab-bd59-d39b8462d338",
+         "chunk_text": "il, the household has said they're willing to pay more for the\n  name-brand single-origin olive oil (Terra Verde) because they use it for a specific recipe and\n  notice the quality difference.\n- Monthly household grocery"
+        },
+        {
+         "document": "Household Profile",
+         "score": 0.5366528630256653,
+         "rank": 3,
+         "content_id": "c8656699-74f0-44ab-bd59-d39b8462d338",
+         "chunk_text": "# Household Profile \u2014 The Rivera Household (Demo Shopper), Fictional\n\n- Household of 3: two adults and one child (age 7).\n- The child has a diagnosed tree nut allergy. No tree-nut products should ever be added to the\n  o"
+        },
+        {
+         "document": "Products",
+         "score": 0.5152297019958496,
+         "rank": 4,
+         "content_id": "3d322750-bef2-4525-a09b-90c26f427670",
+         "chunk_text": "## Milk\n- SKU MILK-STORE-1G \u2014 Harvest Basket Whole Milk, 1 gallon \u2014 $3.49 ($3.49/gal) \u2014 store brand\n- SKU MILK-NAME-1G \u2014 Dairyvale Whole Milk, 1 gallon \u2014 $4.79 ($4.79/gal) \u2014 name brand, higher butterfat label claim\n- SKU"
+        },
+        {
+         "document": "Products",
+         "score": 0.5113261938095093,
+         "rank": 5,
+         "content_id": "3d322750-bef2-4525-a09b-90c26f427670",
+         "chunk_text": " Gluten-Free Bread, 16 oz loaf \u2014 $5.99 \u2014 gluten-free, made in a dedicated gluten-free facility\n\n## Peanut Butter\n- SKU PB-STORE-16 \u2014 Harvest Basket Peanut Butter, 16 oz \u2014 $2.99 ($0.187/oz) \u2014 store brand, made on shared l"
+        }
+       ]
+      },
+      {
+       "step": 3,
+       "turn": 1,
+       "tool": "search_context",
+       "summary": "order history peanut butter olive oil consumption",
+       "outcome": "4 passages, top score 0.69",
+       "status": "ok",
+       "citations": [
+        {
+         "document": "Order History",
+         "score": 0.6923092603683472,
+         "rank": 1,
+         "content_id": "fd2b0432-d6c0-4609-ac86-6ad796c7d0db",
+         "chunk_text": "ct \u2014 qty 1\n- Harvest Basket White Bread, 20 oz loaf \u2014 qty 1\n- SunSeed Sunflower Seed Butter, 16 oz \u2014 qty 1\n- Harvest Basket Spaghetti, 16 oz \u2014 qty 2\n- Harvest Basket Long Grain White Rice, 5 lb bag \u2014 qty 1\n- Terra Verde "
+        },
+        {
+         "document": "Order History",
+         "score": 0.6839264035224915,
+         "rank": 2,
+         "content_id": "fd2b0432-d6c0-4609-ac86-6ad796c7d0db",
+         "chunk_text": "ty 1\n- SunSeed Sunflower Seed Butter, 16 oz \u2014 qty 1\n- Harvest Basket Spaghetti, 16 oz \u2014 qty 2\n- Harvest Basket Gluten-Free Penne, 12 oz \u2014 qty 1\n- Terra Verde Extra Virgin Olive Oil, 17 oz \u2014 qty 1\n- Bananas \u2014 qty 3 lb\n- H"
+        },
+        {
+         "document": "Order History",
+         "score": 0.6184117794036865,
+         "rank": 3,
+         "content_id": "fd2b0432-d6c0-4609-ac86-6ad796c7d0db",
+         "chunk_text": "# Order History \u2014 The Rivera Household (Fictional, Hackathon Demo)\n\nReference date: November 20, 2026. All orders below are fictional, for demo purposes only.\n\n## Order placed 2026-11-06 (2 weeks ago)\n- Harvest Basket Wh"
+        },
+        {
+         "document": "Order History",
+         "score": 0.42021888494491577,
+         "rank": 4,
+         "content_id": "fd2b0432-d6c0-4609-ac86-6ad796c7d0db",
+         "chunk_text": "ers, so\n  it is not needed every time.\n- Paper towels (6-roll pack) have been reordered every cycle so far.\n- Sunflower seed butter (not peanut butter, due to the tree-nut allergy caution and because the\n  household has "
+        }
+       ]
+      },
+      {
+       "step": 4,
+       "turn": 1,
+       "tool": "search_context",
+       "summary": "peanut butter options price per unit",
+       "outcome": "1 passages, top score 0.65",
+       "status": "ok",
+       "citations": [
+        {
+         "document": "Products",
+         "score": 0.6492228507995605,
+         "rank": 1,
+         "content_id": "3d322750-bef2-4525-a09b-90c26f427670",
+         "chunk_text": " Gluten-Free Bread, 16 oz loaf \u2014 $5.99 \u2014 gluten-free, made in a dedicated gluten-free facility\n\n## Peanut Butter\n- SKU PB-STORE-16 \u2014 Harvest Basket Peanut Butter, 16 oz \u2014 $2.99 ($0.187/oz) \u2014 store brand, made on shared l"
+        }
+       ]
+      },
+      {
+       "step": 5,
+       "turn": 1,
+       "tool": "search_context",
+       "summary": "olive oil options price per unit",
+       "outcome": "2 passages, top score 0.67",
+       "status": "ok",
+       "citations": [
+        {
+         "document": "Products",
+         "score": 0.6668006181716919,
+         "rank": 1,
+         "content_id": "3d322750-bef2-4525-a09b-90c26f427670",
+         "chunk_text": "\ufffd Harvest Basket Gluten-Free Penne (rice/corn blend), 12 oz \u2014 $3.99 ($0.333/oz) \u2014 gluten-free\n\n## Pantry Staples\n- SKU RICE-STORE-5LB \u2014 Harvest Basket Long Grain White Rice, 5 lb bag \u2014 $4.99 \u2014 store brand\n- SKU OLIVEOIL-"
+        },
+        {
+         "document": "Products",
+         "score": 0.5579416155815125,
+         "rank": 2,
+         "content_id": "3d322750-bef2-4525-a09b-90c26f427670",
+         "chunk_text": "e Extra Virgin Olive Oil, 17 oz \u2014 $12.99 ($0.764/oz) \u2014 name brand, single-origin, cold-pressed\n\n## Produce\n- SKU BANANA-LB \u2014 Bananas, per lb \u2014 $0.59/lb\n- SKU APPLE-GALA-LB \u2014 Gala Apples, per lb \u2014 $1.79/lb\n\n## Household\n-"
+        }
+       ]
+      },
+      {
+       "step": 6,
+       "turn": 1,
+       "tool": "search_context",
+       "summary": "store policy delivery minimum fees substitutions",
+       "outcome": "3 passages, top score 0.90",
+       "status": "ok",
+       "citations": [
+        {
+         "document": "Store Policy",
+         "score": 0.9038387537002563,
+         "rank": 1,
+         "content_id": "db23f12b-9681-494a-b1cf-cdf7c4f1733c",
+         "chunk_text": "# Harvest Basket Grocery \u2014 Delivery & Substitution Policy (Fictional, Hackathon Demo)\n\n- Delivery fee: $5.99 per order, free on orders over $100 before tax.\n- Delivery windows: next-day delivery for orders placed before "
+        },
+        {
+         "document": "Store Policy",
+         "score": 0.5288740992546082,
+         "rank": 2,
+         "content_id": "db23f12b-9681-494a-b1cf-cdf7c4f1733c",
+         "chunk_text": "k, Harvest Basket will substitute the closest\n  equivalent item **unless** the order is flagged \"no substitutions\" for that item. Substitutions\n  always respect any allergy or dietary flags on the account \u2014 an item flagg"
+        },
+        {
+         "document": "Store Policy",
+         "score": 0.43168002367019653,
+         "rank": 3,
+         "content_id": "db23f12b-9681-494a-b1cf-cdf7c4f1733c",
+         "chunk_text": "tem itself\n  does not contain tree nuts.\n- Allergy flag: accounts can mark specific allergies (e.g. tree nut) which blocks matching\n  products from being added or substituted into any order on that account, including by "
+        }
+       ]
+      },
+      {
+       "step": 7,
+       "turn": 1,
+       "tool": "list_products",
+       "summary": "Catalog",
+       "outcome": "21 products",
+       "status": "ok"
+      },
+      {
+       "step": 8,
+       "turn": 1,
+       "tool": "add_to_cart",
+       "summary": "Terra Verde Extra Virgin Olive Oil (17 oz) \u00d71",
+       "outcome": "Added. Subtotal $12.99",
+       "status": "ok"
+      },
+      {
+       "step": 9,
+       "turn": 1,
+       "tool": "ask_shopper",
+       "summary": "Peanut butter / seed butter",
+       "outcome": "Your last orders had SunSeed Sunflower Seed Butter ($6.99), not peanut butter. Do you want that again, or real peanut butter this time? If it's peanut butter, the only one I'd pick is NuttyCo Peanut Butter ($4.49), because it's made in a tree-nut-free dedicated facility.",
+       "status": "question"
+      },
+      {
+       "step": 10,
+       "turn": 1,
+       "tool": "fact_check",
+       "summary": "Draft answer, 41 claims",
+       "outcome": "5 unscored, 1 unsupported, 35 verified",
+       "status": "ok",
+       "claims": [
+        {
+         "claim": "The simulated cart contains Terra Verde Extra Virgin Olive Oil.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "The simulated cart contains 1 unit of Terra Verde Extra Virgin Olive Oil.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "The simulated cart's Terra Verde Extra Virgin Olive Oil unit size is 17 oz.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket sells Terra Verde Extra Virgin Olive Oil.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Terra Verde Extra Virgin Olive Oil is sold in a 17 oz size.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Terra Verde Extra Virgin Olive Oil costs $12.99.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Terra Verde Extra Virgin Olive Oil costs $0.764/oz.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Terra Verde Extra Virgin Olive Oil is a name-brand oil.",
+         "verdict": "unscored",
+         "rechecked": null
+        },
+        {
+         "claim": "Terra Verde Extra Virgin Olive Oil is single-origin.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Terra Verde Extra Virgin Olive Oil is cold-pressed.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket sells Harvest Basket Olive Oil.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket Olive Oil is sold in a 17 oz size.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket Olive Oil costs $7.99.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket Olive Oil costs $0.470/oz.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket Olive Oil is a store-brand blend.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket Olive Oil is cheaper than Terra Verde Extra Virgin Olive Oil.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "The household has said it will pay more for Terra Verde because it uses Terra Verde in a specific recipe.",
+         "verdict": "unscored",
+         "rechecked": null
+        },
+        {
+         "claim": "Terra Verde was in each of the past orders.",
+         "verdict": "unscored",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket sells Harvest Basket Peanut Butter.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket Peanut Butter is sold in a 16 oz size.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket Peanut Butter costs $2.99.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket Peanut Butter costs $0.187/oz.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket Peanut Butter is made on shared lines with tree nuts.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket Peanut Butter is ruled out because of the child's tree nut allergy.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket sells NuttyCo Peanut Butter.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "NuttyCo Peanut Butter is sold in a 16 oz size.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "NuttyCo Peanut Butter costs $4.49.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "NuttyCo Peanut Butter costs $0.281/oz.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "NuttyCo Peanut Butter is made in a tree-nut-free dedicated facility.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket sells SunSeed Sunflower Seed Butter.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "SunSeed Sunflower Seed Butter is sold in a 16 oz size.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "SunSeed Sunflower Seed Butter costs $6.99.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "SunSeed Sunflower Seed Butter costs $0.437/oz.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "SunSeed Sunflower Seed Butter is peanut-free.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "SunSeed Sunflower Seed Butter is tree-nut-free.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "The household has bought SunSeed every cycle so far instead of peanut butter.",
+         "verdict": "unscored",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket's minimum order is $35 before tax and delivery fee.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket's delivery fee is $5.99.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket provides free delivery on orders over $100.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "The cart subtotal is $12.99.",
+         "verdict": "unscored",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket would refuse checkout when the cart subtotal is below the minimum order.",
+         "verdict": "unsupported",
+         "rechecked": true
+        }
+       ],
+       "check_id": "bdbb2dea-96ef-45a3-8921-a83d7dd3c2db",
+       "recheck_id": "f80b3ef1-1a39-40f5-9b58-801b8069c3db"
+      }
+     ],
+     "reply": "I added **Terra Verde Extra Virgin Olive Oil (17 oz)** to the cart, but not peanut butter yet: I need to check one thing with you first. The cart is simulated, so nothing has been paid for or delivered.\n\n**Olive oil: Terra Verde Extra Virgin Olive Oil, 17 oz, $12.99 ($0.764/oz)**\n- The store's own Harvest Basket Olive Oil (17 oz) is cheaper at $7.99 ($0.470/oz), but it's a blend.\n- Your profile says you'll pay more for Terra Verde because you use it in a specific recipe. It's also what your recent orders had. That outweighs the $5 difference.\n\n**Peanut butter: not added yet**\n- **Harvest Basket Peanut Butter: ruled out.** It's the cheapest at $2.99 ($0.187/oz), but it's made on shared lines with tree nuts, which isn't safe with your child's tree nut allergy.\n- **NuttyCo Peanut Butter: the safe peanut butter.** It's $4.49 ($0.281/oz) and made in a tree-nut-free dedicated facility.\n- **SunSeed Sunflower Seed Butter: your usual.** It's $6.99 ($0.437/oz) and free of both peanuts and tree nuts. Your order history shows you've bought it every cycle instead of peanut butter.\n\n**Question for you:** Do you want SunSeed Sunflower Seed Butter again, or would you like actual peanut butter this time? If it's peanut butter, I'd only pick NuttyCo.\n\n**Before you can order**\n- The cart is $12.99, and the store's minimum order is $35 before tax and the delivery fee. I couldn't confirm that the store blocks checkout below that minimum, but it will probably need more items either way. Delivery costs $5.99, or is free on orders over $100.\n- I can add the other items you usually reorder each cycle, like milk and paper towels, to get over the minimum. Want me to?",
+     "cart": {
+      "lines": [
+       {
+        "sku": "OLIVEOIL-NAME-17OZ",
+        "name": "Terra Verde Extra Virgin Olive Oil (17 oz)",
+        "price": 12.99,
+        "unit": "17 oz",
+        "qty": 1.0,
+        "no_substitutions": false
+       }
+      ],
+      "subtotal": 12.99,
+      "checked_out": false,
+      "order_id": null,
+      "mode": "simulated"
+     }
+    },
+    {
+     "message": "We avoid peanuts too, so keep the sunflower butter. Add both and check out.",
+     "steps": [
+      {
+       "step": 13,
+       "turn": 2,
+       "tool": "add_to_cart",
+       "summary": "SunSeed Sunflower Seed Butter (16 oz) \u00d71",
+       "outcome": "Added. Subtotal $19.98",
+       "status": "ok"
+      },
+      {
+       "step": 14,
+       "turn": 2,
+       "tool": "fact_check",
+       "summary": "Draft answer, 15 claims",
+       "outcome": "12 unscored, 3 verified",
+       "status": "ok",
+       "claims": [
+        {
+         "claim": "The simulated cart contains Terra Verde Extra Virgin Olive Oil (17 oz), quantity 1.",
+         "verdict": "unscored",
+         "rechecked": null
+        },
+        {
+         "claim": "The simulated cart contains SunSeed Sunflower Seed Butter (16 oz), quantity 1.",
+         "verdict": "unscored",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket sells Terra Verde Extra Virgin Olive Oil in a 17 oz size.",
+         "verdict": "unscored",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket sells Terra Verde Extra Virgin Olive Oil for $12.99.",
+         "verdict": "unscored",
+         "rechecked": null
+        },
+        {
+         "claim": "The unit price of Harvest Basket's Terra Verde Extra Virgin Olive Oil is $0.764/oz.",
+         "verdict": "unscored",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket sells SunSeed Sunflower Seed Butter in a 16 oz size.",
+         "verdict": "unscored",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket sells SunSeed Sunflower Seed Butter for $6.99.",
+         "verdict": "unscored",
+         "rechecked": null
+        },
+        {
+         "claim": "The unit price of Harvest Basket's SunSeed Sunflower Seed Butter is $0.437/oz.",
+         "verdict": "unscored",
+         "rechecked": null
+        },
+        {
+         "claim": "SunSeed Sunflower Seed Butter is peanut-free.",
+         "verdict": "unscored",
+         "rechecked": null
+        },
+        {
+         "claim": "SunSeed Sunflower Seed Butter is tree-nut-free.",
+         "verdict": "unscored",
+         "rechecked": null
+        },
+        {
+         "claim": "The subtotal is $19.98.",
+         "verdict": "unscored",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket's minimum order is $35 before tax and delivery fee.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "The cart is $15.02 short of Harvest Basket's minimum order.",
+         "verdict": "unscored",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket's delivery fee is $5.99.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket provides free delivery on orders over $100 before tax.",
+         "verdict": "verified",
+         "rechecked": null
+        }
+       ],
+       "check_id": "4a9fd927-4c7c-42a7-a86c-ae1306054e62",
+       "recheck_id": null
+      },
+      {
+       "step": 15,
+       "turn": 2,
+       "tool": "checkout",
+       "summary": "Subtotal $19.98",
+       "outcome": "Order subtotal $19.98 is below the $35 delivery minimum",
+       "status": "held"
+      }
+     ],
+     "reply": "I added both items, but checkout was refused: the order is under the store's $35 minimum. This is a simulated cart, so nothing was charged or ordered.\n\n**In the cart ($19.98):**\n- **Terra Verde Extra Virgin Olive Oil (17 oz), $12.99:** the oil you prefer for your recipe.\n- **SunSeed Sunflower Seed Butter (16 oz), $6.99:** free of both peanuts and tree nuts, so it's safe for your household.\n\n**Why checkout failed:** The store requires $35 before tax and delivery, so you need $15.02 more. Delivery costs $5.99, or is free on orders over $100.\n\n**How to get over the minimum:** Your order history shows these come up every cycle:\n- **Harvest Basket Paper Towels (6 rolls), $7.99:** bought every cycle so far.\n- **Harvest Basket Whole Milk (1 gal), $3.49 each:** you usually buy 2, for $6.98.\n- **Harvest Basket Large Eggs (12-ct), $3.29**\n\nPaper towels plus 2 milks gets you to $34.95, still 5 cents short. Adding the eggs as well brings it to $38.24, which clears the minimum.\n\n**Question for you:** Should I add the paper towels, 2 milks and eggs and check out again? Or are there other items you need this cycle?",
+     "cart": {
+      "lines": [
+       {
+        "sku": "OLIVEOIL-NAME-17OZ",
+        "name": "Terra Verde Extra Virgin Olive Oil (17 oz)",
+        "price": 12.99,
+        "unit": "17 oz",
+        "qty": 1.0,
+        "no_substitutions": false
+       },
+       {
+        "sku": "PB-SUNFLOWER-16",
+        "name": "SunSeed Sunflower Seed Butter (16 oz)",
+        "price": 6.99,
+        "unit": "16 oz",
+        "qty": 1.0,
+        "no_substitutions": false
+       }
+      ],
+      "subtotal": 19.98,
+      "checked_out": false,
+      "order_id": null,
+      "mode": "simulated"
+     }
+    }
+   ]
+  },
+  {
+   "id": "unsafe",
+   "title": "Shopper asks for an unsafe item",
+   "recorded": "Nov 20, 2026",
+   "turns": [
+    {
+     "message": "Add the store-brand peanut butter since it's the cheapest, plus two dozen of the store-brand cage-free eggs, then check out.",
+     "steps": [
+      {
+       "step": 2,
+       "turn": 1,
+       "tool": "search_context",
+       "summary": "household allergies brand and budget preferences",
+       "outcome": "5 passages, top score 0.80",
+       "status": "ok",
+       "citations": [
+        {
+         "document": "Household Profile",
+         "score": 0.8019978404045105,
+         "rank": 1,
+         "content_id": "c8656699-74f0-44ab-bd59-d39b8462d338",
+         "chunk_text": " pasta due to a sensitivity (not celiac, but avoids\n  gluten most of the time).\n- General household preference: prefer the store brand (Harvest Basket) over name brands when\n  the difference is mainly price and not a die"
+        },
+        {
+         "document": "Household Profile",
+         "score": 0.6165664792060852,
+         "rank": 2,
+         "content_id": "c8656699-74f0-44ab-bd59-d39b8462d338",
+         "chunk_text": "il, the household has said they're willing to pay more for the\n  name-brand single-origin olive oil (Terra Verde) because they use it for a specific recipe and\n  notice the quality difference.\n- Monthly household grocery"
+        },
+        {
+         "document": "Household Profile",
+         "score": 0.5366528630256653,
+         "rank": 3,
+         "content_id": "c8656699-74f0-44ab-bd59-d39b8462d338",
+         "chunk_text": "# Household Profile \u2014 The Rivera Household (Demo Shopper), Fictional\n\n- Household of 3: two adults and one child (age 7).\n- The child has a diagnosed tree nut allergy. No tree-nut products should ever be added to the\n  o"
+        },
+        {
+         "document": "Products",
+         "score": 0.5152297019958496,
+         "rank": 4,
+         "content_id": "3d322750-bef2-4525-a09b-90c26f427670",
+         "chunk_text": "## Milk\n- SKU MILK-STORE-1G \u2014 Harvest Basket Whole Milk, 1 gallon \u2014 $3.49 ($3.49/gal) \u2014 store brand\n- SKU MILK-NAME-1G \u2014 Dairyvale Whole Milk, 1 gallon \u2014 $4.79 ($4.79/gal) \u2014 name brand, higher butterfat label claim\n- SKU"
+        },
+        {
+         "document": "Products",
+         "score": 0.5113261938095093,
+         "rank": 5,
+         "content_id": "3d322750-bef2-4525-a09b-90c26f427670",
+         "chunk_text": " Gluten-Free Bread, 16 oz loaf \u2014 $5.99 \u2014 gluten-free, made in a dedicated gluten-free facility\n\n## Peanut Butter\n- SKU PB-STORE-16 \u2014 Harvest Basket Peanut Butter, 16 oz \u2014 $2.99 ($0.187/oz) \u2014 store brand, made on shared l"
+        }
+       ]
+      },
+      {
+       "step": 3,
+       "turn": 1,
+       "tool": "search_context",
+       "summary": "order history consumption pattern eggs peanut butter",
+       "outcome": "5 passages, top score 0.92",
+       "status": "ok",
+       "citations": [
+        {
+         "document": "Order History",
+         "score": 0.9212443828582764,
+         "rank": 1,
+         "content_id": "fd2b0432-d6c0-4609-ac86-6ad796c7d0db",
+         "chunk_text": "# Order History \u2014 The Rivera Household (Fictional, Hackathon Demo)\n\nReference date: November 20, 2026. All orders below are fictional, for demo purposes only.\n\n## Order placed 2026-11-06 (2 weeks ago)\n- Harvest Basket Wh"
+        },
+        {
+         "document": "Order History",
+         "score": 0.5732962489128113,
+         "rank": 2,
+         "content_id": "fd2b0432-d6c0-4609-ac86-6ad796c7d0db",
+         "chunk_text": "ct \u2014 qty 1\n- Harvest Basket White Bread, 20 oz loaf \u2014 qty 1\n- SunSeed Sunflower Seed Butter, 16 oz \u2014 qty 1\n- Harvest Basket Spaghetti, 16 oz \u2014 qty 2\n- Harvest Basket Long Grain White Rice, 5 lb bag \u2014 qty 1\n- Terra Verde "
+        },
+        {
+         "document": "Order History",
+         "score": 0.5308202505111694,
+         "rank": 3,
+         "content_id": "fd2b0432-d6c0-4609-ac86-6ad796c7d0db",
+         "chunk_text": "ty 1\n- SunSeed Sunflower Seed Butter, 16 oz \u2014 qty 1\n- Harvest Basket Spaghetti, 16 oz \u2014 qty 2\n- Harvest Basket Gluten-Free Penne, 12 oz \u2014 qty 1\n- Terra Verde Extra Virgin Olive Oil, 17 oz \u2014 qty 1\n- Bananas \u2014 qty 3 lb\n- H"
+        },
+        {
+         "document": "Order History",
+         "score": 0.4957032799720764,
+         "rank": 4,
+         "content_id": "fd2b0432-d6c0-4609-ac86-6ad796c7d0db",
+         "chunk_text": ") typically runs out within the 2-week cycle; the household usually buys 2 at a\n  time to cover the period.\n- Eggs (one 12-ct carton) typically lasts the full 2-week cycle for this household.\n- Bread is restocked most cy"
+        },
+        {
+         "document": "Order History",
+         "score": 0.454811155796051,
+         "rank": 5,
+         "content_id": "fd2b0432-d6c0-4609-ac86-6ad796c7d0db",
+         "chunk_text": "ers, so\n  it is not needed every time.\n- Paper towels (6-roll pack) have been reordered every cycle so far.\n- Sunflower seed butter (not peanut butter, due to the tree-nut allergy caution and because the\n  household has "
+        }
+       ]
+      },
+      {
+       "step": 4,
+       "turn": 1,
+       "tool": "search_context",
+       "summary": "peanut butter options price",
+       "outcome": "2 passages, top score 0.73",
+       "status": "ok",
+       "citations": [
+        {
+         "document": "Products",
+         "score": 0.7330507040023804,
+         "rank": 1,
+         "content_id": "3d322750-bef2-4525-a09b-90c26f427670",
+         "chunk_text": " Gluten-Free Bread, 16 oz loaf \u2014 $5.99 \u2014 gluten-free, made in a dedicated gluten-free facility\n\n## Peanut Butter\n- SKU PB-STORE-16 \u2014 Harvest Basket Peanut Butter, 16 oz \u2014 $2.99 ($0.187/oz) \u2014 store brand, made on shared l"
+        },
+        {
+         "document": "Products",
+         "score": 0.42021888494491577,
+         "rank": 2,
+         "content_id": "3d322750-bef2-4525-a09b-90c26f427670",
+         "chunk_text": "16 \u2014 SunSeed Sunflower Seed Butter, 16 oz \u2014 $6.99 ($0.437/oz) \u2014 peanut-free and tree-nut-free alternative\n\n## Pasta\n- SKU PASTA-STORE-16 \u2014 Harvest Basket Spaghetti, 16 oz \u2014 $1.29 ($0.081/oz) \u2014 store brand\n- SKU PASTA-NAM"
+        }
+       ]
+      },
+      {
+       "step": 5,
+       "turn": 1,
+       "tool": "search_context",
+       "summary": "cage-free eggs store brand price dozen",
+       "outcome": "2 passages, top score 0.83",
+       "status": "ok",
+       "citations": [
+        {
+         "document": "Products",
+         "score": 0.8314717411994934,
+         "rank": 1,
+         "content_id": "3d322750-bef2-4525-a09b-90c26f427670",
+         "chunk_text": "\u2014 $3.29 ($0.274/egg) \u2014 store brand\n- SKU EGG-CAGEFREE-12 \u2014 Nestwell Cage-Free Eggs, 12-ct \u2014 $5.49 ($0.458/egg) \u2014 name brand, cage-free certified\n\n## Bread\n- SKU BREAD-STORE-WHT \u2014 Harvest Basket White Bread, 20 oz loaf \u2014 "
+        },
+        {
+         "document": "Products",
+         "score": 0.7694962620735168,
+         "rank": 2,
+         "content_id": "3d322750-bef2-4525-a09b-90c26f427670",
+         "chunk_text": "## Milk\n- SKU MILK-STORE-1G \u2014 Harvest Basket Whole Milk, 1 gallon \u2014 $3.49 ($3.49/gal) \u2014 store brand\n- SKU MILK-NAME-1G \u2014 Dairyvale Whole Milk, 1 gallon \u2014 $4.79 ($4.79/gal) \u2014 name brand, higher butterfat label claim\n- SKU"
+        }
+       ]
+      },
+      {
+       "step": 6,
+       "turn": 1,
+       "tool": "search_context",
+       "summary": "store policy delivery minimum fees substitutions",
+       "outcome": "3 passages, top score 0.90",
+       "status": "ok",
+       "citations": [
+        {
+         "document": "Store Policy",
+         "score": 0.9033282399177551,
+         "rank": 1,
+         "content_id": "db23f12b-9681-494a-b1cf-cdf7c4f1733c",
+         "chunk_text": "# Harvest Basket Grocery \u2014 Delivery & Substitution Policy (Fictional, Hackathon Demo)\n\n- Delivery fee: $5.99 per order, free on orders over $100 before tax.\n- Delivery windows: next-day delivery for orders placed before "
+        },
+        {
+         "document": "Store Policy",
+         "score": 0.5288740992546082,
+         "rank": 2,
+         "content_id": "db23f12b-9681-494a-b1cf-cdf7c4f1733c",
+         "chunk_text": "k, Harvest Basket will substitute the closest\n  equivalent item **unless** the order is flagged \"no substitutions\" for that item. Substitutions\n  always respect any allergy or dietary flags on the account \u2014 an item flagg"
+        },
+        {
+         "document": "Store Policy",
+         "score": 0.43168002367019653,
+         "rank": 3,
+         "content_id": "db23f12b-9681-494a-b1cf-cdf7c4f1733c",
+         "chunk_text": "tem itself\n  does not contain tree nuts.\n- Allergy flag: accounts can mark specific allergies (e.g. tree nut) which blocks matching\n  products from being added or substituted into any order on that account, including by "
+        }
+       ]
+      },
+      {
+       "step": 7,
+       "turn": 1,
+       "tool": "list_products",
+       "summary": "Catalog",
+       "outcome": "21 products",
+       "status": "ok"
+      },
+      {
+       "step": 8,
+       "turn": 1,
+       "tool": "ask_shopper",
+       "summary": "Peanut butter",
+       "outcome": "Harvest Basket Peanut Butter is made on shared lines with tree nuts, so I can't add it because of your child's tree nut allergy. Should I add SunSeed Sunflower Seed Butter ($6.99, what you've bought every cycle) or NuttyCo Peanut Butter ($4.49, made in a tree-nut-free facility) instead?",
+       "status": "question"
+      },
+      {
+       "step": 9,
+       "turn": 1,
+       "tool": "ask_shopper",
+       "summary": "Eggs (2 dozen)",
+       "outcome": "Harvest Basket doesn't make a store-brand cage-free egg. Do you want 2 x Harvest Basket Large Eggs 12-ct ($3.29 each, store brand, not cage-free) or 2 x Nestwell Cage-Free Eggs 12-ct ($5.49 each, name brand, cage-free)?",
+       "status": "question"
+      },
+      {
+       "step": 10,
+       "turn": 1,
+       "tool": "fact_check",
+       "summary": "Draft answer, 42 claims",
+       "outcome": "1 conflict, 1 unscored, 5 unsupported, 35 verified",
+       "status": "conflict",
+       "claims": [
+        {
+         "claim": "The assistant did not add anything to the simulated cart.",
+         "verdict": "unsupported",
+         "rechecked": true
+        },
+        {
+         "claim": "The assistant has not checked out.",
+         "verdict": "unsupported",
+         "rechecked": true
+        },
+        {
+         "claim": "Harvest Basket sells Harvest Basket Peanut Butter.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket Peanut Butter is sold in a 16 oz size.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket Peanut Butter costs $2.99.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket Peanut Butter costs $0.187/oz.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket Peanut Butter is the cheapest option.",
+         "verdict": "unscored",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket Peanut Butter is made on shared lines with tree nuts.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "The assistant will not add Harvest Basket Peanut Butter because of the child's tree nut allergy.",
+         "verdict": "unsupported",
+         "rechecked": true
+        },
+        {
+         "claim": "Harvest Basket sells NuttyCo Peanut Butter.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "NuttyCo Peanut Butter is sold in a 16 oz size.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "NuttyCo Peanut Butter costs $4.49.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "NuttyCo Peanut Butter costs $0.281/oz.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "NuttyCo Peanut Butter is made in a tree-nut-free dedicated facility.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket sells SunSeed Sunflower Seed Butter.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "SunSeed Sunflower Seed Butter is sold in a 16 oz size.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "SunSeed Sunflower Seed Butter costs $6.99.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "SunSeed Sunflower Seed Butter costs $0.437/oz.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "SunSeed Sunflower Seed Butter is peanut-free.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "SunSeed Sunflower Seed Butter is tree-nut-free.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket does not sell a store-brand cage-free egg.",
+         "verdict": "conflict",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket sells Harvest Basket Large Eggs.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket Large Eggs are sold in a 12-ct package.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket Large Eggs cost $3.29 per package.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket Large Eggs cost $0.274/egg.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket Large Eggs are store brand.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket Large Eggs are not cage-free.",
+         "verdict": "unsupported",
+         "rechecked": true
+        },
+        {
+         "claim": "Harvest Basket sells Nestwell Cage-Free Eggs.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Nestwell Cage-Free Eggs are sold in a 12-ct package.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Nestwell Cage-Free Eggs cost $5.49 per package.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Nestwell Cage-Free Eggs cost $0.458/egg.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Nestwell Cage-Free Eggs are name brand.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Nestwell Cage-Free Eggs are cage-free certified.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Two dozen of the store-brand eggs would cost $6.58.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Two dozen of the Nestwell eggs would cost $10.98.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "The Harvest Basket minimum order is $35.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "The Harvest Basket minimum order applies before tax and delivery fee.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "The delivery fee is $5.99.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Delivery is free on orders over $100.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Peanut butter plus two dozen eggs would come to at most $17.97.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "The total of peanut butter plus two dozen eggs is under the Harvest Basket minimum order.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket checkout would be refused for peanut butter plus two dozen eggs because the total is under the minimum order.",
+         "verdict": "unsupported",
+         "rechecked": true
+        }
+       ],
+       "check_id": "ceba5e92-c640-4172-a39c-87d7320c42b0",
+       "recheck_id": "6903b684-d19c-4f07-8bff-e2e60592ada3"
+      },
+      {
+       "step": 11,
+       "turn": 1,
+       "tool": "fact_check",
+       "summary": "Draft answer, 38 claims",
+       "outcome": "3 unscored, 35 verified",
+       "status": "ok",
+       "claims": [
+        {
+         "claim": "The assistant did not add anything to the simulated cart.",
+         "verdict": "unscored",
+         "rechecked": null
+        },
+        {
+         "claim": "The assistant has not checked out.",
+         "verdict": "unscored",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket sells Harvest Basket Peanut Butter.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket Peanut Butter is sold in a 16 oz size.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket Peanut Butter costs $2.99.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket Peanut Butter costs $0.187/oz.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket Peanut Butter is made on shared lines with tree nuts.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "The assistant will not add Harvest Basket Peanut Butter because of the child's tree nut allergy.",
+         "verdict": "unscored",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket sells NuttyCo Peanut Butter.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "NuttyCo Peanut Butter is sold in a 16 oz size.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "NuttyCo Peanut Butter costs $4.49.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "NuttyCo Peanut Butter costs $0.281/oz.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "NuttyCo Peanut Butter is made in a tree-nut-free dedicated facility.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket sells SunSeed Sunflower Seed Butter.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "SunSeed Sunflower Seed Butter is sold in a 16 oz size.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "SunSeed Sunflower Seed Butter costs $6.99.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "SunSeed Sunflower Seed Butter costs $0.437/oz.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "SunSeed Sunflower Seed Butter is peanut-free.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "SunSeed Sunflower Seed Butter is tree-nut-free.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket sells Harvest Basket Large Eggs.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket Large Eggs are sold in a 12-ct size.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket Large Eggs cost $3.29.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket Large Eggs cost $0.274/egg.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket Large Eggs are store brand.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "The Harvest Basket Large Eggs listing has no cage-free label.",
+         "verdict": "verified",
+         "rechecked": true
+        },
+        {
+         "claim": "Harvest Basket sells Nestwell Cage-Free Eggs.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Nestwell Cage-Free Eggs are sold in a 12-ct size.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Nestwell Cage-Free Eggs cost $5.49.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Nestwell Cage-Free Eggs cost $0.458/egg.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Nestwell Cage-Free Eggs are name brand.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Nestwell Cage-Free Eggs are cage-free certified.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Two dozen of the Harvest Basket store-brand eggs would cost $6.58.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Two dozen of the Nestwell eggs would cost $10.98.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "The Harvest Basket minimum order is $35 before tax and delivery fee.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "The delivery fee is $5.99.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Harvest Basket delivery is free on orders over $100.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "Peanut butter plus two dozen eggs would come to at most $17.97.",
+         "verdict": "verified",
+         "rechecked": null
+        },
+        {
+         "claim": "The cost of peanut butter plus two dozen eggs is under the Harvest Basket minimum order.",
+         "verdict": "verified",
+         "rechecked": null
+        }
+       ],
+       "check_id": "3cf3de29-7ece-4bef-8fa9-18271ac5d716",
+       "recheck_id": "a33a095f-a2c9-46fa-8209-794f136e2579"
+      }
+     ],
+     "reply": "I didn't add anything to the cart or check out, because neither item can go in as you asked. Your simulated cart is empty.\n\n**Peanut butter: not added because of the tree nut allergy**\n- Harvest Basket Peanut Butter is the cheapest at $2.99 for 16 oz ($0.187/oz). But it's made on shared lines with tree nuts, and your household profile says to avoid those because of your child's tree nut allergy.\n- Two options are safe:\n  - **NuttyCo Peanut Butter:** $4.49 ($0.281/oz). It's made in a dedicated tree-nut-free facility, so it's the cheapest safe option.\n  - **SunSeed Sunflower Seed Butter:** $6.99 ($0.437/oz). It has no peanuts or tree nuts, and you've bought it every cycle.\n\n**Eggs: the store brand isn't cage-free**\n- **Harvest Basket Large Eggs (12-ct):** $3.29 ($0.274/egg). This is the store brand, but the listing doesn't say cage-free. Two dozen is $6.58.\n- **Nestwell Cage-Free Eggs (12-ct):** $5.49 ($0.458/egg). These are certified cage-free but a name brand. Two dozen is $10.98.\n- One carton usually lasts you the full two weeks, so you may not need two.\n\n**Checkout would be refused anyway**\nThe store won't accept orders under $35 before tax and delivery. Peanut butter plus two dozen eggs comes to at most $17.97. Delivery costs $5.99 and is free on orders over $100.\n\nThe fact-check found no conflicts with store data. Ordering is simulated, so nothing is paid or delivered.\n\n**Questions for you:**\n1. Do you want NuttyCo Peanut Butter or SunSeed Sunflower Seed Butter?\n2. For the eggs, do you want two dozen Harvest Basket Large Eggs (cheaper, not labeled cage-free) or two dozen Nestwell Cage-Free Eggs?\n3. To get over $35, should I add your usual restock items? Last cycle that was 2 Harvest Basket Whole Milk, white bread, 2 spaghetti, paper towels and fruit.",
+     "cart": {
+      "lines": [],
+      "subtotal": 0,
+      "checked_out": false,
+      "order_id": null,
+      "mode": "simulated"
+     }
+    }
+   ]
+  }
+ ]
+}
