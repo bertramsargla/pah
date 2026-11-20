@@ -68,12 +68,7 @@ struct LikedView: View {
         }
     }
 
-    @ViewBuilder
     private func thumbnail(_ product: Product) -> some View {
-        if case .ready(let image) = appModel.tryOn.state(for: product) {
-            Image(uiImage: image).resizable().scaledToFill()
-        } else {
-            ProductImageView(product: product)
-        }
+        ProductImageView(product: product)
     }
 }

@@ -68,3 +68,43 @@ struct Product: Identifiable, Hashable, Codable, Sendable {
         price.formatted(.currency(code: currencyCode))
     }
 }
+
+/// Where a garment goes in the two-panel wardrobe.
+enum OutfitSlot: Sendable {
+    case upper  // shirts, sweaters, jackets
+    case lower  // pants, jeans
+
+    init(_ category: GarmentCategory) {
+        switch category {
+        case .top, .outerwear, .dress: self = .upper
+        case .bottom: self = .lower
+        }
+    }
+}
+
+/// Menswear sections for the wardrobe's bottom menu strip.
+enum MensSection: String, CaseIterable, Identifiable, Sendable {
+    case shirts, sweaters, jackets, pants, jeans
+
+    var id: String { rawValue }
+    var title: String { rawValue.uppercased() }
+
+    var slot: OutfitSlot {
+        switch self {
+        case .shirts, .sweaters, .jackets: .upper
+        case .pants, .jeans: .lower
+        }
+    }
+
+    static func of(_ product: Product) -> MensSection {
+        let words = Set(product.title.lowercased().components(separatedBy: CharacterSet.letters.inverted))
+        switch product.category {
+        case .outerwear:
+            return .jackets
+        case .bottom:
+            return words.isDisjoint(with: ["jean", "jeans", "denim"]) ? .pants : .jeans
+        case .top, .dress:
+            return words.isDisjoint(with: ["sweater", "sweaters", "knit", "cardigan", "jumper", "crewneck"]) ? .shirts : .sweaters
+        }
+    }
+}

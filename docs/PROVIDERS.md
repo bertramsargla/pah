@@ -27,14 +27,14 @@ Enterprise "Virtual Try-On"), which may suit you if you already use Google
 Cloud. The fal.ai route was chosen for the scaffold because one key reaches
 several models.
 
-Not verified yet: fal's docs say image inputs accept base64 data URIs, which
-the app uses to send photos without hosting them first. Confirm with one real
-call; if it fails, upload the photos to storage first and send URLs.
+Checked with a real call (Google Virtual Try-On): image inputs accept base64
+data URIs, so the app sends photos without hosting them first. One image took
+about 35 seconds.
 
-**Cost sense check:** at $0.07 per image, a user who swipes 100 cards costs
-about $7 in try-ons. A real launch needs caching (same photo + same product =
-same result), try-on only on cards the user pauses on or likes, or a cheaper
-model for the first pass.
+**Cost sense check:** at $0.07 per image, a full outfit (top + bottom) is two
+calls, about $0.14 per Dress Me. The app only calls the model when Dress Me is
+pressed and reuses the result for the same outfit. A real launch still needs
+server-side caching (same photo + same product = same result) and a spend cap.
 
 Sources: [fal.ai try-on comparison](https://fal.ai/learn/tools/best-virtual-try-on-apis-2026) (written by fal, so treat rankings as marketing; prices are theirs),
 [Google Virtual Try-On on fal](https://fal.ai/models/google/virtual-try-on/llms.txt),

@@ -4,7 +4,7 @@ import UIKit
 /// `AppModel.makeTryOnService()`: the mock runs on device for free, the fal
 /// service calls a paid hosted model.
 protocol TryOnService: Sendable {
-    /// Short label shown on cards, such as "Preview" or "AI try-on".
+    /// Short label shown in the mirror, such as "Preview" or "AI try-on".
     var label: String { get }
     func render(person: UIImage, garment: UIImage, product: Product) async throws -> UIImage
 }

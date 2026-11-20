@@ -16,12 +16,18 @@ targets:
     platform: iOS
     sources:
       - path: WangSwipe
+    info:
+      # Merged with the generated Info.plist keys below. Paints the system
+      # launch screen the same dark navy as the hanger loading screen.
+      path: WangSwipe/Info.plist
+      properties:
+        UILaunchScreen:
+          UIColorName: LaunchBackground
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.wangswipe.app
         GENERATE_INFOPLIST_FILE: YES
         INFOPLIST_KEY_CFBundleDisplayName: WangSwipe
-        INFOPLIST_KEY_UILaunchScreen_Generation: YES
         INFOPLIST_KEY_UISupportedInterfaceOrientations: UIInterfaceOrientationPortrait
         INFOPLIST_KEY_NSCameraUsageDescription: WangSwipe uses the camera so you can take a full-body photo to try clothes on.
         INFOPLIST_KEY_NSPhotoLibraryUsageDescription: WangSwipe lets you pick a full-body photo of yourself to try clothes on.

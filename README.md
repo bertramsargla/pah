@@ -1,8 +1,10 @@
 # WangSwipe
 
-An iPhone app (SwiftUI, iOS 17+) where you add a photo of yourself, then swipe
-through clothes from several stores, Tinder style. Each card shows the item
-virtually tried on you. Swipe right to save it, left to pass.
+An iPhone app (SwiftUI, iOS 17+) where you add a photo of yourself, then flip
+through men's clothes from several stores on a 90s-style "wardrobe computer":
+a top panel and a bottom panel, each with back / play / forward buttons.
+**Shuffle** picks a random outfit, **Play** deals a new random outfit every
+3 seconds, and **Dress Me** puts the whole outfit on your photo (virtual try-on).
 
 ## Run it
 
@@ -20,7 +22,7 @@ your team under Signing & Capabilities first.
 Tests: `xcodebuild test -scheme WangSwipe -destination 'platform=iOS Simulator,name=iPhone 16'`
 (use any simulator you have installed).
 
-Out of the box the deck shows 10 hand-picked men's pieces from FWRD, Grailed
+Out of the box the wardrobe holds 10 hand-picked men's pieces from FWRD, Grailed
 and Farfetch (`Services/Products/CuratedStores.swift`; photos load from the stores'
 CDNs, and Shop opens the real product page) with the free on-device preview,
 so it needs no keys and costs nothing. Grailed pieces are one-off resale
@@ -35,8 +37,19 @@ one tap. To skip onboarding entirely, launch with `-demoMode YES`
 The UI is styled as an early-90s "virtual wardrobe" computer: navy title bars,
 periwinkle display panels, beveled buttons, procedural leopard print, chunky
 monospaced type and faint scanlines. The pieces live in `Shared/Retro.swift`.
-Swipe right (or **Dress Me**) to keep an item, left (or **Pass**) to skip, and
-filter by garment type with the strip at the bottom.
+Launch opens on a loading screen of glowing wire hangers (`Features/Launch`).
+
+On the wardrobe screen:
+
+- The top panel holds shirts, sweaters and jackets; the bottom panel holds pants and jeans.
+- ◀◀ and ▶▶ skip back or ahead one piece in that panel right away (swiping the picture works too).
+- ▶ plays a new random outfit every 3 seconds; press it again to pause.
+- **Shuffle** jumps to one random outfit.
+- **Dress Me** puts the top on your photo, then the bottom on that result, and
+  shows the look in a mirror window. **Keep** saves both pieces to the Closet tab.
+- The strip at the bottom (SHIRTS SWEATERS JACKETS PANTS JEANS) narrows that
+  section's panel to one kind; **MORE** shows everything again. Sections with
+  nothing in them are dimmed.
 
 ## How it fits together
 
@@ -44,13 +57,14 @@ filter by garment type with the strip at the bottom.
 WangSwipe/
   App/            WangSwipeApp (entry, tabs), AppModel (photo, likes, settings, wiring)
   Features/
+    Launch/       hanger loading screen
     Onboarding/   add your photo (library or camera)
-    Deck/         swipe deck, card view, deck model
+    Wardrobe/     two-panel wardrobe screen, its model, and the Dress Me mirror
     Liked/        saved items with links to buy
     Settings/     change photo, pick try-on engine and key, turn stores on/off
   Services/
     Products/     ProductProvider protocol, ProductCatalog (mixes stores), curated FWRD, Grailed + Farfetch picks, Shopify
-    TryOn/        TryOnService protocol, mock (on device), fal.ai (hosted models), coordinator
+    TryOn/        TryOnService protocol, mock (on device), fal.ai (hosted models), Dresser (puts on a whole outfit)
     Storage/      photo on disk, API key in Keychain
 ```
 
@@ -67,8 +81,10 @@ Two seams make the app pluggable:
   and `FalTryOnService` (calls Google Virtual Try-On or Kling Kolors on fal.ai).
   `AppModel.makeTryOnService()` picks one.
 
-`TryOnCoordinator` prepares try-ons for the next three cards, two at a time,
-because hosted models take several seconds per image.
+`Dresser` runs try-on only when you press Dress Me, one garment after the
+other (top, then bottom on the result), and keeps each finished look so the
+same outfit is never paid for twice. With fal.ai a full outfit is two calls
+(about $0.14) and takes roughly a minute.
 
 ## Turning on real try-on
 
@@ -86,4 +102,4 @@ for the options and prices that were checked.
 
 - Real product feeds: an affiliate network feed served by a small backend (see docs).
 - A backend that holds keys, caches try-on results per (photo, product), and tracks cost.
-- Product filters (category, size, price) and an undo for the last swipe.
+- More filters (size, price) and shoes, once a try-on model handles footwear well.

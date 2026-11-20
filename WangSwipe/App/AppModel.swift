@@ -1,7 +1,7 @@
 import SwiftUI
 import Observation
 
-/// App-wide state: the user's photo, settings, liked items, the deck and try-on runner.
+/// App-wide state: the user's photo, settings, kept items, the wardrobe and the dresser.
 @MainActor
 @Observable
 final class AppModel {
@@ -9,8 +9,8 @@ final class AppModel {
     private(set) var liked: [Product] = []
     private(set) var settings: AppSettings
 
-    let tryOn: TryOnCoordinator
-    let deck: DeckViewModel
+    let dresser: Dresser
+    let wardrobe: WardrobeModel
 
     @ObservationIgnored private let defaults: UserDefaults
     @ObservationIgnored private let photoStore: PhotoStore
@@ -20,23 +20,19 @@ final class AppModel {
 
     init(defaults: UserDefaults = .standard, photoStore: PhotoStore = PhotoStore()) {
         let settings = AppSettings.load(from: defaults)
-        let tryOn = TryOnCoordinator()
         self.defaults = defaults
         self.photoStore = photoStore
         self.settings = settings
-        self.tryOn = tryOn
-        self.deck = DeckViewModel(
-            catalog: ProductCatalog(providers: ProviderRegistry.providers(for: settings)),
-            tryOn: tryOn
+        self.dresser = Dresser()
+        self.wardrobe = WardrobeModel(
+            catalog: ProductCatalog(providers: ProviderRegistry.providers(for: settings))
         )
         self.userPhoto = photoStore.load()
         if let data = defaults.data(forKey: Self.likedKey),
            let saved = try? JSONDecoder().decode([Product].self, from: data) {
             self.liked = saved
         }
-        deck.lookahead = settings.tryOnBackend == .fal ? 2 : 3
-        tryOn.configure(person: userPhoto, service: makeTryOnService())
-        deck.onLike = { [weak self] product in self?.like(product) }
+        dresser.configure(person: userPhoto, service: makeTryOnService())
 
         // `-demoMode YES` as a launch argument skips onboarding with the demo photo.
         if userPhoto == nil, defaults.bool(forKey: "demoMode"), let demo = Self.demoPhoto {
@@ -53,14 +49,13 @@ final class AppModel {
         let prepared = image.normalizedUp().resized(maxDimension: 1536)
         try? photoStore.save(prepared)
         userPhoto = prepared
-        tryOn.configure(person: prepared, service: makeTryOnService())
-        deck.refreshTryOns()
+        dresser.configure(person: prepared, service: makeTryOnService())
     }
 
     func removePhoto() {
         photoStore.delete()
         userPhoto = nil
-        tryOn.configure(person: nil, service: makeTryOnService())
+        dresser.configure(person: nil, service: makeTryOnService())
     }
 
     // MARK: Likes
@@ -96,7 +91,7 @@ final class AppModel {
             reloadTryOnService()
         }
         if old.disabledStoreIDs != next.disabledStoreIDs || old.shopifyDomains != next.shopifyDomains {
-            deck.reset(catalog: ProductCatalog(providers: ProviderRegistry.providers(for: next)))
+            wardrobe.reset(catalog: ProductCatalog(providers: ProviderRegistry.providers(for: next)))
         }
     }
 
@@ -118,10 +113,7 @@ final class AppModel {
     }
 
     private func reloadTryOnService() {
-        // Paid calls: prepare fewer cards ahead so skipped cards cost less.
-        deck.lookahead = settings.tryOnBackend == .fal ? 2 : 3
-        tryOn.configure(person: userPhoto, service: makeTryOnService())
-        deck.refreshTryOns()
+        dresser.configure(person: userPhoto, service: makeTryOnService())
     }
 
     /// The one place that decides which try-on implementation the app uses.

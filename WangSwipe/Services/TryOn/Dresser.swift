@@ -1,27 +1,25 @@
 import SwiftUI
 import Observation
 
-/// Runs try-ons for the cards near the top of the deck, a couple at a time,
-/// and remembers the results. Real models take several seconds per image, so
-/// the deck asks for the next few cards ahead of time.
+/// Puts a whole outfit on the user's photo: the upper garment first, then the
+/// lower one on top of that result. Results are kept per outfit, so pressing
+/// Dress Me again on the same outfit costs nothing.
 @MainActor
 @Observable
-final class TryOnCoordinator {
+final class Dresser {
     enum State: Equatable {
         case idle
-        case working
+        case working(step: Int, of: Int, item: String)
         case ready(UIImage)
         case failed(String)
     }
 
-    private(set) var states: [Product.ID: State] = [:]
+    private(set) var states: [String: State] = [:]
     private(set) var serviceLabel: String = ""
-    var maxConcurrent = 2
 
     @ObservationIgnored private var service: any TryOnService = MockTryOnService()
     @ObservationIgnored private var person: UIImage? = nil
-    @ObservationIgnored private var queue: [Product] = []
-    @ObservationIgnored private var tasks: [Product.ID: Task<Void, Never>] = [:]
+    @ObservationIgnored private var tasks: [String: Task<Void, Never>] = [:]
     @ObservationIgnored private var generation = 0
     private let garments = GarmentImageLoader()
 
@@ -30,61 +28,58 @@ final class TryOnCoordinator {
         generation += 1
         tasks.values.forEach { $0.cancel() }
         tasks = [:]
-        queue = []
         states = [:]
         self.person = person
         self.service = service
         serviceLabel = service.label
     }
 
-    func state(for product: Product) -> State {
-        states[product.id] ?? .idle
+    static func key(_ items: [Product]) -> String {
+        items.map(\.id).joined(separator: "+")
     }
 
-    /// Queues try-ons for any of these products that haven't been started.
-    func request(_ products: [Product]) {
-        for product in products where state(for: product) == .idle && !queue.contains(product) {
-            queue.append(product)
+    func state(for items: [Product]) -> State {
+        states[Self.key(items)] ?? .idle
+    }
+
+    /// Starts dressing unless this outfit is already done or in progress.
+    func dress(_ items: [Product]) {
+        let key = Self.key(items)
+        switch state(for: items) {
+        case .working, .ready: return
+        case .idle, .failed: break
         }
-        pump()
-    }
-
-    func retry(_ product: Product) {
-        states[product.id] = .idle
-        request([product])
-    }
-
-    private func pump() {
-        while tasks.count < maxConcurrent, !queue.isEmpty {
-            start(queue.removeFirst())
-        }
-    }
-
-    private func start(_ product: Product) {
-        guard let person else { return }
+        guard let person, !items.isEmpty else { return }
         let service = self.service
         let generation = self.generation
-        states[product.id] = .working
-        tasks[product.id] = Task { [weak self, garments] in
-            let outcome: State
+        states[key] = .working(step: 1, of: items.count, item: items[0].title)
+
+        tasks[key] = Task { [weak self, garments] in
+            var current = person
             do {
-                let garment = try await garments.image(for: product)
-                let image = try await service.render(person: person, garment: garment, product: product)
-                outcome = .ready(image)
+                for (index, item) in items.enumerated() {
+                    self?.update(key, .working(step: index + 1, of: items.count, item: item.title), generation)
+                    let garment = try await garments.image(for: item)
+                    current = try await service.render(person: current, garment: garment, product: item)
+                }
+                self?.finish(key, .ready(current), generation)
             } catch is CancellationError {
-                outcome = .idle
+                self?.finish(key, .idle, generation)
             } catch {
-                outcome = .failed(error.localizedDescription)
+                self?.finish(key, .failed(error.localizedDescription), generation)
             }
-            self?.finish(product.id, outcome, generation: generation)
         }
     }
 
-    private func finish(_ id: Product.ID, _ state: State, generation: Int) {
+    private func update(_ key: String, _ state: State, _ generation: Int) {
         guard generation == self.generation else { return }
-        tasks[id] = nil
-        states[id] = state
-        pump()
+        states[key] = state
+    }
+
+    private func finish(_ key: String, _ state: State, _ generation: Int) {
+        guard generation == self.generation else { return }
+        tasks[key] = nil
+        states[key] = state
     }
 }
 

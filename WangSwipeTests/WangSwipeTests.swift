@@ -108,14 +108,7 @@ final class FalTryOnTests: XCTestCase {
     }
 }
 
-final class SwipeAndMockTryOnTests: XCTestCase {
-    func testSwipeDecision() {
-        XCTAssertEqual(SwipeDirection.decide(translation: CGSize(width: 150, height: 0), predictedEnd: .zero, threshold: 100), .right)
-        XCTAssertEqual(SwipeDirection.decide(translation: CGSize(width: -150, height: 0), predictedEnd: .zero, threshold: 100), .left)
-        XCTAssertNil(SwipeDirection.decide(translation: CGSize(width: 40, height: 0), predictedEnd: CGSize(width: 60, height: 0), threshold: 100))
-        XCTAssertEqual(SwipeDirection.decide(translation: CGSize(width: 40, height: 0), predictedEnd: CGSize(width: 300, height: 0), threshold: 100), .right)
-    }
-
+final class MockTryOnTests: XCTestCase {
     func testMockTryOnReturnsImageTheSizeOfThePhoto() async throws {
         let person = UIGraphicsImageRenderer(size: CGSize(width: 300, height: 400)).image { ctx in
             UIColor.lightGray.setFill()
@@ -133,7 +126,7 @@ final class SwipeAndMockTryOnTests: XCTestCase {
 }
 
 @MainActor
-final class DeckAndDemoTests: XCTestCase {
+final class DemoPhotoTests: XCTestCase {
     func testDemoPhotoIsBundled() {
         XCTAssertNotNil(AppModel.demoPhoto)
     }
@@ -162,15 +155,142 @@ final class DeckAndDemoTests: XCTestCase {
         let pixel = context.data!.assumingMemoryBound(to: UInt8.self)
         XCTAssertGreaterThan(pixel[0], 240, "transparent areas should become white, not black")
     }
+}
 
-    func testCategoryFilterShowsOnlyThatCategory() async {
-        let deck = DeckViewModel(
-            catalog: ProductCatalog(providers: CuratedStores.all),
-            tryOn: TryOnCoordinator()
-        )
-        deck.setFilter(.outerwear)
-        await deck.loadMoreIfNeeded()
-        XCTAssertFalse(deck.visibleCards.isEmpty)
-        XCTAssertTrue(deck.visibleCards.allSatisfy { $0.category == .outerwear })
+@MainActor
+final class WardrobeTests: XCTestCase {
+    private func loadedWardrobe() async -> WardrobeModel {
+        let wardrobe = WardrobeModel(catalog: ProductCatalog(providers: CuratedStores.all))
+        await wardrobe.load()
+        return wardrobe
+    }
+
+    func testLoadsAllTenPiecesIntoTwoPanels() async {
+        let wardrobe = await loadedWardrobe()
+        XCTAssertEqual(wardrobe.products.count, 10)
+        XCTAssertEqual(wardrobe.items(for: .upper).count + wardrobe.items(for: .lower).count, 10)
+        XCTAssertTrue(wardrobe.items(for: .lower).allSatisfy { $0.category == .bottom })
+        XCTAssertEqual(wardrobe.outfit.count, 2, "Dress Me gets an upper and a lower piece")
+        XCTAssertEqual(OutfitSlot(wardrobe.outfit[0].category), .upper)
+        XCTAssertEqual(OutfitSlot(wardrobe.outfit[1].category), .lower)
+    }
+
+    func testSkipMovesOnePanelAndWrapsAround() async {
+        let wardrobe = await loadedWardrobe()
+        let uppers = wardrobe.items(for: .upper)
+        let lowerBefore = wardrobe.current(.lower)
+        wardrobe.skip(.upper, by: 1)
+        XCTAssertEqual(wardrobe.current(.upper)?.id, uppers[1].id)
+        XCTAssertEqual(wardrobe.current(.lower)?.id, lowerBefore?.id, "the other panel stays put")
+        wardrobe.skip(.upper, by: -2)
+        XCTAssertEqual(wardrobe.current(.upper)?.id, uppers.last?.id, "going back from the first wraps to the last")
+    }
+
+    func testShuffleAlwaysChangesTheOutfit() async {
+        let wardrobe = await loadedWardrobe()
+        for _ in 0..<25 {
+            let before = wardrobe.outfit.map(\.id)
+            wardrobe.shuffle()
+            XCTAssertEqual(wardrobe.outfit.count, 2)
+            XCTAssertNotEqual(wardrobe.outfit.map(\.id), before)
+        }
+    }
+
+    func testPlayShufflesOnATimerUntilStopped() async throws {
+        let wardrobe = await loadedWardrobe()
+        wardrobe.playInterval = .milliseconds(50)
+        let before = wardrobe.outfit.map(\.id)
+        wardrobe.togglePlay()
+        XCTAssertTrue(wardrobe.isPlaying)
+        try await Task.sleep(for: .milliseconds(400))
+        XCTAssertNotEqual(wardrobe.outfit.map(\.id), before)
+        wardrobe.togglePlay()
+        XCTAssertFalse(wardrobe.isPlaying)
+        let stopped = wardrobe.outfit.map(\.id)
+        try await Task.sleep(for: .milliseconds(200))
+        XCTAssertEqual(wardrobe.outfit.map(\.id), stopped, "nothing changes after pause")
+    }
+
+    func testSectionFiltersOnlyItsPanel() async {
+        let wardrobe = await loadedWardrobe()
+        XCTAssertEqual(Set(wardrobe.availableSections), [.shirts, .sweaters, .jackets, .jeans])
+        wardrobe.select(.jackets)
+        XCTAssertEqual(wardrobe.items(for: .upper).count, 4)
+        XCTAssertTrue(wardrobe.items(for: .upper).allSatisfy { $0.category == .outerwear })
+        XCTAssertEqual(wardrobe.items(for: .lower).count, 2, "lower panel is unaffected")
+        wardrobe.select(.jackets)
+        XCTAssertNil(wardrobe.section, "tapping the same section again clears it")
+    }
+
+    func testMensSections() {
+        func section(_ title: String, _ category: GarmentCategory) -> MensSection {
+            MensSection.of(Product(id: title, providerID: "t", storeName: "T", title: title, brand: nil, price: 1,
+                                   currencyCode: "USD", category: category, imageURL: nil, productURL: nil, swatchHex: nil))
+        }
+        XCTAssertEqual(section("Union Rugby Shirt", .top), .shirts)
+        XCTAssertEqual(section("The Chalet Sweater", .top), .sweaters)
+        XCTAssertEqual(section("Silk Satin Bomber", .outerwear), .jackets)
+        XCTAssertEqual(section("Straight-Leg Jeans", .bottom), .jeans)
+        XCTAssertEqual(section("Pleated Trousers", .bottom), .pants)
+    }
+}
+
+/// Records each call so the test can see the outfit was put on in order.
+private actor CallLog {
+    var titles: [String] = []
+    func add(_ title: String) { titles.append(title) }
+}
+
+private struct RecordingTryOnService: TryOnService {
+    let log: CallLog
+    var label: String { "Test" }
+    func render(person: UIImage, garment: UIImage, product: Product) async throws -> UIImage {
+        await log.add(product.title)
+        return person
+    }
+}
+
+@MainActor
+final class DresserTests: XCTestCase {
+    private func product(_ title: String, _ category: GarmentCategory) -> Product {
+        Product(id: title, providerID: "t", storeName: "T", title: title, brand: nil, price: 1,
+                currencyCode: "USD", category: category, imageURL: nil, productURL: nil, swatchHex: "#335577")
+    }
+
+    private func waitUntilDone(_ dresser: Dresser, _ outfit: [Product]) async throws {
+        for _ in 0..<100 {
+            switch dresser.state(for: outfit) {
+            case .ready, .failed: return
+            default: try await Task.sleep(for: .milliseconds(50))
+            }
+        }
+        XCTFail("dresser never finished")
+    }
+
+    func testDressPutsOnTopThenBottomAndCachesTheLook() async throws {
+        let log = CallLog()
+        let dresser = Dresser()
+        let person = UIGraphicsImageRenderer(size: CGSize(width: 30, height: 40)).image { _ in }
+        dresser.configure(person: person, service: RecordingTryOnService(log: log))
+        let outfit = [product("Shirt", .top), product("Jeans", .bottom)]
+
+        dresser.dress(outfit)
+        try await waitUntilDone(dresser, outfit)
+        guard case .ready = dresser.state(for: outfit) else { return XCTFail("expected a finished look") }
+        let calls = await log.titles
+        XCTAssertEqual(calls, ["Shirt", "Jeans"])
+
+        dresser.dress(outfit)
+        try await Task.sleep(for: .milliseconds(100))
+        let again = await log.titles
+        XCTAssertEqual(again.count, 2, "pressing Dress Me again on the same outfit reuses the result")
+    }
+
+    func testDressWithoutAPhotoDoesNothing() {
+        let dresser = Dresser()
+        dresser.configure(person: nil, service: MockTryOnService(latency: .zero))
+        let outfit = [product("Shirt", .top)]
+        dresser.dress(outfit)
+        XCTAssertEqual(dresser.state(for: outfit), .idle)
     }
 }
