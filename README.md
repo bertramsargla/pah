@@ -29,14 +29,13 @@ and what action it took — is shown live in the UI.
      (silently unscored, not an error). `ingest.py` calls `PUT /org/brand-kit` with
      `brand_name: "Harvest Basket Grocery"` before ingesting content, which is what makes real
      verdicts (verified / conflict / unsupported) show up instead of nulls.
-  2. Even with a brand kit set, a claim only gets scored if it's tied to *Harvest Basket itself* —
-     a claim purely about a name-brand item Harvest Basket stocks (e.g. "Terra Verde olive oil
-     costs $12.99") comes back unscored (`about_brand: false`), the same as a claim about the
-     customer/order history rather than the brand. This matters directly for the price-comparison
-     flow: a lot of what the agent compares *is* a name-brand price. `agent.py`'s system prompt
-     tells the agent to lean on `search_context` citations for those claims instead of waiting on
-     a fact-check verdict that won't arrive, and to name "Harvest Basket" explicitly when the
-     claim is about its own product or policy so it actually gets scored.
+  2. Even with a brand kit set, a claim only gets scored if it's tied to *Harvest Basket* in the
+     text. "Terra Verde olive oil costs $12.99" comes back unscored (`about_brand: false`), but
+     "Harvest Basket sells Terra Verde olive oil at $12.99" comes back `verified`. Claims about the
+     customer ("this is excluded for your household") stay unscored or `unsupported` however
+     they're phrased, because they're inferences, not catalog facts. `agent.py`'s system prompt
+     tells the agent to phrase price claims as "Harvest Basket sells X at $Y", and to back
+     customer-specific reasoning with `search_context` citations instead.
 - **Action**: the agent calls a small mock storefront (`backend/mock_store.py`) to add items to
   a cart and check out. Senso does not complete purchases — per the challenge FAQ, that's the
   app's job — so every mock-store action is labeled `mode: "simulated"` in the trail and the UI.
