@@ -1,3 +1,11 @@
 .env
 .env.*
 !.env.example
+
+# Xcode (the project is generated from project.yml by XcodeGen)
+WangSwipe.xcodeproj/
+xcuserdata/
+DerivedData/
+build/
+.DS_Store
+WangSwipe/Info.plist
