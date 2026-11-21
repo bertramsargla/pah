@@ -60,7 +60,7 @@ On the wardrobe screen:
 - ▶ plays a new random outfit every 3 seconds; press it again to pause.
 - **Shuffle** jumps to one random outfit.
 - **Dress Me** puts the top on your photo, then the bottom on that result, and
-  shows the look in a mirror window. **Keep** saves both pieces to the Closet tab.
+  shows the look in a mirror window. **Keep** marks both pieces as kept, which the Agent knows about.
 - The strip at the bottom (SHIRTS SWEATERS JACKETS PANTS JEANS) narrows that
   section's panel to one kind; **MORE** shows everything again. Sections with
   nothing in them are dimmed.
@@ -74,10 +74,11 @@ WangSwipe/
     Launch/       hanger loading screen
     Onboarding/   add your photo (library or camera)
     Wardrobe/     two-panel wardrobe screen, its model, and the Dress Me mirror
-    Liked/        saved items with links to buy
+    Agent/        chat with an AI stylist (Claude) about the wardrobe and your outfit
     Settings/     change photo, pick try-on engine and key, turn stores on/off
   Services/
     Products/     ProductProvider protocol, ProductCatalog (mixes stores), curated FWRD, Grailed + Farfetch picks, Shopify
+    Agent/        ClaudeStylist: streams replies from the Claude Messages API
     TryOn/        TryOnService protocol, mock (on device), fal.ai (hosted models), Dresser (puts on a whole outfit)
     Storage/      photo on disk, API key in Keychain
 ```
@@ -102,6 +103,15 @@ finished look so the same outfit is never paid for twice. The app uses Nano Bana
 and was the fastest when compared side by side with Google's try-on (about 35 s
 per piece) and FASHN. It's a general image editor, so faces and poses can drift
 a little. The other models are still in `FalTryOnModel` if you want to switch back.
+
+## The Agent tab
+
+The Agent tab is a chat with a stylist powered by Claude (`claude-opus-5-5`
+through the Messages API, streamed, low effort for quick replies). It gets the
+wardrobe list, what's on screen, the pieces you kept, and (on the first
+message) your photo and latest try-on. Add an Anthropic API key in Setup; it's
+stored in the Keychain and each reply is billed to that account. As with
+try-on, move this call to your own server before a public release.
 
 ## Turning on real try-on
 

@@ -60,7 +60,7 @@ struct RootView: View {
 }
 
 enum MainTab: Hashable {
-    case wardrobe, closet, setup
+    case wardrobe, agent, setup
 }
 
 struct MainTabView: View {
@@ -71,9 +71,9 @@ struct MainTabView: View {
             WardrobeView()
                 .tabItem { Label("Wardrobe", systemImage: "hanger") }
                 .tag(MainTab.wardrobe)
-            LikedView()
-                .tabItem { Label("Closet", systemImage: "heart") }
-                .tag(MainTab.closet)
+            AgentView()
+                .tabItem { Label("Agent", systemImage: "bubble.left.and.bubble.right") }
+                .tag(MainTab.agent)
             SettingsView()
                 .tabItem { Label("Setup", systemImage: "gearshape") }
                 .tag(MainTab.setup)

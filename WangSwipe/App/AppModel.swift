@@ -11,11 +11,13 @@ final class AppModel {
 
     let dresser: Dresser
     let wardrobe: WardrobeModel
+    let agent = AgentModel()
 
     @ObservationIgnored private let defaults: UserDefaults
     @ObservationIgnored private let photoStore: PhotoStore
 
     static let falKeyAccount = "fal-api-key"
+    static let anthropicKeyAccount = "anthropic-api-key"
     /// The hosted try-on model. Nano Banana dresses the whole outfit in one call and was
     /// the fastest in romeo's side-by-side test (Nov 2026). The other models stay in
     /// `FalTryOnModel` so switching back is a one-line change.
@@ -111,6 +113,26 @@ final class AppModel {
             get: { self.settings[keyPath: keyPath] },
             set: { value in self.updateSettings { $0[keyPath: keyPath] = value } }
         )
+    }
+
+    var anthropicAPIKey: String {
+        KeychainStore.get(Self.anthropicKeyAccount) ?? ""
+    }
+
+    /// Observable mirror of whether a key is saved, so screens update when one is added.
+    private(set) var hasAnthropicKey = !(KeychainStore.get(AppModel.anthropicKeyAccount) ?? "").isEmpty
+
+    func setAnthropicAPIKey(_ key: String) {
+        KeychainStore.set(key.trimmingCharacters(in: .whitespacesAndNewlines), for: Self.anthropicKeyAccount)
+        hasAnthropicKey = !anthropicAPIKey.isEmpty
+    }
+
+    /// What the Agent tab's stylist gets to see.
+    func stylistContext() -> StylistContext {
+        let showing = wardrobe.outfit
+        var look: UIImage?
+        if case .ready(let image) = dresser.state(for: showing) { look = image }
+        return StylistContext(wardrobe: wardrobe.products, showing: showing, kept: liked, photo: userPhoto, look: look)
     }
 
     var falAPIKey: String {

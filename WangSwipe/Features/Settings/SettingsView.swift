@@ -6,6 +6,8 @@ struct SettingsView: View {
     @State private var pickerItem: PhotosPickerItem?
     @State private var apiKeyDraft = ""
     @State private var keySaved = false
+    @State private var anthropicKeyDraft = ""
+    @State private var anthropicKeySaved = false
     @State private var newDomain = ""
 
     var body: some View {
@@ -15,12 +17,16 @@ struct SettingsView: View {
                 skinSection
                 photoSection
                 tryOnSection
+                agentSection
                 storesSection
             }
             .scrollContentBackground(.hidden)
             .background(Retro.panelAlt)
             .tint(Retro.tint)
-            .onAppear { apiKeyDraft = appModel.falAPIKey }
+            .onAppear {
+                apiKeyDraft = appModel.falAPIKey
+                anthropicKeyDraft = appModel.anthropicAPIKey
+            }
             .onChange(of: pickerItem) { _, item in
                 guard let item else { return }
                 Task {
@@ -94,6 +100,28 @@ struct SettingsView: View {
             fal.ai runs Google's Nano Banana, which dresses you in the whole outfit with one call \
             (about $0.04 per Dress Me), and your photo is sent to it. The key is kept in this phone's Keychain. For a public release, \
             make these calls from your own server instead.
+            """)
+        }
+    }
+
+    private var agentSection: some View {
+        Section {
+            SecureField("Anthropic API key", text: $anthropicKeyDraft)
+                .textInputAutocapitalization(.never)
+                .autocorrectionDisabled()
+            Button(anthropicKeySaved ? "Saved" : "Save key") {
+                appModel.setAnthropicAPIKey(anthropicKeyDraft)
+                anthropicKeySaved = true
+            }
+            .disabled(anthropicKeyDraft.isEmpty)
+            .onChange(of: anthropicKeyDraft) { anthropicKeySaved = false }
+        } header: {
+            Text("Agent")
+        } footer: {
+            Text("""
+            The Agent tab uses Claude (\(ClaudeStylist.model)) and charges your Anthropic account per message, \
+            roughly a few cents per reply. Your photo, latest try-on and the wardrobe are sent with the chat. \
+            The key is kept in this phone's Keychain.
             """)
         }
     }
