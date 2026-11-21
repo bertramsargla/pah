@@ -79,6 +79,7 @@ WangSwipe/
   Services/
     Products/     ProductProvider protocol, ProductCatalog (mixes stores), curated FWRD, Grailed + Farfetch picks, Shopify
     Agent/        GeminiStylist: streams replies from the Gemini API
+    Senso/        SensoClient (files the style guide + wardrobe, searches them) and the style guide
     TryOn/        TryOnService protocol, mock (on device), fal.ai (hosted models), Dresser (puts on a whole outfit)
     Storage/      photo on disk, API key in Keychain
 ```
@@ -118,6 +119,24 @@ own Dress Me). Add a Gemini API key in Setup; it's
 stored in the Keychain and each reply is billed to that Google account
 (about $3 per million input tokens and $15 per million output tokens). As with
 try-on, move this call to your own server before a public release.
+
+### Senso knowledge base
+
+With a Senso key (Setup → Agent, optional), the stylist gets a knowledge base on
+[Senso](https://docs.senso.ai). When the Agent tab opens, the app files two
+documents into your Senso account as raw text (`POST /org/kb/raw`): a men's
+style guide (`Services/Senso/StyleGuide.swift`) and the current wardrobe, one
+piece per line with its id. Each document is filed again only when its text
+changes, and the old copy is removed. Before every Agent reply the app searches
+Senso (`POST /org/search/context`) with the question and passes the passages it
+finds to Gemini alongside it; the reply shows "From Senso: …" with the documents
+it drew on. If Senso can't be reached the chat carries on without it. Senso
+calls use credits on that account.
+
+To look at what was filed or try a search from a terminal, put
+`SENSO_API_KEY=…` in `.env` (git ignores it) and run
+`python3 scripts/senso.py status` or `python3 scripts/senso.py search "what goes with black jeans?"`.
+Debug builds also read `SENSO_API_KEY` from the launch environment.
 
 ## Turning on real try-on
 

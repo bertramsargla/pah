@@ -20,6 +20,9 @@ final class AppModel {
 
     static let falKeyAccount = "fal-api-key"
     static let geminiKeyAccount = "gemini-api-key"
+    static let sensoKeyAccount = "senso-api-key"
+    /// Which version of each document is filed in Senso: title -> "fingerprint|node id".
+    private static let sensoFiledKey = "senso-filed-v1"
     /// The hosted try-on model. Nano Banana dresses the whole outfit in one call and was
     /// the fastest in romeo's side-by-side test (Nov 2026). The other models stay in
     /// `FalTryOnModel` so switching back is a one-line change.
@@ -143,6 +146,79 @@ final class AppModel {
     func setGeminiAPIKey(_ key: String) {
         KeychainStore.set(key.trimmingCharacters(in: .whitespacesAndNewlines), for: Self.geminiKeyAccount)
         hasGeminiKey = !geminiAPIKey.isEmpty
+    }
+
+    // MARK: Senso knowledge base
+
+    var sensoAPIKey: String { Self.storedSensoKey }
+
+    private static var storedSensoKey: String {
+        if let key = KeychainStore.get(sensoKeyAccount), !key.isEmpty { return key }
+        #if DEBUG
+        // Debug builds can take the key from the launch environment (SIMCTL_CHILD_SENSO_API_KEY
+        // with simctl), so a demo machine can use Senso without typing the key into Setup.
+        return ProcessInfo.processInfo.environment["SENSO_API_KEY"] ?? ""
+        #else
+        return ""
+        #endif
+    }
+
+    private(set) var hasSensoKey = !AppModel.storedSensoKey.isEmpty
+    /// The outcome of the last filing, shown in Setup.
+    private(set) var sensoStatus: String?
+    @ObservationIgnored private var isFilingInSenso = false
+
+    /// The knowledge-base client, when a Senso key is saved.
+    var senso: SensoClient? {
+        hasSensoKey ? SensoClient(apiKey: sensoAPIKey) : nil
+    }
+
+    func setSensoAPIKey(_ key: String) {
+        KeychainStore.set(key.trimmingCharacters(in: .whitespacesAndNewlines), for: Self.sensoKeyAccount)
+        hasSensoKey = !sensoAPIKey.isEmpty
+        sensoStatus = nil
+        defaults.removeObject(forKey: Self.sensoFiledKey)
+        Task {
+            await wardrobe.load()
+            await fileInSenso()
+        }
+    }
+
+    /// Files the style guide and the current wardrobe in Senso, skipping any document
+    /// already filed in this exact version, and removing the copy it replaces.
+    func fileInSenso() async {
+        guard let senso, !isFilingInSenso, !wardrobe.products.isEmpty else { return }
+        isFilingInSenso = true
+        defer { isFilingInSenso = false }
+        var filed = defaults.dictionary(forKey: Self.sensoFiledKey) as? [String: String] ?? [:]
+        let documents = [
+            (SensoClient.styleGuideTitle, StyleGuide.text),
+            (SensoClient.wardrobeTitle, SensoClient.wardrobeDocument(wardrobe.products))
+        ]
+        do {
+            var changed = false
+            for (title, text) in documents {
+                let fingerprint = SensoClient.fingerprint(text)
+                let previous = (filed[title] ?? "").split(separator: "|").map(String.init)
+                if previous.first == fingerprint { continue }
+                var entry = fingerprint
+                let result = try await senso.file(title: title, text: text)
+                if case .accepted(let nodeID?) = result {
+                    entry += "|" + nodeID
+                    if previous.count > 1, previous[1] != nodeID {
+                        try? await senso.remove(nodeID: previous[1])
+                    }
+                }
+                filed[title] = entry
+                defaults.set(filed, forKey: Self.sensoFiledKey)
+                changed = true
+            }
+            if changed || sensoStatus == nil {
+                sensoStatus = "Style guide and wardrobe are filed in Senso."
+            }
+        } catch {
+            sensoStatus = error.localizedDescription
+        }
     }
 
     /// What the Agent tab's stylist gets to see.

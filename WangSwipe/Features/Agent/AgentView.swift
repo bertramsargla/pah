@@ -58,7 +58,10 @@ struct AgentView: View {
         .overlay(Scanlines())
         // The agent needs the wardrobe list (to know the pieces, and for its Dress Me
         // button), even when this tab is opened before the wardrobe.
-        .task { await appModel.wardrobe.load() }
+        .task {
+            await appModel.wardrobe.load()
+            await appModel.fileInSenso()
+        }
         .onChange(of: agent.failedQuestion) { _, question in
             if let question, draft.isEmpty { draft = question }
         }
@@ -112,6 +115,14 @@ struct AgentView: View {
                 .overlay(Rectangle().stroke(Retro.ink, lineWidth: 1.5))
                 if !isUser { Spacer(minLength: 40) }
             }
+            if let caption = message.caption {
+                Text(caption)
+                    .font(Retro.font(10, weight: .bold))
+                    .textCase(.uppercase)
+                    .foregroundStyle(Retro.ink.opacity(0.75))
+                    .padding(.horizontal, 6)
+                    .background(Retro.panel.opacity(0.8))
+            }
             // The agent picked an outfit: the next step is trying it on.
             if !pick.isEmpty {
                 Button { appModel.dressInWardrobe(pick) } label: {
@@ -155,7 +166,7 @@ struct AgentView: View {
     }
 
     private func send(_ text: String) {
-        agent.send(text, apiKey: appModel.geminiAPIKey, context: appModel.stylistContext())
+        agent.send(text, apiKey: appModel.geminiAPIKey, senso: appModel.senso, context: appModel.stylistContext())
         draft = ""
     }
 }

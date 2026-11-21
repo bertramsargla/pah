@@ -16,7 +16,9 @@ final class AgentModel {
     @ObservationIgnored private var firstImages: [UIImage] = []
     @ObservationIgnored private var task: Task<Void, Never>?
 
-    func send(_ text: String, apiKey: String, context: StylistContext) {
+    /// Sends a question. With Senso, the knowledge base is searched first and the
+    /// passages it finds go to Gemini with the question.
+    func send(_ text: String, apiKey: String, senso: SensoClient? = nil, context: StylistContext) {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty, !isReplying else { return }
         errorText = nil
@@ -24,31 +26,51 @@ final class AgentModel {
         if messages.isEmpty {
             firstImages = [context.photo, context.look].compactMap { $0 }
         }
-        messages.append(ChatMessage(role: .user, text: trimmed,
-                                    sentText: GeminiStylist.screenNote(context) + "\n\n" + trimmed))
-        let body: Data
-        do {
-            body = try GeminiStylist.requestBody(history: messages, context: context, firstImages: firstImages)
-        } catch {
-            errorText = error.localizedDescription
-            return
-        }
+        let screenNote = GeminiStylist.screenNote(context)
+        messages.append(ChatMessage(role: .user, text: trimmed, sentText: screenNote + "\n\n" + trimmed))
+        let questionIndex = messages.count - 1
 
         isReplying = true
         messages.append(ChatMessage(role: .assistant, text: ""))
         let replyIndex = messages.count - 1
         let stylist = GeminiStylist(apiKey: apiKey)
+        let images = firstImages
 
         task = Task { [weak self] in
+            if let senso {
+                do {
+                    let passages = try await senso.passages(for: trimmed)
+                    self?.attach(passages, screenNote: screenNote, question: questionIndex, reply: replyIndex)
+                } catch {
+                    self?.setCaption("Senso search skipped: \(error.localizedDescription)", at: replyIndex)
+                }
+            }
+            guard let self, !Task.isCancelled else { return }
             do {
+                let body = try GeminiStylist.requestBody(history: Array(self.messages.prefix(replyIndex)),
+                                                         context: context, firstImages: images)
                 for try await piece in stylist.reply(to: body) {
-                    self?.append(piece, at: replyIndex)
+                    self.append(piece, at: replyIndex)
                 }
             } catch {
-                self?.errorText = error.localizedDescription
+                self.errorText = error.localizedDescription
             }
-            self?.finishReply(at: replyIndex)
+            self.finishReply(at: replyIndex)
         }
+    }
+
+    private func attach(_ passages: [SensoClient.Passage], screenNote: String, question: Int, reply: Int) {
+        guard !passages.isEmpty, question < messages.count, reply < messages.count else { return }
+        let message = messages[question]
+        messages[question].sentText = screenNote + "\n\n" + SensoClient.note(passages) + "\n\n" + message.text
+        var titles: [String] = []
+        for passage in passages where !titles.contains(passage.title) { titles.append(passage.title) }
+        messages[reply].caption = "From Senso: " + titles.joined(separator: ", ")
+    }
+
+    private func setCaption(_ caption: String, at index: Int) {
+        guard index < messages.count else { return }
+        messages[index].caption = caption
     }
 
     private func append(_ piece: String, at index: Int) {

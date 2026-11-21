@@ -458,3 +458,45 @@ final class StylistTests: XCTestCase {
         XCTAssertTrue(note.contains(" + "))
     }
 }
+
+final class SensoTests: XCTestCase {
+    func testRequestsUseTheV1BaseAndKeyHeader() throws {
+        let body = try JSONSerialization.data(withJSONObject: ["query": "q"])
+        let request = SensoClient.request("org/search/context", method: "POST", body: body, apiKey: "k")
+        XCTAssertEqual(request.url?.absoluteString, "https://apiv2.senso.ai/api/v1/org/search/context")
+        XCTAssertEqual(request.httpMethod, "POST")
+        XCTAssertEqual(request.value(forHTTPHeaderField: "X-API-Key"), "k")
+        XCTAssertEqual(request.value(forHTTPHeaderField: "Content-Type"), "application/json")
+        let delete = SensoClient.request("org/kb/nodes/abc", method: "DELETE", body: nil, apiKey: "k")
+        XCTAssertEqual(delete.url?.path, "/api/v1/org/kb/nodes/abc")
+        XCTAssertNil(delete.httpBody)
+    }
+
+    func testParsesSearchResultShapes() {
+        let results = #"{"query":"q","results":[{"title":"Guide","chunk_text":" Navy goes with grey. ","score":0.9},{"title":"x","chunk_text":""}]}"#
+        XCTAssertEqual(SensoClient.parsePassages(Data(results.utf8)), [.init(title: "Guide", text: "Navy goes with grey.")])
+        let chunks = #"{"chunks":[{"text":"Cropped jackets lengthen legs."}]}"#
+        XCTAssertEqual(SensoClient.parsePassages(Data(chunks.utf8)), [.init(title: "Senso", text: "Cropped jackets lengthen legs.")])
+        XCTAssertEqual(SensoClient.parsePassages(Data("nope".utf8)), [])
+    }
+
+    func testErrorsAndNodeIDs() {
+        XCTAssertThrowsError(try SensoClient.check(401, Data())) { XCTAssertEqual($0 as? SensoError, .badKey) }
+        XCTAssertThrowsError(try SensoClient.check(402, Data())) { XCTAssertEqual($0 as? SensoError, .outOfCredits) }
+        XCTAssertThrowsError(try SensoClient.check(500, Data(#"{"detail":"boom"}"#.utf8))) {
+            XCTAssertEqual($0 as? SensoError, .http(500, "boom"))
+        }
+        XCTAssertNoThrow(try SensoClient.check(202, Data()))
+        XCTAssertEqual(SensoClient.nodeID(in: Data(#"{"id":"c1","kb_node_id":"n1","processing_status":"processing"}"#.utf8)), "n1")
+    }
+
+    func testWardrobeDocumentAndNote() {
+        let products = CuratedStores.all.flatMap(\.products)
+        let document = SensoClient.wardrobeDocument(products)
+        XCTAssertTrue(products.allSatisfy { document.contains("(id \($0.id))") })
+        XCTAssertEqual(SensoClient.fingerprint(document), SensoClient.fingerprint(document))
+        XCTAssertNotEqual(SensoClient.fingerprint(document), SensoClient.fingerprint(StyleGuide.text))
+        XCTAssertEqual(SensoClient.note([]), "")
+        XCTAssertTrue(SensoClient.note([.init(title: "Guide", text: "a\nb")]).hasSuffix("- (Guide) a b"))
+    }
+}

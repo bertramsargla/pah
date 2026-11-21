@@ -10,6 +10,8 @@ struct ChatMessage: Identifiable, Equatable, Sendable {
     var text: String
     /// What was sent to the model, when it differs (user turns carry what's on screen).
     var sentText: String? = nil
+    /// Small print under a reply, such as which Senso documents it drew on.
+    var caption: String? = nil
 }
 
 enum StylistError: LocalizedError, Equatable {

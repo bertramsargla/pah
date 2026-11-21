@@ -8,6 +8,8 @@ struct SettingsView: View {
     @State private var keySaved = false
     @State private var geminiKeyDraft = ""
     @State private var geminiKeySaved = false
+    @State private var sensoKeyDraft = ""
+    @State private var sensoKeySaved = false
     @State private var newDomain = ""
 
     var body: some View {
@@ -26,6 +28,7 @@ struct SettingsView: View {
             .onAppear {
                 apiKeyDraft = appModel.falAPIKey
                 geminiKeyDraft = appModel.geminiAPIKey
+                sensoKeyDraft = appModel.sensoAPIKey
             }
             .onChange(of: pickerItem) { _, item in
                 guard let item else { return }
@@ -115,13 +118,28 @@ struct SettingsView: View {
             }
             .disabled(geminiKeyDraft.isEmpty)
             .onChange(of: geminiKeyDraft) { geminiKeySaved = false }
+
+            SecureField("Senso API key (optional)", text: $sensoKeyDraft)
+                .textInputAutocapitalization(.never)
+                .autocorrectionDisabled()
+            Button(sensoKeySaved ? "Saved" : "Save Senso key") {
+                appModel.setSensoAPIKey(sensoKeyDraft)
+                sensoKeySaved = true
+            }
+            .disabled(sensoKeyDraft.isEmpty)
+            .onChange(of: sensoKeyDraft) { sensoKeySaved = false }
+            if let status = appModel.sensoStatus {
+                Text(status).font(.footnote).foregroundStyle(.secondary)
+            }
         } header: {
             Text("Agent")
         } footer: {
             Text("""
             The Agent tab uses Google Gemini (\(GeminiStylist.model), \(GeminiStylist.thinkingLevel) thinking) and charges your Google account per message, \
             roughly a few cents per reply. Your photo, latest try-on and the wardrobe are sent with the chat. \
-            The key is kept in this phone's Keychain.
+            With a Senso key, the app files a style guide and the wardrobe in your Senso knowledge base, \
+            and each question first searches it for notes to pass to Gemini (uses Senso credits). \
+            Keys are kept in this phone's Keychain.
             """)
         }
     }
