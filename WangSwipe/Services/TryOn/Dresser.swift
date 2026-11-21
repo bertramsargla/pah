@@ -15,6 +15,10 @@ final class Dresser {
     }
 
     private(set) var states: [String: State] = [:]
+    /// When each outfit started dressing, for the live timer in the mirror.
+    private(set) var startDates: [String: Date] = [:]
+    /// Where the time went for each finished outfit, e.g. "14.2 s · photos 0.3 s · try-on 6.9 + 7.0 s".
+    private(set) var timings: [String: String] = [:]
     private(set) var serviceLabel: String = ""
 
     @ObservationIgnored private var service: any TryOnService = MockTryOnService()
@@ -29,6 +33,8 @@ final class Dresser {
         tasks.values.forEach { $0.cancel() }
         tasks = [:]
         states = [:]
+        startDates = [:]
+        timings = [:]
         self.person = person
         self.service = service
         serviceLabel = service.label
@@ -40,6 +46,17 @@ final class Dresser {
 
     func state(for items: [Product]) -> State {
         states[Self.key(items)] ?? .idle
+    }
+
+    func startDate(for items: [Product]) -> Date? { startDates[Self.key(items)] }
+    func timing(for items: [Product]) -> String? { timings[Self.key(items)] }
+
+    /// Downloads the outfit's garment photos ahead of time so Dress Me starts
+    /// the try-on right away. Free: no try-on call is made.
+    func prefetch(_ items: [Product]) {
+        Task { [garments] in
+            for item in items { _ = try? await garments.image(for: item) }
+        }
     }
 
     /// Starts dressing unless this outfit is already done or in progress.
@@ -56,22 +73,40 @@ final class Dresser {
             ? .working(step: 1, of: 1, item: "Whole outfit")
             : .working(step: 1, of: items.count, item: items[0].title)
 
+        startDates[key] = .now
+        timings[key] = nil
+
         tasks[key] = Task { [weak self, garments] in
             var current = person
+            let clock = ContinuousClock()
+            let started = clock.now
+            var photoTime = Duration.zero
+            var tryOnTimes: [Duration] = []
             do {
                 if service.dressesWholeOutfit {
                     // One call for the whole outfit.
                     self?.update(key, .working(step: 1, of: 1, item: "Whole outfit"), generation)
                     var images: [UIImage] = []
+                    let photoStart = clock.now
                     for item in items { images.append(try await garments.image(for: item)) }
+                    photoTime = clock.now - photoStart
+                    let tryOnStart = clock.now
                     current = try await service.renderOutfit(person: person, garments: images, products: items)
+                    tryOnTimes.append(clock.now - tryOnStart)
                 } else {
                     for (index, item) in items.enumerated() {
                         self?.update(key, .working(step: index + 1, of: items.count, item: item.title), generation)
+                        let photoStart = clock.now
                         let garment = try await garments.image(for: item)
+                        photoTime += clock.now - photoStart
+                        let tryOnStart = clock.now
                         current = try await service.render(person: current, garment: garment, product: item)
+                        tryOnTimes.append(clock.now - tryOnStart)
                     }
                 }
+                let summary = "\(Self.seconds(clock.now - started)) · photos \(Self.seconds(photoTime)) · "
+                    + "try-on \(tryOnTimes.map(Self.seconds).joined(separator: " + "))"
+                self?.record(key, summary, generation)
                 self?.finish(key, .ready(current), generation)
             } catch is CancellationError {
                 self?.finish(key, .idle, generation)
@@ -79,6 +114,16 @@ final class Dresser {
                 self?.finish(key, .failed(error.localizedDescription), generation)
             }
         }
+    }
+
+    private func record(_ key: String, _ timing: String, _ generation: Int) {
+        guard generation == self.generation else { return }
+        timings[key] = timing
+    }
+
+    nonisolated static func seconds(_ duration: Duration) -> String {
+        let value = Double(duration.components.seconds) + Double(duration.components.attoseconds) / 1e18
+        return String(format: "%.1f s", value)
     }
 
     private func update(_ key: String, _ state: State, _ generation: Int) {

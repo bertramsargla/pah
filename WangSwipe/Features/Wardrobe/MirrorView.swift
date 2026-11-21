@@ -7,6 +7,10 @@ struct MirrorView: View {
     let state: Dresser.State
     let person: UIImage?
     let serviceLabel: String
+    /// When dressing started, for a live seconds counter.
+    var startedAt: Date? = nil
+    /// Where the time went, once finished.
+    var timing: String? = nil
     var onBack: () -> Void
     var onKeep: () -> Void
     var onRetry: () -> Void
@@ -56,12 +60,22 @@ struct MirrorView: View {
         case .idle:
             EmptyView()
         case .working(let step, let total, let item):
-            tag {
-                ProgressView().controlSize(.mini).tint(Retro.onBar)
-                Text("Dressing you \(step)/\(total): \(item)")
+            VStack(spacing: 4) {
+                tag {
+                    ProgressView().controlSize(.mini).tint(Retro.onBar)
+                    Text("Dressing you \(step)/\(total): \(item)")
+                }
+                if let startedAt {
+                    TimelineView(.periodic(from: startedAt, by: 0.1)) { timeline in
+                        tag { Text(Dresser.seconds(.seconds(timeline.date.timeIntervalSince(startedAt)))) }
+                    }
+                }
             }
         case .ready:
-            tag { Text(serviceLabel) }
+            VStack(spacing: 4) {
+                tag { Text(serviceLabel) }
+                if let timing { tag { Text(timing) } }
+            }
         case .failed(let message):
             VStack(spacing: 4) {
                 tag { Text("Couldn't dress you") }

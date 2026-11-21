@@ -26,6 +26,15 @@ enum FalTryOnModel: String, Codable, CaseIterable, Identifiable, Sendable {
         }
     }
 
+    var shortName: String {
+        switch self {
+        case .googleVTO: "Google"
+        case .fashn: "FASHN"
+        case .nanoBanana: "Nano Banana"
+        case .klingKolors: "Kling"
+        }
+    }
+
     /// Whether one call dresses the whole outfit instead of one call per piece.
     var dressesWholeOutfit: Bool { self == .nanoBanana }
 }
@@ -40,7 +49,7 @@ struct FalTryOnService: TryOnService {
     let model: FalTryOnModel
     var session: URLSession = .shared
 
-    var label: String { "AI try-on" }
+    var label: String { "AI try-on · \(model.shortName)" }
 
     var dressesWholeOutfit: Bool { model.dressesWholeOutfit }
 

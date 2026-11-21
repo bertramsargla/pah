@@ -46,6 +46,8 @@ struct WardrobeView: View {
                         state: appModel.dresser.state(for: outfit),
                         person: appModel.userPhoto,
                         serviceLabel: appModel.dresser.serviceLabel,
+                        startedAt: appModel.dresser.startDate(for: outfit),
+                        timing: appModel.dresser.timing(for: outfit),
                         onBack: { withAnimation { mirrorOutfit = nil } },
                         onKeep: {
                             outfit.forEach(appModel.like)
@@ -67,6 +69,8 @@ struct WardrobeView: View {
         }
         .overlay(Scanlines())
         .task { await wardrobe.load() }
+        // Fetch the showing outfit's photos early so Dress Me goes straight to the try-on.
+        .onChange(of: Dresser.key(wardrobe.outfit)) { appModel.dresser.prefetch(wardrobe.outfit) }
         .onDisappear { wardrobe.stop() }
     }
 
