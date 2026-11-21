@@ -35,6 +35,8 @@ def call(method, path, body=None):
     data = json.dumps(body).encode() if body is not None else None
     request = urllib.request.Request(BASE + path, data=data, method=method)
     request.add_header("X-API-Key", api_key())
+    # Senso's firewall refuses Python's default User-Agent (HTTP 403, "error code: 1010").
+    request.add_header("User-Agent", "WangSwipe-devscript/1")
     if data is not None:
         request.add_header("Content-Type", "application/json")
     try:
