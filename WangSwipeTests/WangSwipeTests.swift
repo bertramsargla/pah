@@ -197,6 +197,18 @@ final class WardrobeTests: XCTestCase {
         XCTAssertEqual(OutfitSlot(wardrobe.outfit[1].category), .lower)
     }
 
+    func testShowTurnsBothPanelsToThePick() async {
+        let wardrobe = await loadedWardrobe()
+        wardrobe.select(.jeans)
+        let top = wardrobe.items(for: .upper).last!
+        let bottom = wardrobe.products.first { $0.category == .bottom && MensSection.of($0) != .jeans }
+            ?? wardrobe.items(for: .lower).last!
+        let outfit = wardrobe.show([top, bottom])
+        XCTAssertNil(wardrobe.section, "the section filter is cleared so the pick can show")
+        XCTAssertEqual(outfit.map(\.id), [top.id, bottom.id])
+        XCTAssertEqual(wardrobe.outfit.map(\.id), [top.id, bottom.id])
+    }
+
     func testSkipMovesOnePanelAndWrapsAround() async {
         let wardrobe = await loadedWardrobe()
         let uppers = wardrobe.items(for: .upper)
@@ -418,6 +430,26 @@ final class StylistTests: XCTestCase {
         XCTAssertEqual(GeminiStylist.parse(#"data: {"error":{"code":503,"message":"Overloaded"}}"#), .failed("Overloaded"))
         XCTAssertEqual(GeminiStylist.parse(""), .other)
         XCTAssertEqual(GeminiStylist.errorMessage(in: #"{"error":{"code":400,"message":"API key not valid"}}"#), "API key not valid")
+    }
+
+    func testSystemPromptListsIdsForOutfitPicks() {
+        let products = CuratedStores.all.flatMap(\.products)
+        let prompt = GeminiStylist.systemPrompt(wardrobe: products)
+        XCTAssertTrue(prompt.contains("[\(products[0].id)]"))
+        XCTAssertTrue(prompt.contains("OUTFIT: <top id> | <bottom id>"))
+    }
+
+    func testSplitsOutfitPickFromReply() {
+        let reply = "Go with the navy overshirt and black jeans.\n\nOUTFIT: fwrd:1 | grailed:2"
+        let split = GeminiStylist.splitPick(reply)
+        XCTAssertEqual(split.text, "Go with the navy overshirt and black jeans.")
+        XCTAssertEqual(split.ids, ["fwrd:1", "grailed:2"])
+        XCTAssertEqual(GeminiStylist.splitPick("Nice.\n**OUTFIT:** [a:1] | `b:2`\n").ids, ["a:1", "b:2"])
+        // Halfway through streaming, the pick line isn't shown.
+        XCTAssertEqual(GeminiStylist.splitPick("Nice.\nOUT").text, "Nice.")
+        let plain = GeminiStylist.splitPick("Try a white tee.")
+        XCTAssertEqual(plain.text, "Try a white tee.")
+        XCTAssertEqual(plain.ids, [])
     }
 
     func testScreenNoteNamesWhatIsShowing() {

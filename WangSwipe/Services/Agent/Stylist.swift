@@ -128,7 +128,7 @@ struct GeminiStylist: Sendable {
 
     static func systemPrompt(wardrobe: [Product]) -> String {
         let lines = wardrobe.map { product in
-            "- \(MensSection.of(product).title.lowercased()): \(product.brand ?? product.storeName) \(product.title), \(product.formattedPrice) at \(product.storeName)"
+            "- [\(product.id)] \(MensSection.of(product).title.lowercased()): \(product.brand ?? product.storeName) \(product.title), \(product.formattedPrice) at \(product.storeName)"
         }
         return """
         You are the stylist inside WangSwipe, a retro "wardrobe computer" iPhone app for men's clothing. \
@@ -139,6 +139,9 @@ struct GeminiStylist: Sendable {
         Recommend pieces from the wardrobe below by brand and name when they fit the question. \
         If the user asks for their perfect match, pick the one top and one bottom from the wardrobe \
         that suit them best (use their photo if attached) and say why in a sentence or two. \
+        Whenever you recommend one complete outfit from the wardrobe (one top or jacket plus one pair of pants or jeans), \
+        end the reply with one last line exactly like "\(pickPrefix) <top id> | <bottom id>", using the ids in brackets below. \
+        The app turns that line into a Dress Me button and hides it, so don't mention ids anywhere else. \
         You can suggest things the wardrobe doesn't have (shoes, accessories, layers), but say they aren't in it. \
         If a photo is attached, it's the user, and a second image is their latest try-on: use them for color, \
         proportion and fit advice. Be kind about their body and don't rate their face or looks.
@@ -155,6 +158,38 @@ struct GeminiStylist: Sendable {
         var note = "On screen now: " + (showing.isEmpty ? "nothing" : showing.joined(separator: " + ")) + "."
         if !kept.isEmpty { note += " Kept pieces: " + kept.joined(separator: ", ") + "." }
         return note
+    }
+
+    // MARK: Outfit pick
+
+    static let pickPrefix = "OUTFIT:"
+
+    /// Splits a reply into the text to show and the product ids of the outfit it
+    /// picked (from its last "OUTFIT: top | bottom" line). While a reply is still
+    /// streaming, a half-written pick line is hidden too.
+    static func splitPick(_ reply: String) -> (text: String, ids: [String]) {
+        var lines = reply.components(separatedBy: "\n")
+        var ids: [String] = []
+        while let last = lines.last {
+            let line = last.trimmingCharacters(in: .whitespaces).replacingOccurrences(of: "*", with: "")
+            if line.isEmpty, lines.count > 1 {
+                lines.removeLast()
+            } else if line.uppercased().hasPrefix(pickPrefix) {
+                ids = line.dropFirst(pickPrefix.count)
+                    .split(separator: "|")
+                    .map { $0.trimmingCharacters(in: CharacterSet(charactersIn: " []`\"")) }
+                    .filter { !$0.isEmpty }
+                lines.removeLast()
+                break
+            } else if !line.isEmpty, pickPrefix.hasPrefix(line.uppercased()) {
+                lines.removeLast() // "OUT" while the pick line is still arriving
+                break
+            } else {
+                break
+            }
+        }
+        let text = lines.joined(separator: "\n").trimmingCharacters(in: .whitespacesAndNewlines)
+        return (text, ids)
     }
 
     // MARK: Streaming events

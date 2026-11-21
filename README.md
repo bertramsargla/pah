@@ -110,7 +110,11 @@ The Agent tab is a chat with a stylist powered by Google's Gemini 4 Neon
 (`gemini-4-neon` through the Gemini API's `streamGenerateContent`, medium
 thinking level). It gets the wardrobe list, what's on screen, the pieces you
 kept, and (on the first message) your photo and latest try-on. Its one starter
-chip is "Find me the perfect match". Add a Gemini API key in Setup; it's
+chip is "Find me the perfect match". When the agent recommends a whole outfit,
+it ends its reply with a hidden `OUTFIT: <top id> | <bottom id>` line, and the
+chat shows a Dress Me button under it that switches to the wardrobe, turns both
+panels to those pieces and tries them on (the same paid try-on as the wardrobe's
+own Dress Me). Add a Gemini API key in Setup; it's
 stored in the Keychain and each reply is billed to that Google account
 (about $3 per million input tokens and $15 per million output tokens). As with
 try-on, move this call to your own server before a public release.

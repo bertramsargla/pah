@@ -69,6 +69,8 @@ struct WardrobeView: View {
         }
         .overlay(Scanlines())
         .task { await wardrobe.load() }
+        .onAppear(perform: dressRequested)
+        .onChange(of: wardrobe.dressRequest.map(Dresser.key)) { dressRequested() }
         // Fetch the showing outfit's photos early so Dress Me goes straight to the try-on.
         .onChange(of: Dresser.key(wardrobe.outfit)) { appModel.dresser.prefetch(wardrobe.outfit) }
         .onDisappear { wardrobe.stop() }
@@ -96,10 +98,7 @@ struct WardrobeView: View {
 
             Button {
                 wardrobe.stop()
-                let outfit = wardrobe.outfit
-                guard !outfit.isEmpty else { return }
-                appModel.dresser.dress(outfit)
-                withAnimation { mirrorOutfit = outfit }
+                dress(wardrobe.outfit)
             } label: {
                 Text("Dress Me")
             }
@@ -185,6 +184,19 @@ struct GarmentPanel: View {
             .background(Retro.bar.opacity(0.85))
             .padding(6)
         }
+    }
+
+    private func dress(_ outfit: [Product]) {
+        guard !outfit.isEmpty else { return }
+        appModel.dresser.dress(outfit)
+        withAnimation { mirrorOutfit = outfit }
+    }
+
+    /// The Agent's Dress Me: show its pick in the panels and dress it right away.
+    private func dressRequested() {
+        guard let pieces = wardrobe.dressRequest else { return }
+        wardrobe.dressRequest = nil
+        dress(wardrobe.show(pieces))
     }
 
     private func control(_ systemImage: String, action: @escaping () -> Void) -> some View {

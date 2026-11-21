@@ -13,6 +13,9 @@ final class WardrobeModel {
     private(set) var upperIndex = 0
     private(set) var lowerIndex = 0
     private(set) var isPlaying = false
+    /// An outfit another screen (the Agent) asked the wardrobe to put on.
+    /// The wardrobe screen dresses it as soon as it shows, then clears it.
+    var dressRequest: [Product]?
 
     var playInterval: Duration = .seconds(3)
 
@@ -120,6 +123,23 @@ final class WardrobeModel {
         playTask?.cancel()
         playTask = nil
         isPlaying = false
+    }
+
+    /// Turns both panels to these pieces (clearing any section filter) and
+    /// returns the outfit now showing.
+    @discardableResult
+    func show(_ pieces: [Product]) -> [Product] {
+        stop()
+        section = nil
+        for piece in pieces {
+            let slot = OutfitSlot(piece.category)
+            guard let index = items(for: slot).firstIndex(where: { $0.id == piece.id }) else { continue }
+            switch slot {
+            case .upper: upperIndex = index
+            case .lower: lowerIndex = index
+            }
+        }
+        return outfit
     }
 
     /// Menu strip: tap a section to show only that kind in its panel; tap it again to clear.

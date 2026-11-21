@@ -87,24 +87,46 @@ struct AgentView: View {
 
     private func bubble(_ message: ChatMessage) -> some View {
         let isUser = message.role == .user
-        return HStack {
-            if isUser { Spacer(minLength: 40) }
-            Group {
-                if message.text.isEmpty {
-                    ProgressView().tint(Retro.ink)
-                } else {
-                    Text(message.text)
-                        .font(Retro.font(13, weight: .medium))
-                        .textSelection(.enabled)
+        let shown: (text: String, ids: [String]) = isUser ? (message.text, []) : GeminiStylist.splitPick(message.text)
+        let pick = isFinished(message) ? pieces(shown.ids) : []
+        return VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                if isUser { Spacer(minLength: 40) }
+                Group {
+                    if shown.text.isEmpty {
+                        ProgressView().tint(Retro.ink)
+                    } else {
+                        Text(shown.text)
+                            .font(Retro.font(13, weight: .medium))
+                            .textSelection(.enabled)
+                    }
                 }
+                .foregroundStyle(isUser ? Retro.onBar : Retro.ink)
+                .padding(10)
+                .background(isUser ? Retro.bar : Retro.panel)
+                .overlay(Bevel(raised: !isUser, width: 3))
+                .overlay(Rectangle().stroke(Retro.ink, lineWidth: 1.5))
+                if !isUser { Spacer(minLength: 40) }
             }
-            .foregroundStyle(isUser ? Retro.onBar : Retro.ink)
-            .padding(10)
-            .background(isUser ? Retro.bar : Retro.panel)
-            .overlay(Bevel(raised: !isUser, width: 3))
-            .overlay(Rectangle().stroke(Retro.ink, lineWidth: 1.5))
-            if !isUser { Spacer(minLength: 40) }
+            // The agent picked an outfit: the next step is trying it on.
+            if !pick.isEmpty {
+                Button { appModel.dressInWardrobe(pick) } label: {
+                    Text("Dress Me")
+                }
+                .buttonStyle(BevelButtonStyle(size: 20))
+                .frame(width: 180, height: 50)
+                .accessibilityHint("Shows " + pick.map(\.title).joined(separator: " and ") + " in the wardrobe and tries it on")
+            }
         }
+    }
+
+    private func isFinished(_ message: ChatMessage) -> Bool {
+        !(agent.isReplying && message.id == agent.messages.last?.id)
+    }
+
+    /// The wardrobe pieces behind the agent's pick, top first.
+    private func pieces(_ ids: [String]) -> [Product] {
+        ids.compactMap { id in appModel.wardrobe.products.first { $0.id == id } }
     }
 
     private var inputBar: some View {

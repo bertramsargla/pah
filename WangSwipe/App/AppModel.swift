@@ -7,6 +7,8 @@ import Observation
 final class AppModel {
     private(set) var userPhoto: UIImage? = nil
     private(set) var liked: [Product] = []
+    /// The tab showing; the Agent's Dress Me switches it to the wardrobe.
+    var tab: MainTab = .wardrobe
     private(set) var settings: AppSettings
 
     let dresser: Dresser
@@ -128,6 +130,13 @@ final class AppModel {
     }
 
     /// What the Agent tab's stylist gets to see.
+    /// The Agent's Dress Me: go to the wardrobe and try on the agent's pick.
+    func dressInWardrobe(_ pieces: [Product]) {
+        guard !pieces.isEmpty else { return }
+        wardrobe.dressRequest = pieces
+        tab = .wardrobe
+    }
+
     func stylistContext() -> StylistContext {
         let showing = wardrobe.outfit
         var look: UIImage?

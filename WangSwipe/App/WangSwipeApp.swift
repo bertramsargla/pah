@@ -22,7 +22,6 @@ struct RootView: View {
     /// the hangers in the very same frame, with no flash of the new screens first.
     @State private var revealedSkin: Skin?
     private var showsLaunch: Bool { revealedSkin != appModel.settings.skin }
-    @State private var tab = MainTab.wardrobe
 
     var body: some View {
         // Keep the drawing skin in step with the saved one before any screen draws.
@@ -32,7 +31,7 @@ struct RootView: View {
                 if appModel.userPhoto == nil {
                     OnboardingView()
                 } else {
-                    MainTabView(selection: $tab)
+                    MainTabView(selection: Binding(get: { appModel.tab }, set: { appModel.tab = $0 }))
                 }
             }
             .animation(.default, value: appModel.userPhoto == nil)
