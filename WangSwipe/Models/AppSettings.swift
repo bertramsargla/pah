@@ -18,7 +18,6 @@ enum TryOnBackend: String, Codable, CaseIterable, Identifiable, Sendable {
 
 struct AppSettings: Codable, Equatable {
     var tryOnBackend: TryOnBackend = .mock
-    var falModel: FalTryOnModel = .googleVTO
     /// Provider ids the user switched off.
     var disabledStoreIDs: Set<String> = []
     /// Extra Shopify stores to browse, by domain.
@@ -33,7 +32,6 @@ struct AppSettings: Codable, Equatable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let defaults = AppSettings()
         tryOnBackend = try container.decodeIfPresent(TryOnBackend.self, forKey: .tryOnBackend) ?? defaults.tryOnBackend
-        falModel = try container.decodeIfPresent(FalTryOnModel.self, forKey: .falModel) ?? defaults.falModel
         disabledStoreIDs = try container.decodeIfPresent(Set<String>.self, forKey: .disabledStoreIDs) ?? defaults.disabledStoreIDs
         shopifyDomains = try container.decodeIfPresent([String].self, forKey: .shopifyDomains) ?? defaults.shopifyDomains
         skin = (try? container.decodeIfPresent(Skin.self, forKey: .skin)) ?? defaults.skin

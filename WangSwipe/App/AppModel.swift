@@ -16,6 +16,10 @@ final class AppModel {
     @ObservationIgnored private let photoStore: PhotoStore
 
     static let falKeyAccount = "fal-api-key"
+    /// The hosted try-on model. Nano Banana dresses the whole outfit in one call and was
+    /// the fastest in romeo's side-by-side test (Nov 2026). The other models stay in
+    /// `FalTryOnModel` so switching back is a one-line change.
+    static let tryOnModel: FalTryOnModel = .nanoBanana
     private static let likedKey = "liked-products-v1"
 
     init(defaults: UserDefaults = .standard, photoStore: PhotoStore = PhotoStore()) {
@@ -93,7 +97,7 @@ final class AppModel {
         settings = next
         next.save(to: defaults)
 
-        if old.tryOnBackend != next.tryOnBackend || old.falModel != next.falModel {
+        if old.tryOnBackend != next.tryOnBackend {
             reloadTryOnService()
         }
         if old.disabledStoreIDs != next.disabledStoreIDs || old.shopifyDomains != next.shopifyDomains {
@@ -128,7 +132,7 @@ final class AppModel {
         case .mock:
             return MockTryOnService()
         case .fal:
-            return FalTryOnService(apiKey: KeychainStore.get(Self.falKeyAccount) ?? "", model: settings.falModel)
+            return FalTryOnService(apiKey: KeychainStore.get(Self.falKeyAccount) ?? "", model: Self.tryOnModel)
         }
     }
 }

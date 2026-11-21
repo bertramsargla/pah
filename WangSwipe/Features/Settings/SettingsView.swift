@@ -75,9 +75,7 @@ struct SettingsView: View {
             }
 
             if appModel.settings.tryOnBackend == .fal {
-                Picker("Model", selection: appModel.binding(\.falModel)) {
-                    ForEach(FalTryOnModel.allCases) { Text($0.displayName).tag($0) }
-                }
+                LabeledContent("Model", value: AppModel.tryOnModel.displayName)
                 SecureField("fal.ai API key", text: $apiKeyDraft)
                     .textInputAutocapitalization(.never)
                     .autocorrectionDisabled()
@@ -93,9 +91,8 @@ struct SettingsView: View {
         } footer: {
             Text("""
             Preview is free and runs on this phone, but it only lays the item over your photo. \
-            fal.ai uses a real try-on model and charges per call, and your photo is sent to it. \
-            Google and FASHN make one call per piece (about $0.075 each; FASHN is much faster). \
-            Nano Banana dresses the whole outfit in one call (about $0.04) but may change your face or pose more. The key is kept in this phone's Keychain. For a public release, \
+            fal.ai runs Google's Nano Banana, which dresses you in the whole outfit with one call \
+            (about $0.04 per Dress Me), and your photo is sent to it. The key is kept in this phone's Keychain. For a public release, \
             make these calls from your own server instead.
             """)
         }

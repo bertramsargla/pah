@@ -97,16 +97,17 @@ Two seams make the app pluggable:
 
 `Dresser` runs try-on only when you press Dress Me, one garment after the
 other (top, then bottom on the result), and keeps each finished look so the
-same outfit is never paid for twice. With fal.ai, Google's model takes about
-35 s per piece; FASHN v1.6 (fast mode) should take a few seconds per piece at
-the same price; Nano Banana dresses the whole outfit in one call (about $0.04)
-but is a general image editor, so faces and poses may drift.
+same outfit is never paid for twice. The app uses Nano Banana on fal.ai
+(`AppModel.tryOnModel`): it dresses the whole outfit in one call, about $0.04,
+and was the fastest when compared side by side with Google's try-on (about 35 s
+per piece) and FASHN. It's a general image editor, so faces and poses can drift
+a little. The other models are still in `FalTryOnModel` if you want to switch back.
 
 ## Turning on real try-on
 
 Real try-on costs money per image, so it's off by default. To try it:
 create a fal.ai account and key, then in the app go to Settings, set Engine to
-fal.ai, pick a model and paste the key. The key is saved in the phone's
+fal.ai and paste the key. The key is saved in the phone's
 Keychain, never in this repo.
 
 Before a public release, move the try-on call to your own server (the key must
