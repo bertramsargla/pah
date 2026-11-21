@@ -23,9 +23,9 @@ enum Skin: String, Codable, CaseIterable, Identifiable, Sendable {
     /// The boxed name in the wardrobe's title bar.
     var wardrobeTitle: String {
         switch self {
-        case .clueless: "Fall Fashions"
-        case .matrix: "Construct"
-        case .doom: "Armory"
+        case .clueless: "Meme"
+        case .matrix: "Matrix"
+        case .doom: "Doom"
         }
     }
 
