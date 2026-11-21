@@ -1,0 +1,942 @@
+<title>Harvest Basket Shop</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Inter:wght@400;500;600;700&display=swap">
+<style>
+  /* Layout: a market-style storefront. Sticky header, "usual order" banner, aisles of product tiles on the left, the assistant docked on the right as a chat column; stacks on phones. */
+  :root {
+    --bg: #eef1ec; --surface: #ffffff; --surface-2: #f6f8f4; --line: #e0e6dc; --line-2: #cfd8ca;
+    --ink: #142019; --muted: #5d6a60; --faint: #8a968c;
+    --brand: #1d5c39; --brand-2: #2b7a4d; --brand-ink: #ffffff; --brand-soft: #e2efe5; --hero: #1d5c39; --hero-ink: #ffffff;
+    --accent: #f0b23c; --accent-soft: #fdf3dc; --accent-ink: #5a3d05;
+    --ok: #2b7a4d; --warn: #b5761a; --bad: #c0402c; --info: #2f6690;
+    --t-milk: #e4eef8; --i-milk: #3a6ea5; --t-eggs: #fbf1d8; --i-eggs: #b78419; --t-bread: #f6ebdc; --i-bread: #9a6a35;
+    --t-pb: #f4e4d2; --i-pb: #8a5a2b; --t-pasta: #faf1d4; --i-pasta: #a9831a; --t-pantry: #e8efdc; --i-pantry: #5d7a2b;
+    --t-produce: #e3f2de; --i-produce: #3f8a3a; --t-house: #ecebf4; --i-house: #6a6290;
+    --shadow: 0 1px 2px rgba(20, 32, 25, .06), 0 8px 24px rgba(20, 32, 25, .06);
+    --display: "Bricolage Grotesque", "Avenir Next", system-ui, sans-serif; --body: "Inter", system-ui, sans-serif;
+    --r: 16px; --r-sm: 10px;
+  }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+    --bg: #0f1411; --surface: #171e19; --surface-2: #1c241f; --line: #273129; --line-2: #34403a;
+    --ink: #e8eee8; --muted: #a0ada3; --faint: #74827a;
+    --brand: #7cc896; --brand-2: #96d6ab; --brand-ink: #0c1a11; --brand-soft: #1d3326; --hero: #1b3a28; --hero-ink: #eaf5ec;
+    --accent: #f3bd55; --accent-soft: #3a2f17; --accent-ink: #fbe3b0;
+    --ok: #7cc896; --warn: #e8ab4f; --bad: #ef8170; --info: #8fb8e0;
+    --t-milk: #1d2a38; --i-milk: #8fb8e6; --t-eggs: #33291a; --i-eggs: #e8c06a; --t-bread: #33281d; --i-bread: #d9a873;
+    --t-pb: #33251a; --i-pb: #d79a63; --t-pasta: #322b17; --i-pasta: #e1c25e; --t-pantry: #26301d; --i-pantry: #a9c77a;
+    --t-produce: #1f3020; --i-produce: #8ccf86; --t-house: #26243a; --i-house: #b3aadf;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.25); color-scheme: dark; } }
+  :root[data-theme="dark"] {
+    --bg: #0f1411; --surface: #171e19; --surface-2: #1c241f; --line: #273129; --line-2: #34403a;
+    --ink: #e8eee8; --muted: #a0ada3; --faint: #74827a;
+    --brand: #7cc896; --brand-2: #96d6ab; --brand-ink: #0c1a11; --brand-soft: #1d3326; --hero: #1b3a28; --hero-ink: #eaf5ec;
+    --accent: #f3bd55; --accent-soft: #3a2f17; --accent-ink: #fbe3b0;
+    --ok: #7cc896; --warn: #e8ab4f; --bad: #ef8170; --info: #8fb8e0;
+    --t-milk: #1d2a38; --i-milk: #8fb8e6; --t-eggs: #33291a; --i-eggs: #e8c06a; --t-bread: #33281d; --i-bread: #d9a873;
+    --t-pb: #33251a; --i-pb: #d79a63; --t-pasta: #322b17; --i-pasta: #e1c25e; --t-pantry: #26301d; --i-pantry: #a9c77a;
+    --t-produce: #1f3020; --i-produce: #8ccf86; --t-house: #26243a; --i-house: #b3aadf;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.25); color-scheme: dark; }
+
+  * { box-sizing: border-box; }
+  body { background: var(--bg); color: var(--ink); font: 14px/1.5 var(--body); -webkit-font-smoothing: antialiased; }
+  button { font: inherit; color: inherit; cursor: pointer; background: none; border: 0; }
+  button:focus-visible, input:focus-visible, a:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+  svg { display: block; }
+  .wrap { max-width: 1440px; margin: 0 auto; padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); }
+
+  /* header */
+  body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--surface); }
+  .top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: color-mix(in srgb, var(--surface) 92%, transparent); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+  .top .wrap { display: flex; align-items: center; gap: 16px; padding-block: 12px; flex-wrap: wrap; }
+  .logo { display: flex; align-items: center; gap: 10px; font: 800 21px/1 var(--display); letter-spacing: -0.02em; }
+  .logo-mark { width: 34px; height: 34px; border-radius: 11px; background: var(--brand); color: var(--brand-ink); display: grid; place-items: center; }
+  .search { flex: 1 1 260px; min-width: 0; position: relative; }
+  .search svg { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--faint); }
+  .search input { width: 100%; padding: 11px 14px 11px 40px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface-2); color: var(--ink); font: inherit; }
+  .deliver { display: flex; flex-direction: column; line-height: 1.25; font-size: 12px; color: var(--muted); }
+  .deliver b { color: var(--ink); font-weight: 600; font-size: 13px; }
+  .cart-btn { display: inline-flex; align-items: center; gap: 10px; padding: 10px 16px; border-radius: 999px; background: var(--brand); color: var(--brand-ink); font-weight: 600; box-shadow: var(--shadow); }
+  @media (max-width: 680px) {
+    .deliver { display: none; }
+    .search { order: 3; flex-basis: 100%; }
+    .cart-btn { margin-left: auto; padding: 9px 14px; }
+    .due h2 { font-size: 26px; }
+  }
+  .cart-count { min-width: 22px; height: 22px; padding: 0 6px; border-radius: 999px; background: var(--brand-ink); color: var(--brand); font-size: 12px; font-weight: 700; display: grid; place-items: center; font-variant-numeric: tabular-nums; }
+
+  .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 430px); gap: 24px; padding-block: 24px 40px; align-items: start; }
+  @media (max-width: 1040px) { .layout { grid-template-columns: minmax(0, 1fr); } }
+  .layout > * { min-width: 0; }
+
+  /* banner */
+  .due { position: relative; overflow: hidden; border-radius: 22px; background: var(--hero); color: var(--hero-ink); padding: 26px 28px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 20px; align-items: end; box-shadow: var(--shadow); }
+  @media (max-width: 640px) { .due { grid-template-columns: 1fr; } }
+  .due::after { content: ""; position: absolute; right: -60px; top: -80px; width: 260px; height: 260px; border-radius: 50%; background: color-mix(in srgb, var(--hero-ink) 8%, transparent); pointer-events: none; }
+  .due .kicker { font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; opacity: .8; margin: 0 0 6px; }
+  .due h2 { font: 800 30px/1.08 var(--display); letter-spacing: -0.02em; margin: 0 0 6px; text-wrap: balance; }
+  .due p { margin: 0; opacity: .85; }
+  .usual { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 16px; }
+  .usual span { font-size: 12px; padding: 4px 10px; border-radius: 999px; background: color-mix(in srgb, var(--hero-ink) 14%, transparent); }
+  .due .go { position: relative; z-index: 1; display: inline-flex; align-items: center; gap: 8px; padding: 13px 20px; border-radius: 999px; background: var(--accent); color: #2a1d02; font-weight: 700; white-space: nowrap; box-shadow: 0 6px 20px rgba(0,0,0,.18); }
+
+  /* aisles */
+  .rail { display: flex; gap: 8px; overflow-x: auto; padding: 18px 2px 6px; scrollbar-width: none; }
+  .rail::-webkit-scrollbar { display: none; }
+  .rail button { flex: none; display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px 8px 8px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); font-size: 13px; font-weight: 500; }
+  .rail button .dot { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; }
+  .rail button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .aisle { margin-top: 22px; }
+  .aisle-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 12px; }
+  .aisle-head h3 { font: 700 19px var(--display); letter-spacing: -0.01em; margin: 0; }
+  .aisle-head span { font-size: 12px; color: var(--muted); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 180px), 1fr)); gap: 14px; }
+  .p { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; display: flex; flex-direction: column; min-width: 0; transition: border-color .15s, box-shadow .15s, transform .15s; }
+  .p:hover { box-shadow: var(--shadow); transform: translateY(-1px); }
+  .p.in-cart { border-color: var(--brand-2); box-shadow: 0 0 0 1px var(--brand-2); }
+  .p.blocked .art { filter: saturate(.35); }
+  .art { position: relative; height: 118px; background: var(--tint); color: var(--ic); display: grid; place-items: center; }
+  .art svg { width: 64px; height: 64px; }
+  .art .size { position: absolute; left: 10px; bottom: 9px; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: color-mix(in srgb, var(--surface) 82%, transparent); color: var(--ink); }
+  .art .flag { position: absolute; left: 10px; top: 10px; font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 999px; background: var(--bad); color: #fff; display: inline-flex; gap: 4px; align-items: center; }
+  .art .qty { position: absolute; right: 10px; top: 10px; font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 999px; background: var(--brand); color: var(--brand-ink); font-variant-numeric: tabular-nums; }
+  .p-body { padding: 12px 12px 12px; display: flex; flex-direction: column; gap: 3px; flex: 1; }
+  .p-brand { font-size: 11px; font-weight: 600; letter-spacing: .03em; color: var(--muted); text-transform: uppercase; }
+  .p-brand.store { color: var(--brand-2); }
+  .p-name { font-weight: 600; font-size: 14px; line-height: 1.3; margin: 0; overflow-wrap: anywhere; }
+  .p-note { font-size: 11.5px; color: var(--bad); line-height: 1.35; margin-top: 2px; }
+  .p-foot { margin-top: auto; padding-top: 10px; display: flex; align-items: flex-end; justify-content: space-between; gap: 8px; }
+  .p-price { display: flex; flex-direction: column; font-variant-numeric: tabular-nums; }
+  .p-price b { font: 700 18px/1.1 var(--display); }
+  .p-price span { font-size: 11.5px; color: var(--muted); }
+  .add { width: 36px; height: 36px; flex: none; border-radius: 50%; background: var(--brand); color: var(--brand-ink); display: grid; place-items: center; box-shadow: var(--shadow); }
+  .add:disabled { background: var(--surface-2); color: var(--faint); box-shadow: none; cursor: not-allowed; border: 1px solid var(--line); }
+
+  /* assistant */
+  .panel { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 82px); background: var(--surface); border: 1px solid var(--line); border-radius: 22px; display: flex; flex-direction: column; height: calc(100vh - 112px); min-height: 560px; overflow: hidden; box-shadow: var(--shadow); }
+  @media (max-width: 1040px) { .panel { position: static; height: 720px; } }
+  .ph { padding: 14px 16px; border-bottom: 1px solid var(--line); display: flex; gap: 12px; align-items: center; }
+  .avatar { width: 38px; height: 38px; border-radius: 12px; background: linear-gradient(140deg, var(--brand), var(--brand-2)); color: var(--brand-ink); display: grid; place-items: center; flex: none; }
+  .ph h3 { margin: 0; font: 700 16px var(--display); }
+  .ph p { margin: 0; font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+  .live-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--faint); }
+  .live-dot.on { background: var(--ok); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ok) 25%, transparent); }
+  .demo { padding: 10px 12px; border-bottom: 1px solid var(--line); background: var(--surface-2); display: grid; gap: 8px; }
+  .demo-label { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); display: flex; justify-content: space-between; }
+  .seg { display: flex; gap: 6px; flex-wrap: wrap; }
+  .seg button { font-size: 12.5px; font-weight: 500; padding: 7px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); }
+  .seg button[aria-pressed="true"] { border-color: var(--brand); background: var(--brand-soft); color: var(--brand); font-weight: 600; }
+  .demo-actions { display: flex; gap: 6px; }
+  .btn { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 600; padding: 7px 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); }
+  .btn.primary { background: var(--brand); border-color: var(--brand); color: var(--brand-ink); }
+  .btn:disabled { opacity: .5; cursor: default; }
+  .convo { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; scroll-behavior: smooth; }
+  .hello { margin: auto 0; text-align: center; color: var(--muted); padding: 20px; display: grid; justify-items: center; gap: 8px; }
+  .hello .avatar { width: 48px; height: 48px; border-radius: 16px; }
+  .hello b { color: var(--ink); font: 700 17px var(--display); }
+  .msg-user { align-self: flex-end; max-width: 86%; background: var(--brand); color: var(--brand-ink); padding: 10px 14px; border-radius: 18px 18px 4px 18px; overflow-wrap: anywhere; }
+  .msg-agent { align-self: stretch; display: grid; gap: 10px; }
+  .bubble { background: var(--surface-2); border: 1px solid var(--line); padding: 12px 14px; border-radius: 4px 18px 18px 18px; overflow-wrap: anywhere; }
+  .bubble p { margin: 0 0 8px; } .bubble p:last-child { margin-bottom: 0; }
+  .bubble ul, .bubble ol { margin: 0 0 8px; padding-left: 18px; } .bubble li { margin: 2px 0; }
+  .bubble h4 { margin: 10px 0 4px; font-size: 13px; }
+  .bubble strong { font-weight: 600; }
+  .bubble .tbl { overflow-x: auto; margin: 6px 0 10px; border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--surface); }
+  .bubble table { border-collapse: collapse; font-size: 12px; font-variant-numeric: tabular-nums; min-width: 100%; }
+  .bubble th { text-align: left; font-weight: 600; color: var(--muted); background: var(--surface-2); }
+  .bubble th, .bubble td { padding: 6px 10px; border-bottom: 1px solid var(--line); vertical-align: top; min-width: 4em; }
+  .bubble tr:last-child td { border-bottom: 0; }
+  .bubble td:first-child, .bubble th:first-child { min-width: 9.5em; }
+  .bubble td:last-child { min-width: 13em; }
+  .sys { align-self: center; font-size: 12px; color: var(--muted); text-align: center; max-width: 90%; }
+  .activity { align-self: stretch; border: 1px dashed var(--line-2); border-radius: 14px; padding: 10px 12px; display: grid; gap: 6px; font-size: 12.5px; }
+  .act { display: grid; grid-template-columns: 22px 1fr; gap: 8px; align-items: start; color: var(--muted); }
+  .act .ic { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; background: var(--surface-2); color: var(--muted); }
+  .act .ic svg { width: 12px; height: 12px; }
+  .act.ok .ic { background: var(--brand-soft); color: var(--brand); }
+  .act.blocked .ic, .act.gated .ic, .act.conflict .ic, .act.error .ic { background: color-mix(in srgb, var(--bad) 16%, transparent); color: var(--bad); }
+  .act.question .ic, .act.held .ic { background: var(--accent-soft); color: var(--warn); }
+  .act .tx { padding-top: 2px; overflow-wrap: anywhere; }
+  .act .tx b { color: var(--ink); font-weight: 600; }
+  .working { display: flex; align-items: center; gap: 8px; color: var(--muted); padding-left: 2px; }
+  .spin { width: 14px; height: 14px; border: 2px solid var(--line-2); border-top-color: var(--brand); border-radius: 50%; }
+  @media (prefers-reduced-motion: no-preference) {
+    .spin { animation: spin .8s linear infinite; } @keyframes spin { to { transform: rotate(360deg); } }
+    .msg-user, .msg-agent, .act, .q { animation: rise .28s ease-out; } @keyframes rise { from { opacity: .2; transform: translateY(6px); } }
+  }
+  .why { border: 1px solid var(--line); border-radius: 14px; background: var(--surface); overflow: hidden; }
+  .why summary { list-style: none; cursor: pointer; padding: 10px 12px; display: grid; gap: 8px; }
+  .why summary::-webkit-details-marker { display: none; }
+  .why-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 12.5px; }
+  .why-top b { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; }
+  .why-top .chev { color: var(--faint); transition: transform .15s; }
+  .why[open] .chev { transform: rotate(180deg); }
+  .vbar { display: flex; height: 8px; border-radius: 999px; overflow: hidden; background: var(--surface-2); gap: 2px; }
+  .vbar i { display: block; height: 100%; }
+  .v-verified { --c: var(--ok); } .v-unsupported { --c: var(--warn); } .v-conflict { --c: var(--bad); } .v-unscored { --c: var(--faint); }
+  .vbar i { background: var(--c); }
+  .vleg { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 11.5px; color: var(--muted); }
+  .vleg span { display: inline-flex; align-items: center; gap: 5px; }
+  .vleg span::before { content: ""; width: 8px; height: 8px; border-radius: 2px; background: var(--c); }
+  .why-body { border-top: 1px solid var(--line); padding: 4px 12px 12px; font-size: 12.5px; }
+  .why h5 { margin: 12px 0 6px; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+  .claim { display: grid; grid-template-columns: auto 1fr; gap: 8px; padding: 5px 0; border-top: 1px solid var(--line); align-items: baseline; }
+  .claim:first-of-type { border-top: 0; }
+  .pill { font-size: 10.5px; font-weight: 600; padding: 1px 8px; border-radius: 999px; color: var(--c); background: color-mix(in srgb, var(--c) 14%, transparent); white-space: nowrap; }
+  .src { padding: 8px 10px; border-radius: var(--r-sm); background: var(--surface-2); margin-bottom: 6px; }
+  .src .meta { display: flex; justify-content: space-between; gap: 8px; font-size: 11px; color: var(--muted); margin-bottom: 2px; }
+  .src .meta b { color: var(--ink); font-weight: 600; }
+  .score { display: inline-flex; align-items: center; gap: 6px; font-variant-numeric: tabular-nums; }
+  .score i { display: block; width: 36px; height: 4px; border-radius: 4px; background: var(--line-2); overflow: hidden; }
+  .score i::after { content: ""; display: block; height: 100%; width: var(--w); background: var(--brand-2); }
+  .q { border: 1px solid color-mix(in srgb, var(--accent) 60%, var(--line)); background: var(--accent-soft); border-radius: 14px; padding: 12px; display: grid; gap: 8px; }
+  .q .q-item { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--accent-ink); }
+  .q .q-text { font-size: 13px; }
+  .q .row { display: flex; gap: 6px; flex-wrap: wrap; }
+  .continue { align-self: flex-start; }
+  .composer { border-top: 1px solid var(--line); padding: 12px; display: flex; gap: 8px; background: var(--surface); }
+  .composer input { flex: 1; min-width: 0; padding: 11px 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface-2); color: var(--ink); font: inherit; }
+  .send { width: 42px; height: 42px; border-radius: 50%; background: var(--brand); color: var(--brand-ink); display: grid; place-items: center; flex: none; }
+  .send:disabled { opacity: .5; }
+
+  /* cart drawer */
+  .drawer { position: fixed; inset: 0; z-index: 40; display: grid; justify-items: end; background: color-mix(in srgb, #000 35%, transparent); }
+  .sheet { width: min(420px, 100%); height: 100%; background: var(--surface); padding: calc(env(safe-area-inset-top, 0px) + 20px) max(20px, env(safe-area-inset-right, 0px)) calc(env(safe-area-inset-bottom, 0px) + 20px) 20px; display: flex; flex-direction: column; gap: 16px; overflow-y: auto; box-shadow: -10px 0 40px rgba(0,0,0,.15); }
+  .sheet-head { display: flex; justify-content: space-between; align-items: center; }
+  .sheet h2 { font: 800 24px var(--display); margin: 0; letter-spacing: -0.02em; }
+  .x { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--line); display: grid; place-items: center; }
+  .progress { border: 1px solid var(--line); border-radius: 14px; padding: 12px; display: grid; gap: 8px; font-size: 12.5px; }
+  .track { position: relative; height: 8px; border-radius: 999px; background: var(--surface-2); }
+  .track .fill { position: absolute; inset: 0 auto 0 0; border-radius: 999px; background: var(--brand-2); }
+  .track .tick { position: absolute; top: -3px; width: 2px; height: 14px; background: var(--ink); opacity: .45; border-radius: 2px; }
+  .ticks { position: relative; height: 14px; font-size: 10.5px; color: var(--muted); }
+  .ticks span { position: absolute; transform: translateX(-50%); white-space: nowrap; }
+  .ticks span.end { transform: translateX(-100%); }
+  .line { display: grid; grid-template-columns: 44px 1fr auto; gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+  .line .mini { width: 44px; height: 44px; border-radius: 12px; background: var(--tint); color: var(--ic); display: grid; place-items: center; }
+  .line .mini svg { width: 26px; height: 26px; }
+  .line .nm { font-weight: 600; font-size: 13px; line-height: 1.3; }
+  .line .sub { font-size: 12px; color: var(--muted); }
+  .totals { display: grid; gap: 6px; font-variant-numeric: tabular-nums; }
+  .totals div { display: flex; justify-content: space-between; }
+  .totals .grand { font-weight: 700; font-size: 17px; border-top: 1px solid var(--line); padding-top: 10px; font-family: var(--display); }
+  .status { padding: 12px 14px; border-radius: 14px; font-size: 13px; background: var(--surface-2); display: flex; gap: 10px; align-items: flex-start; }
+  .status.ok { background: var(--brand-soft); color: var(--brand); }
+  .status.held { background: var(--accent-soft); color: var(--accent-ink); }
+  .status.locked { background: color-mix(in srgb, var(--bad) 12%, transparent); color: var(--bad); }
+  .fine { font-size: 11.5px; color: var(--faint); }
+  .empty { color: var(--muted); text-align: center; padding: 30px 10px; }
+
+  /* quantity stepper: Baymard, add-to-cart turns into a quantity picker once the item is in the cart */
+  .stepper { display: inline-flex; align-items: center; gap: 2px; background: var(--brand); color: var(--brand-ink); border-radius: 999px; padding: 3px; box-shadow: var(--shadow); }
+  .stepper button { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; color: inherit; }
+  .stepper button:hover { background: color-mix(in srgb, var(--brand-ink) 16%, transparent); }
+  .stepper output { min-width: 22px; text-align: center; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .stepper.sm { box-shadow: none; }
+  .stepper.sm button { width: 26px; height: 26px; }
+  .due .buy-again { font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; opacity: .75; margin: 16px 0 8px; }
+  .seg, .applied .chips { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+  .seg::-webkit-scrollbar, .applied .chips::-webkit-scrollbar { display: none; }
+  .seg button, .applied .chips span { flex: none; }
+  .usual { margin-top: 0; }
+  .usual button { font-size: 12.5px; padding: 5px 12px 5px 8px; border-radius: 999px; background: color-mix(in srgb, var(--hero-ink) 14%, transparent); display: inline-flex; align-items: center; gap: 5px; }
+  .usual button:hover { background: color-mix(in srgb, var(--hero-ink) 24%, transparent); }
+  .usual button.added { background: var(--hero-ink); color: var(--hero); font-weight: 600; }
+  /* agent transparency: constraints applied, sources next to claims, actions not "thinking" */
+  .applied { padding: 10px 16px; border-bottom: 1px solid var(--line); display: grid; gap: 6px; }
+  .applied .lbl { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+  .applied .chips { display: flex; gap: 6px; }
+  .applied .chips span { font-size: 12px; padding: 3px 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface-2); }
+  .applied .chips span.safety { border-color: color-mix(in srgb, var(--bad) 40%, var(--line)); color: var(--bad); background: color-mix(in srgb, var(--bad) 8%, transparent); font-weight: 600; }
+  .disclaimer { font-size: 11.5px; color: var(--muted); padding: 0 16px 12px; margin: 0; background: var(--surface); }
+  .act-head { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--faint); }
+  .evidence { grid-column: 2; font-size: 11.5px; color: var(--muted); border-left: 2px solid var(--line-2); padding: 1px 0 1px 8px; }
+  .srcchips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 11.5px; color: var(--muted); }
+  .srcchips span { padding: 2px 9px; border-radius: 6px; background: var(--surface-2); border: 1px solid var(--line); color: var(--ink); display: inline-flex; gap: 6px; align-items: center; }
+  .srcchips span b { font-weight: 600; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .receipt { border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; display: grid; gap: 8px; background: var(--surface); }
+  .receipt.ok { border-color: color-mix(in srgb, var(--ok) 45%, var(--line)); }
+  .receipt.held { border-color: color-mix(in srgb, var(--warn) 50%, var(--line)); background: var(--accent-soft); }
+  .receipt .rh { display: flex; justify-content: space-between; align-items: center; gap: 8px; font: 700 15px var(--display); }
+  .receipt dl { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; margin: 0; font-size: 12.5px; }
+  .receipt dt { color: var(--muted); }
+  .receipt dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+  .receipt .next { font-size: 12.5px; }
+  .tagline { font: 600 11px var(--body); padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+  .tagline.ok { color: var(--ok); background: var(--brand-soft); }
+  .tagline.held { color: var(--accent-ink); background: color-mix(in srgb, var(--accent) 30%, transparent); }
+  .tagline.locked { color: var(--bad); background: color-mix(in srgb, var(--bad) 14%, transparent); }
+  /* cart: provenance, substitutions, delivery slot */
+  .line { align-items: start; }
+  .line .right { display: grid; justify-items: end; gap: 6px; }
+  .prov { display: inline-block; font-size: 10.5px; font-weight: 600; padding: 1px 7px; border-radius: 999px; background: var(--brand-soft); color: var(--brand); margin-top: 3px; }
+  .prov.you { background: var(--surface-2); color: var(--muted); border: 1px solid var(--line); }
+  .subs { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); margin-top: 6px; cursor: pointer; }
+  .subs input { accent-color: var(--brand); width: 15px; height: 15px; margin: 0; }
+  .slot { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 12px; background: var(--surface-2); font-size: 12.5px; }
+  .slot svg { flex: none; color: var(--brand); }
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <div class="logo"><span class="logo-mark" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10h16l-1.6 9.2a2 2 0 0 1-2 1.8H7.6a2 2 0 0 1-2-1.8L4 10Z"/><path d="M8 10 12 4l4 6"/><path d="M9 14v3M15 14v3M12 14v3"/></svg></span>Harvest Basket</div>
+    <label class="search"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="search" type="search" placeholder="Search milk, eggs, pasta…" aria-label="Search groceries"></label>
+    <div class="deliver"><span>Delivering to</span><b>Rivera household · tree-nut allergy on file</b></div>
+    <button class="cart-btn" id="open-cart" type="button"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h2l2.4 11.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.5L21 8H6.2"/><circle cx="10" cy="20.5" r="1"/><circle cx="17" cy="20.5" r="1"/></svg><span id="cart-total">$0.00</span><span class="cart-count" id="cart-count">0</span></button>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="layout">
+    <section aria-label="Shop">
+      <div class="due">
+        <div>
+          <p class="kicker">Your usual order is due</p>
+          <h2>Two weeks since your last basket</h2>
+          <p>Last order Nov 6. Let the assistant rebuild it from your history and check it with Senso, or add your usual items yourself.</p>
+          <p class="buy-again">Buy again</p>
+          <div class="usual" id="usual" role="group" aria-label="Buy again"></div>
+        </div>
+        <button class="go" id="restock" type="button"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.2 6.3L21 9l-5.2 4.1L17.6 20 12 16.4 6.4 20l1.8-6.9L3 9l6.8-.7Z"/></svg>Restock with assistant</button>
+      </div>
+      <div class="rail" id="rail" role="group" aria-label="Aisles"></div>
+      <div id="aisles"></div>
+    </section>
+
+    <aside class="panel" aria-label="Shopping assistant">
+      <div class="ph">
+        <div class="avatar" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.2 6.3L21 9l-5.2 4.1L17.6 20 12 16.4 6.4 20l1.8-6.9L3 9l6.8-.7Z"/></svg></div>
+        <div>
+          <h3>Basket assistant</h3>
+          <p><span class="live-dot" id="live-dot"></span><span id="mode-label">Recorded examples · grounded in Senso</span></p>
+        </div>
+      </div>
+      <div class="applied">
+        <div class="lbl">Applied from your household profile</div>
+        <div class="chips"><span class="safety">Tree-nut safe only</span><span>Store brand for basics</span><span>Terra Verde olive oil OK</span><span>Budget $450 / month</span></div>
+      </div>
+      <div class="demo" id="demo">
+        <div class="demo-label"><span>Recorded live sessions</span><span id="demo-date"></span></div>
+        <div class="seg" id="examples" role="group" aria-label="Choose an example"></div>
+        <div class="demo-actions">
+          <button class="btn primary" id="play" type="button"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4v16l13-8Z"/></svg>Play</button>
+          <button class="btn" id="skip" type="button">Show result</button>
+        </div>
+      </div>
+      <div class="convo" id="convo"></div>
+      <form class="composer" id="composer">
+        <input id="msg" type="text" autocomplete="off" placeholder="Ask for a restock, a comparison…" aria-label="Message the assistant">
+        <button class="send" type="submit" id="send" aria-label="Send"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+      </form>
+      <p class="disclaimer">Answers come from Harvest Basket's knowledge base and each one is checked by Senso. Still check allergen labels when your order arrives.</p>
+    </aside>
+  </div>
+</main>
+
+<div class="drawer" id="drawer" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="cart-title">
+    <div class="sheet-head"><h2 id="cart-title">Your basket</h2><button class="x" id="close-cart" type="button" aria-label="Close"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+    <div class="progress" id="progress"></div>
+    <div class="slot"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7"/><circle cx="7" cy="18" r="1.6"/><circle cx="17" cy="18" r="1.6"/></svg><span><b>Next-day delivery</b> when you order before 8pm. Same-day available in some areas for $4.99.</span></div>
+    <div id="cart-lines"></div>
+    <div class="totals" id="totals"></div>
+    <div class="status" id="order-status"></div>
+    <p class="fine">Demo store. Checkout is simulated: no payment is taken and nothing ships.</p>
+  </div>
+</div>
+
+<script>
+(function () {
+  const $ = (id) => document.getElementById(id);
+  const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+  const money = (v) => "$" + Number(v || 0).toFixed(2);
+  const perUnit = (p) => p.price_per_unit == null ? "" : (p.price_per_unit < 1 ? "$" + p.price_per_unit.toFixed(3) : "$" + p.price_per_unit.toFixed(2)) + " / " + p.per_unit;
+  const DELIVERY_FEE = 5.99, FREE_OVER = 100, MINIMUM = 35;
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const sleep = (ms) => new Promise((r) => setTimeout(r, reduce ? 0 : ms));
+  const S = { catalog: [], examples: [], live: false, cart: { lines: [], subtotal: 0, checked_out: false, order_id: null }, gate: null, busy: false, cat: "All", query: "", playToken: 0, exId: null, trail: [], mine: new Set() };
+  const USUAL = [["MILK-STORE-1G", 2, "Whole milk ×2"], ["EGG-STORE-12", 1, "Large eggs"], ["BREAD-STORE-WHT", 1, "White bread"], ["PB-SUNFLOWER-16", 1, "Sunflower seed butter"], ["PASTA-STORE-16", 2, "Spaghetti ×2"], ["OLIVEOIL-NAME-17OZ", 1, "Terra Verde olive oil"], ["PAPERTOWEL-STORE-6", 1, "Paper towels"]];
+  const PLUS = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>';
+  const MINUS = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M5 12h14"/></svg>';
+  const qtyOf = (sku) => S.cart.lines.filter((l) => l.sku === sku).reduce((s, l) => s + Number(l.qty), 0);
+
+  // ---- icons ----
+  const SVG_NS = "http://www.w3.org/2000/svg";
+  const ICONS = {
+    milk: '<path d="M8 3h8v3l2 3v11a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V9l2-3Z"/><path d="M6 9h12"/><path d="M9 14h6"/>',
+    oat: '<path d="M8 3h8v3l2 3v11a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V9l2-3Z"/><path d="M12 12c-2 1-2 4 0 5 2-1 2-4 0-5Z"/>',
+    eggs: '<ellipse cx="8.5" cy="13" rx="4" ry="5.5"/><ellipse cx="16" cy="12" rx="4" ry="5.5"/>',
+    bread: '<path d="M4 11a4 4 0 0 1 4-5h8a4 4 0 0 1 4 5c0 1-1 1.5-1.5 2v6a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1v-6C5 12.5 4 12 4 11Z"/><path d="M9 10v2M12 10v2M15 10v2"/>',
+    jar: '<rect x="6" y="3" width="12" height="4" rx="1"/><path d="M7 7h10v12a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2Z"/><path d="M7 12h10"/>',
+    pasta: '<path d="M5 20c3-6 4-11 4-16M10 20c1-6 2-11 2-16M15 20c-1-6 0-11 1-16M19 20c-2-6-2-11-1-16"/><path d="M4 9h16"/>',
+    rice: '<path d="M6 7h12l-1 13H7Z"/><path d="M8 7c0-2 1.5-4 4-4s4 2 4 4"/><path d="M10 12h.01M13 11h.01M12 15h.01M14.5 14h.01M9.5 15.5h.01"/>',
+    oil: '<path d="M10 2h4v3l1 2v13a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2V7l1-2Z"/><path d="M12 11c-1.5 1.5-1.5 3.5 0 4.5 1.5-1 1.5-3 0-4.5Z"/>',
+    banana: '<path d="M4 8c2 7 8 11 15 9-5-1-9-5-11-11"/><path d="M8 6 7 4"/>',
+    apple: '<path d="M12 8c-3-2-7-1-7 4 0 4 3 9 5 9 1 0 1.5-.5 2-.5s1 .5 2 .5c2 0 5-5 5-9 0-5-4-6-7-4Z"/><path d="M12 8c0-2 1-4 3-5"/>',
+    towel: '<ellipse cx="9" cy="7" rx="5" ry="3"/><path d="M4 7v10c0 1.7 2.2 3 5 3s5-1.3 5-3V7"/><path d="M14 9h5a1 1 0 0 1 1 1v9"/>',
+  };
+  function icon(name, size) {
+    const s = document.createElementNS(SVG_NS, "svg");
+    s.setAttribute("viewBox", "0 0 24 24"); s.setAttribute("fill", "none"); s.setAttribute("stroke", "currentColor");
+    s.setAttribute("stroke-width", "1.6"); s.setAttribute("stroke-linecap", "round"); s.setAttribute("stroke-linejoin", "round");
+    s.setAttribute("aria-hidden", "true");
+    if (size) { s.setAttribute("width", size); s.setAttribute("height", size); }
+    s.innerHTML = ICONS[name] || ICONS.jar;
+    return s;
+  }
+  const CAT = {
+    "Milk": { key: "milk", label: "Milk & dairy" }, "Eggs": { key: "eggs", label: "Eggs" }, "Bread": { key: "bread", label: "Bakery" },
+    "Peanut Butter": { key: "pb", label: "Spreads" }, "Pasta": { key: "pasta", label: "Pasta" }, "Pantry Staples": { key: "pantry", label: "Pantry" },
+    "Produce": { key: "produce", label: "Fresh produce" }, "Household": { key: "house", label: "Household" },
+  };
+  const iconFor = (p) => {
+    if (p.sku.startsWith("MILK-OAT")) return "oat";
+    if (p.sku.startsWith("MILK")) return "milk";
+    if (p.sku.startsWith("EGG")) return "eggs";
+    if (p.sku.startsWith("BREAD")) return "bread";
+    if (p.sku.startsWith("PB")) return "jar";
+    if (p.sku.startsWith("PASTA")) return "pasta";
+    if (p.sku.startsWith("RICE")) return "rice";
+    if (p.sku.startsWith("OLIVE")) return "oil";
+    if (p.sku.startsWith("BANANA")) return "banana";
+    if (p.sku.startsWith("APPLE")) return "apple";
+    return "towel";
+  };
+  const tint = (node, category) => { const k = (CAT[category] || { key: "house" }).key; node.style.setProperty("--tint", `var(--t-${k})`); node.style.setProperty("--ic", `var(--i-${k})`); };
+  const BRANDS = ["Harvest Basket", "Dairyvale", "Oatly", "Nestwell", "Golden Fields", "NuttyCo", "SunSeed", "Romano's", "Terra Verde", "SoftGrip"];
+  function parseName(p) {
+    const size = (p.name.match(/\(([^)]+)\)\s*$/) || [])[1] || (p.per_unit === "lb" ? "per lb" : "");
+    let title = p.name.replace(/\s*\([^)]*\)\s*$/, "");
+    const brand = BRANDS.find((b) => title.startsWith(b + " ")) || "";
+    if (brand) title = title.slice(brand.length + 1);
+    return { brand: brand || "Fresh", title, size };
+  }
+
+  // ---- markdown (escape first, then a few safe tags) ----
+  const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  const inline = (s) => esc(s).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>").replace(/`([^`]+)`/g, "<code>$1</code>");
+  function md(text) {
+    const lines = String(text || "").replace(/\r/g, "").split("\n");
+    let html = "", i = 0;
+    while (i < lines.length) {
+      const l = lines[i];
+      if (/^\s*\|/.test(l)) {
+        const rows = [];
+        while (i < lines.length && /^\s*\|/.test(lines[i])) { rows.push(lines[i]); i++; }
+        const cells = (r) => r.trim().replace(/^\||\|$/g, "").split("|").map((c) => c.trim());
+        const body = rows.filter((r) => !/^\s*\|[\s:|-]+\|\s*$/.test(r));
+        html += '<div class="tbl"><table>' + body.map((r, k) => "<tr>" + cells(r).map((c) => (k === 0 ? "<th>" : "<td>") + inline(c) + (k === 0 ? "</th>" : "</td>")).join("") + "</tr>").join("") + "</table></div>";
+        continue;
+      }
+      if (/^\s*([-*]|\d+\.)\s+/.test(l)) {
+        const ordered = /^\s*\d+\./.test(l);
+        const items = [];
+        while (i < lines.length && /^\s*([-*]|\d+\.)\s+/.test(lines[i])) { items.push(lines[i].replace(/^\s*([-*]|\d+\.)\s+/, "")); i++; }
+        html += (ordered ? "<ol>" : "<ul>") + items.map((t) => "<li>" + inline(t) + "</li>").join("") + (ordered ? "</ol>" : "</ul>");
+        continue;
+      }
+      if (/^#{1,4}\s/.test(l)) { html += "<h4>" + inline(l.replace(/^#+\s/, "")) + "</h4>"; i++; continue; }
+      if (!l.trim()) { i++; continue; }
+      const para = [];
+      while (i < lines.length && lines[i].trim() && !/^\s*(\||[-*]\s|\d+\.\s|#)/.test(lines[i])) { para.push(lines[i]); i++; }
+      html += "<p>" + inline(para.join(" ")) + "</p>";
+    }
+    const d = el("div", "bubble");
+    d.innerHTML = html;
+    return d;
+  }
+
+  // ---- catalog ----
+  function renderRail() {
+    const cats = ["All", ...new Set(S.catalog.map((p) => p.category))];
+    $("rail").replaceChildren(...cats.map((c) => {
+      const b = el("button");
+      b.type = "button";
+      b.setAttribute("aria-pressed", String(c === S.cat));
+      const dot = el("span", "dot");
+      if (c === "All") { dot.style.background = "var(--brand-soft)"; dot.style.color = "var(--brand)"; dot.append(icon("jar", 15)); }
+      else { tint(dot, c); dot.style.background = "var(--tint)"; dot.style.color = "var(--ic)"; dot.append(icon(iconFor(S.catalog.find((p) => p.category === c)), 15)); }
+      b.append(dot, document.createTextNode(c === "All" ? "Everything" : (CAT[c] || { label: c }).label));
+      b.onclick = () => { S.cat = c; renderRail(); renderAisles(); };
+      return b;
+    }));
+  }
+  function card(p, qtyInCart) {
+    const blocked = p.allergy_status !== "Allowed";
+    const n = parseName(p);
+    const c = el("article", "p" + (qtyInCart ? " in-cart" : "") + (blocked ? " blocked" : ""));
+    const art = el("div", "art");
+    tint(art, p.category);
+    art.append(icon(iconFor(p)));
+    if (n.size) art.append(el("span", "size", n.size));
+    if (blocked) art.append(el("span", "flag", "Allergy flag"));
+    if (qtyInCart) art.append(el("span", "qty", "×" + qtyInCart + " in basket"));
+    const body = el("div", "p-body");
+    body.append(el("div", "p-brand" + (p.brand_tier === "store" ? " store" : ""), n.brand === "Harvest Basket" ? "Harvest Basket · store brand" : n.brand), el("h4", "p-name", n.title));
+    if (blocked) body.append(el("div", "p-note", /shared lines with tree nuts/.test(p.notes) ? "Made on shared lines with tree nuts. Not for your household." : "Matches your allergy flag."));
+    const foot = el("div", "p-foot");
+    const price = el("div", "p-price");
+    price.append(el("b", null, money(p.price)), el("span", null, perUnit(p)));
+    if (qtyInCart && !blocked && !S.cart.checked_out) {
+      foot.append(price, stepper(p, qtyInCart));
+    } else {
+      const add = el("button", "add");
+      add.type = "button";
+      add.setAttribute("aria-label", blocked ? `Can't add ${p.name}` : `Add ${p.name}`);
+      add.disabled = blocked || S.busy || S.cart.checked_out;
+      add.innerHTML = blocked ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><path d="m6.5 6.5 11 11"/></svg>' : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>';
+      add.onclick = () => setQty(p, 1);
+      foot.append(price, add);
+    }
+    body.append(foot);
+    c.append(art, body);
+    return c;
+  }
+  function renderAisles() {
+    const q = S.query.toLowerCase();
+    const inCart = new Map();
+    for (const l of S.cart.lines) inCart.set(l.sku, (inCart.get(l.sku) || 0) + Number(l.qty));
+    const groups = [...new Set(S.catalog.map((p) => p.category))].filter((c) => S.cat === "All" || c === S.cat);
+    const out = [];
+    for (const g of groups) {
+      const items = S.catalog.filter((p) => p.category === g && (!q || (p.name + " " + p.category + " " + p.notes).toLowerCase().includes(q)));
+      if (!items.length) continue;
+      const sec = el("section", "aisle");
+      const head = el("div", "aisle-head");
+      head.append(el("h3", null, (CAT[g] || { label: g }).label), el("span", null, items.length + (items.length === 1 ? " item" : " items")));
+      const grid = el("div", "grid");
+      grid.append(...items.map((p) => card(p, inCart.get(p.sku))));
+      sec.append(head, grid);
+      out.push(sec);
+    }
+    $("aisles").replaceChildren(...(out.length ? out : [el("p", "empty", "Nothing matches that search.")]));
+  }
+
+  function stepper(p, qty, small) {
+    const s = el("div", "stepper" + (small ? " sm" : ""));
+    s.setAttribute("role", "group");
+    s.setAttribute("aria-label", `Quantity of ${p.name}`);
+    const minus = el("button"); minus.type = "button"; minus.innerHTML = MINUS;
+    minus.setAttribute("aria-label", qty <= 1 ? `Remove ${p.name}` : `One fewer ${p.name}`);
+    const out = el("output", null, String(qty));
+    const plus = el("button"); plus.type = "button"; plus.innerHTML = PLUS;
+    plus.setAttribute("aria-label", `One more ${p.name}`);
+    minus.disabled = plus.disabled = S.busy;
+    minus.onclick = () => setQty(p, qty - 1);
+    plus.onclick = () => setQty(p, qty + 1);
+    s.append(minus, out, plus);
+    return s;
+  }
+  function renderUsual() {
+    $("usual").replaceChildren(...USUAL.map(([sku, n, label]) => {
+      const p = S.catalog.find((x) => x.sku === sku);
+      const have = qtyOf(sku) >= n;
+      const b = el("button", have ? "added" : "");
+      b.type = "button";
+      b.innerHTML = have ? '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4.5 4.5L19 7"/></svg>' : PLUS;
+      b.append(document.createTextNode(label));
+      b.setAttribute("aria-label", have ? `${label} is in your basket` : `Add ${label}`);
+      b.disabled = !p || S.busy || S.cart.checked_out;
+      b.onclick = () => { if (!have && p) setQty(p, Math.max(qtyOf(sku), n)); };
+      return b;
+    }));
+  }
+  function addedBy(line) {
+    if (!S.live) return S.mine.has(line.sku) ? "you" : "assistant";
+    const step = [...S.trail].reverse().find((t) => t.tool === "add_to_cart" && t.status === "ok" && t.summary.startsWith(line.name));
+    return step && step.by === "shopper" ? "you" : "assistant";
+  }
+
+  // ---- cart ----
+  function setCart(cart) {
+    S.cart = cart || S.cart;
+    $("cart-count").textContent = String(S.cart.lines.reduce((s, l) => s + Number(l.qty), 0));
+    $("cart-total").textContent = money(S.cart.subtotal);
+    renderAisles();
+    renderUsual();
+    renderCart();
+  }
+  function renderCart() {
+    const sub = S.cart.subtotal || 0;
+    const scale = FREE_OVER * 1.05;
+    const pr = $("progress");
+    const head = el("div", null, sub >= FREE_OVER ? "Free delivery unlocked." : sub >= MINIMUM ? `${money(FREE_OVER - sub)} more for free delivery.` : `${money(MINIMUM - sub)} more to reach the ${money(MINIMUM)} minimum.`);
+    const track = el("div", "track");
+    const fill = el("div", "fill"); fill.style.width = Math.min(100, (sub / scale) * 100) + "%";
+    if (sub < MINIMUM) fill.style.background = "var(--accent)";
+    const t1 = el("div", "tick"); t1.style.left = (MINIMUM / scale) * 100 + "%";
+    const t2 = el("div", "tick"); t2.style.left = (FREE_OVER / scale) * 100 + "%";
+    track.append(fill, t1, t2);
+    const ticks = el("div", "ticks");
+    const k1 = el("span", null, "Minimum $35"); k1.style.left = (MINIMUM / scale) * 100 + "%";
+    const k2 = el("span", "end", "Free delivery $100"); k2.style.left = (FREE_OVER / scale) * 100 + "%";
+    ticks.append(k1, k2);
+    pr.replaceChildren(head, track, ticks);
+    $("cart-lines").replaceChildren(...(S.cart.lines.length ? S.cart.lines.map((l) => {
+      const p = S.catalog.find((x) => x.sku === l.sku) || { category: "Household", sku: l.sku, name: l.name, price: l.price, per_unit: null };
+      const d = el("div", "line");
+      const mini = el("div", "mini"); tint(mini, p.category); mini.append(icon(iconFor(p)));
+      const info = el("div");
+      const who = addedBy(l);
+      info.append(el("div", "nm", l.name), el("div", "sub", money(l.price) + " each" + (perUnit(p) ? " · " + perUnit(p) : "")), el("span", "prov" + (who === "you" ? " you" : ""), who === "you" ? "Added by you" : "Added by assistant"));
+      if (!S.cart.checked_out) {
+        const lab = el("label", "subs");
+        const box = el("input"); box.type = "checkbox"; box.checked = !l.no_substitutions;
+        box.onchange = () => setQty(p, Number(l.qty), !box.checked);
+        lab.append(box, document.createTextNode("Allow a substitute if it's out of stock"));
+        info.append(lab);
+      } else if (l.no_substitutions) info.append(el("div", "sub", "No substitutions"));
+      const right = el("div", "right");
+      right.append(el("b", null, money(l.price * l.qty)));
+      if (!S.cart.checked_out) right.append(stepper(p, Number(l.qty), true)); else right.append(el("span", "sub", "×" + l.qty));
+      d.append(mini, info, right);
+      return d;
+    }) : [el("p", "empty", "Your basket is empty. Add items, or ask the assistant to restock.")]));
+    const fee = sub > FREE_OVER || sub === 0 ? 0 : DELIVERY_FEE;
+    const row = (a, b, cls) => { const d = el("div", cls); d.append(el("span", null, a), el("span", null, b)); return d; };
+    $("totals").replaceChildren(row("Subtotal", money(sub)), row("Delivery", fee ? money(fee) : sub ? "Free" : "—"), row("Total before tax", money(sub + fee), "grand"));
+    const st = $("order-status");
+    st.className = "status";
+    if (S.cart.checked_out) { st.classList.add("ok"); st.textContent = `Order ${S.cart.order_id} placed (simulated). Senso fact-checked it before checkout.`; }
+    else if (S.gate && S.gate.status === "gated") { st.classList.add("locked"); st.textContent = S.gate.outcome; }
+    else if (S.gate && S.gate.status === "held") { st.classList.add("held"); st.textContent = S.gate.outcome; }
+    else st.textContent = sub ? "Ask the assistant to check out. It fact-checks your basket with Senso first." : "Nothing to check out yet.";
+  }
+
+  // ---- assistant ----
+  const ACT = {
+    search_context: ["search", (s) => ["Searched Senso for ", s.summary, " · " + s.outcome]],
+    list_products: ["list", (s) => ["Read the catalog", "", " · " + s.outcome]],
+    add_to_cart: ["plus", (s) => (s.status === "ok" ? ["Added ", s.summary, ""] : ["Couldn't add ", s.summary, ": " + s.outcome])],
+    remove_from_cart: ["minus", (s) => ["Removed ", s.summary, ""]],
+    ask_shopper: ["q", (s) => ["Needs your call on ", s.summary, ""]],
+    fact_check: ["check", (s) => ["Senso fact-check · ", s.outcome, s.status === "conflict" ? " · fixing the draft" : ""]],
+    checkout: ["bag", (s) => (s.status === "ok" ? ["Checked out · ", s.outcome, ""] : ["Checkout refused · ", s.outcome, ""])],
+  };
+  const ACT_ICON = {
+    search: '<circle cx="11" cy="11" r="6"/><path d="m20 20-4-4"/>', list: '<path d="M5 6h14M5 12h14M5 18h9"/>', plus: '<path d="M12 5v14M5 12h14"/>',
+    minus: '<path d="M5 12h14"/>', q: '<path d="M9 9a3 3 0 1 1 4 2.8c-.7.3-1 .9-1 1.7V15"/><path d="M12 19h.01"/>', check: '<path d="m5 12 4.5 4.5L19 7"/>',
+    bag: '<path d="M5 8h14l-1 12H6Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/>',
+  };
+  function actIcon(name) {
+    const s = document.createElementNS(SVG_NS, "svg");
+    s.setAttribute("viewBox", "0 0 24 24"); s.setAttribute("fill", "none"); s.setAttribute("stroke", "currentColor"); s.setAttribute("stroke-width", "2.6"); s.setAttribute("stroke-linecap", "round"); s.setAttribute("stroke-linejoin", "round");
+    s.innerHTML = ACT_ICON[name] || ACT_ICON.list;
+    return s;
+  }
+  const scroll = () => { const c = $("convo"); c.scrollTop = c.scrollHeight; };
+  function hello() {
+    const h = el("div", "hello");
+    const av = el("div", "avatar"); av.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.2 6.3L21 9l-5.2 4.1L17.6 20 12 16.4 6.4 20l1.8-6.9L3 9l6.8-.7Z"/></svg>';
+    h.append(av, el("b", null, "Restock, compare, check out"), el("span", null, "Ask for your usual order or a brand comparison. Each answer lists the knowledge-base passages it used and what Senso verified."));
+    return h;
+  }
+  function userMsg(text) { $("convo").append(el("div", "msg-user", text)); scroll(); }
+  function sysMsg(text) { $("convo").append(el("p", "sys", text)); scroll(); }
+  function activityBox() {
+    const box = el("div", "activity");
+    box.append(el("div", "act-head", "Actions taken"));
+    const w = el("div", "working");
+    w.append(el("span", "spin"), el("span", null, "Running…"));
+    box.append(w);
+    $("convo").append(box);
+    scroll();
+    return { box, working: w };
+  }
+  function addAct(box, step) {
+    const def = ACT[step.tool];
+    const a = el("div", "act " + step.status);
+    const ic = el("span", "ic");
+    ic.append(actIcon(def ? def[0] : "list"));
+    const tx = el("span", "tx");
+    const [pre, strong, post] = def ? def[1](step) : [step.tool + " · ", step.summary, ""];
+    tx.append(document.createTextNode(pre));
+    if (strong) tx.append(el("b", null, strong));
+    if (post) tx.append(document.createTextNode(post));
+    a.append(ic, tx);
+    box.insertBefore(a, box.lastChild);
+    scroll();
+  }
+  function whyPanel(steps) {
+    const checks = steps.filter((s) => s.tool === "fact_check");
+    const searches = steps.filter((s) => s.tool === "search_context");
+    if (!checks.length && !searches.length) return null;
+    const last = checks[checks.length - 1];
+    const claims = (last && last.claims) || [];
+    const count = (v) => claims.filter((c) => c.verdict === v).length;
+    const d = el("details", "why");
+    const sum = el("summary");
+    const top = el("div", "why-top");
+    const t = el("b");
+    t.append(actIcon("check"), document.createTextNode(last ? `Senso verified ${count("verified")} of ${claims.length} claims` : `${searches.length} Senso searches`));
+    t.firstChild.setAttribute("width", "14"); t.firstChild.setAttribute("height", "14");
+    const right = el("span", "chev");
+    right.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>';
+    top.append(t, right);
+    sum.append(top);
+    if (claims.length) {
+      const bar = el("div", "vbar");
+      const leg = el("div", "vleg");
+      for (const v of ["verified", "unsupported", "conflict", "unscored"]) {
+        const n = count(v);
+        if (!n) continue;
+        const seg = el("i", "v-" + v); seg.style.flex = String(n); bar.append(seg);
+        leg.append(el("span", "v-" + v, `${n} ${v}`));
+      }
+      sum.append(bar, leg);
+    }
+    const docs = new Map();
+    for (const s of searches) for (const c of s.citations || []) docs.set(c.document, Math.max(docs.get(c.document) || 0, Number(c.score) || 0));
+    if (docs.size) {
+      const chips = el("div", "srcchips");
+      chips.append(document.createTextNode("Sources"));
+      for (const [doc, score] of [...docs].sort((a, b) => b[1] - a[1])) {
+        const c = el("span", null, doc);
+        c.append(el("b", null, score.toFixed(2)));
+        c.title = "Best retrieval score from this document";
+        chips.append(c);
+      }
+      sum.append(chips);
+    }
+    d.append(sum);
+    const body = el("div", "why-body");
+    if (claims.length) {
+      body.append(el("h5", null, "Claims checked against the knowledge base"));
+      for (const c of claims) {
+        const r = el("div", "claim");
+        r.append(el("span", "pill v-" + c.verdict, c.verdict + (c.rechecked ? " · re-checked" : "")), el("span", null, c.claim));
+        if (c.evidence) r.append(el("div", "evidence", "Knowledge base: “" + c.evidence + "”"));
+        else if (c.verdict === "unscored") r.append(el("div", "evidence", "About your household, so Senso doesn't score it. Based on the sources below."));
+        body.append(r);
+      }
+    }
+    if (searches.length) {
+      body.append(el("h5", null, "Sources from Senso"));
+      const seen = new Set();
+      for (const s of searches) for (const c of (s.citations || []).slice(0, 2)) {
+        const key = c.content_id + "|" + (c.chunk_text || "").slice(0, 40);
+        if (seen.has(key)) continue;
+        seen.add(key);
+        const r = el("div", "src");
+        const meta = el("div", "meta");
+        const sc = el("span", "score");
+        const bar = el("i"); bar.style.setProperty("--w", Math.round(Number(c.score) * 100) + "%");
+        sc.append(bar, document.createTextNode(Number(c.score).toFixed(2)));
+        const name = el("span"); name.append(el("b", null, c.document), document.createTextNode(" · rank " + c.rank));
+        meta.append(name, sc);
+        r.append(meta, el("div", null, (c.chunk_text || "").replace(/\s+/g, " ").replace(/^[^A-Za-z#$]+/, "").slice(0, 150) + "…"));
+        body.append(r);
+      }
+    }
+    d.append(body);
+    return d;
+  }
+  function questionCards(steps, onAnswer) {
+    for (const s of steps.filter((x) => x.tool === "ask_shopper")) {
+      const q = el("div", "q");
+      q.append(el("div", "q-item", s.summary), el("div", "q-text", s.outcome));
+      const row = el("div", "row");
+      for (const [label, reply, primary] of [["Yes, add it", `Yes, please add the ${s.summary}.`, true], ["Not this time", `No ${s.summary} this time.`, false]]) {
+        const b = el("button", "btn" + (primary ? " primary" : ""), label);
+        b.type = "button";
+        b.onclick = () => { row.querySelectorAll("button").forEach((x) => (x.disabled = true)); onAnswer(reply); };
+        row.append(b);
+      }
+      q.append(row);
+      $("convo").append(q);
+    }
+    scroll();
+  }
+  function afterTurn(steps, reply, cart) {
+    const wrap = el("div", "msg-agent");
+    wrap.append(md(reply));
+    const why = whyPanel(steps);
+    if (why) wrap.append(why);
+    $("convo").append(wrap);
+    const gateStep = [...steps].reverse().find((s) => s.tool === "checkout");
+    S.gate = gateStep && gateStep.status !== "ok" ? gateStep : null;
+    if (gateStep) $("convo").append(receipt(gateStep, steps, cart));
+    setCart(cart);
+    scroll();
+  }
+  function receipt(step, steps, cart) {
+    const ok = step.status === "ok";
+    const check = [...steps].reverse().find((s) => s.tool === "fact_check");
+    const r = el("div", "receipt " + (ok ? "ok" : "held"));
+    const h = el("div", "rh");
+    h.append(el("span", null, ok ? "Order placed" : "Checkout stopped"), el("span", "tagline " + (ok ? "ok" : step.status === "gated" ? "locked" : "held"), ok ? "Simulated" : step.status === "gated" ? "Fact-check needed" : "Under minimum"));
+    const dl = el("dl");
+    const row = (k, v) => dl.append(el("dt", null, k), el("dd", null, v));
+    const sub = cart.subtotal || 0;
+    const items = cart.lines.reduce((s, l) => s + Number(l.qty), 0);
+    row("Seller", "Harvest Basket (demo store)");
+    row("Items", `${items} item${items === 1 ? "" : "s"}`);
+    row("Subtotal", money(sub));
+    if (ok) {
+      row("Delivery", sub > FREE_OVER ? "Free" : money(DELIVERY_FEE));
+      row("Order", cart.order_id || "—");
+    }
+    if (check && check.claims) row("Checked by Senso", `${check.claims.filter((c) => c.verdict === "verified").length} of ${check.claims.length} claims verified · ${String(check.check_id || "").slice(0, 8)}`);
+    r.append(h, dl);
+    if (!ok) r.append(el("div", "next", step.status === "held" && sub < MINIMUM ? `Add ${money(MINIMUM - sub)} more to reach the ${money(MINIMUM)} delivery minimum, then ask again.` : step.outcome));
+    else r.append(el("div", "fine", "Nothing was charged and nothing ships. In a real store this is where payment would be confirmed."));
+    return r;
+  }
+
+  // ---- examples ----
+  function renderExamples() {
+    $("examples").replaceChildren(...S.examples.map((e) => {
+      const b = el("button", null, e.title);
+      b.type = "button";
+      b.setAttribute("aria-pressed", String(e.id === S.exId));
+      b.onclick = () => { S.exId = e.id; renderExamples(); play(e, true); };
+      return b;
+    }));
+    const ex = S.examples.find((e) => e.id === S.exId);
+    $("demo-date").textContent = ex ? ex.recorded : "";
+  }
+  async function play(ex, fast) {
+    const token = ++S.playToken;
+    $("convo").replaceChildren();
+    S.gate = null;
+    S.mine.clear();
+    setCart({ lines: [], subtotal: 0, checked_out: false, order_id: null });
+    for (let t = 0; t < ex.turns.length; t++) {
+      const turn = ex.turns[t];
+      if (token !== S.playToken) return;
+      userMsg(turn.message);
+      if (!fast) await sleep(500);
+      const { box, working } = activityBox();
+      for (const step of turn.steps) {
+        if (token !== S.playToken) return;
+        addAct(box, step);
+        if (!fast) await sleep(step.tool === "fact_check" ? 1100 : 360);
+      }
+      working.remove();
+      afterTurn(turn.steps, turn.reply, turn.cart);
+      const next = ex.turns[t + 1];
+      if (next && !fast) {
+        await new Promise((resolve) => {
+          questionCards(turn.steps, resolve);
+          const cont = el("button", "btn continue", "Continue: “" + next.message.slice(0, 56) + (next.message.length > 56 ? "…" : "") + "”");
+          cont.type = "button";
+          cont.onclick = () => { cont.disabled = true; resolve(); };
+          $("convo").append(cont);
+          scroll();
+        });
+      } else if (!next) {
+        questionCards(turn.steps, (r) => sysMsg("In the live app this answer goes straight to the assistant: “" + r + "”"));
+      }
+    }
+  }
+
+  // ---- live mode ----
+  async function api(path, body) {
+    const r = await fetch(path, body ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) } : {});
+    if (!r.ok) throw new Error((await r.json().catch(() => ({}))).detail || r.statusText);
+    return r.json();
+  }
+  async function liveSend(text) {
+    if (!text.trim() || S.busy) return;
+    S.busy = true; $("send").disabled = true; renderAisles();
+    if ($("convo").querySelector(".hello")) $("convo").replaceChildren();
+    userMsg(text);
+    const { box, working } = activityBox();
+    const before = (await api("api/state").catch(() => ({ trail: [] }))).trail.length;
+    let shown = before;
+    const skip = (s) => ["shopper", "reply"].includes(s.tool);
+    const poll = setInterval(async () => {
+      const st = await api("api/state").catch(() => null);
+      if (!st) return;
+      for (const s of st.trail.slice(shown)) if (!skip(s)) addAct(box, s);
+      shown = st.trail.length;
+      S.trail = st.trail;
+      setCart(st.cart);
+    }, 1500);
+    try {
+      const res = await api("api/chat", { message: text });
+      clearInterval(poll);
+      for (const s of res.trail.slice(shown)) if (!skip(s)) addAct(box, s);
+      working.remove();
+      S.trail = res.trail;
+      const steps = res.trail.slice(before).filter((s) => !skip(s));
+      afterTurn(steps, res.reply, res.cart);
+      questionCards(steps, liveSend);
+    } catch (e) {
+      clearInterval(poll);
+      working.remove();
+      sysMsg("That didn't go through: " + e.message);
+    } finally {
+      S.busy = false; $("send").disabled = false; renderAisles();
+    }
+  }
+  async function setQty(p, qty, noSubs) {
+    const current = S.cart.lines.find((l) => l.sku === p.sku);
+    const keepNoSubs = noSubs == null ? !!(current && current.no_substitutions) : noSubs;
+    S.gate = null;
+    if (!S.live) {
+      let lines = S.cart.lines.filter((l) => l.sku !== p.sku);
+      if (qty > 0) {
+        const line = { sku: p.sku, name: p.name, price: p.price, unit: "", qty, no_substitutions: keepNoSubs };
+        const at = S.cart.lines.findIndex((l) => l.sku === p.sku);
+        if (at >= 0) lines.splice(at, 0, line); else lines.push(line);
+      }
+      S.mine.add(p.sku);
+      setCart({ ...S.cart, lines, subtotal: Math.round(lines.reduce((s, l) => s + l.price * l.qty, 0) * 100) / 100 });
+      return;
+    }
+    try {
+      const res = await api("api/cart/set", { sku: p.sku, qty, no_substitutions: keepNoSubs });
+      S.trail = res.trail || S.trail;
+      setCart(res.cart);
+    } catch (e) { sysMsg("Couldn't update that: " + e.message); }
+  }
+
+  // ---- wiring ----
+  const RESTOCK = "It's been about 2 weeks since our last order. Can you restock what we usually need and check out?";
+  $("composer").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const v = $("msg").value;
+    $("msg").value = "";
+    if (S.live) liveSend(v); else sysMsg("This page replays recorded sessions. Run it with its backend to chat live.");
+  });
+  $("restock").onclick = () => {
+    if (S.live) return liveSend(RESTOCK);
+    const ex = S.examples.find((e) => e.id === "restock") || S.examples[0];
+    if (!ex) return;
+    S.exId = ex.id; renderExamples(); play(ex, false);
+    $("convo").scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "nearest" });
+  };
+  $("play").onclick = () => { const ex = S.examples.find((e) => e.id === S.exId); if (ex) play(ex, false); };
+  $("skip").onclick = () => { const ex = S.examples.find((e) => e.id === S.exId); if (ex) play(ex, true); };
+  $("search").addEventListener("input", (e) => { S.query = e.target.value; renderAisles(); });
+  $("open-cart").onclick = () => { $("drawer").hidden = false; $("close-cart").focus(); };
+  $("close-cart").onclick = () => { $("drawer").hidden = true; };
+  $("drawer").addEventListener("click", (e) => { if (e.target === $("drawer")) $("drawer").hidden = true; });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") $("drawer").hidden = true; });
+
+  async function boot() {
+    let data = { catalog: [], examples: [] };
+    try { data = await (await fetch("examples.json")).json(); } catch (e) { /* no examples file */ }
+    S.catalog = data.catalog || [];
+    S.examples = data.examples || [];
+    S.exId = S.examples[0] && S.examples[0].id;
+    try {
+      const st = await api("api/state");
+      if (st && Array.isArray(st.trail)) {
+        S.live = true;
+        $("mode-label").textContent = "Live · " + (st.agent === "claude-code" ? "Claude Code" : "Claude API") + " agent on Senso";
+        $("live-dot").classList.add("on");
+        $("demo").hidden = true;
+        S.trail = st.trail;
+        setCart(st.cart);
+      }
+    } catch (e) { /* no backend: examples mode */ }
+    renderRail();
+    renderExamples();
+    setCart(S.cart);
+    $("convo").replaceChildren(hello());
+    if (!S.live && S.examples.length) play(S.examples[0], true);
+  }
+  boot();
+})();
+</script>

@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Harvest Basket Agent</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Inter:wght@400;500;600;700&display=swap" />
+<style>
+  /* Layout: chat column + audit-trail column; stacks under 960px. Same palette and type as the shop app. */
+  :root {
+    --bg: #eef1ec; --panel: #ffffff; --panel-2: #f6f8f4; --line: #e0e6dc; --fg: #142019; --muted: #5d6a60;
+    --accent: #1d5c39; --accent-2: #2b7a4d; --accent-ink: #ffffff; --soft: #e2efe5;
+    --ok: #2b7a4d; --warn: #b5761a; --bad: #c0402c; --info: #2f6690;
+    --display: "Bricolage Grotesque", "Avenir Next", system-ui, sans-serif; --body: "Inter", system-ui, sans-serif; --mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+    --shadow: 0 1px 2px rgba(20,32,25,.06), 0 8px 24px rgba(20,32,25,.06);
+  }
+  @media (prefers-color-scheme: dark) { :root { --bg: #0f1411; --panel: #171e19; --panel-2: #1c241f; --line: #273129; --fg: #e8eee8; --muted: #a0ada3; --accent: #7cc896; --accent-2: #96d6ab; --accent-ink: #0c1a11; --soft: #1d3326; --ok: #7cc896; --warn: #e8ab4f; --bad: #ef8170; --info: #8fb8e0; --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.25); color-scheme: dark; } }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font: 14px/1.5 var(--body); -webkit-font-smoothing: antialiased; }
+  [hidden] { display: none !important; }
+  header { padding: 14px max(20px, env(safe-area-inset-left)); background: var(--panel); border-bottom: 1px solid var(--line); display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; }
+  header h1 { font: 800 21px var(--display); letter-spacing: -0.02em; margin: 0; }
+  header .sub { color: var(--muted); font-size: 12.5px; flex: 1 1 280px; }
+  .badge { font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: var(--soft); color: var(--accent); }
+  main { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 460px); gap: 20px; padding: 20px max(20px, env(safe-area-inset-left)); min-height: calc(100vh - 62px); align-items: start; }
+  @media (max-width: 960px) { main { grid-template-columns: minmax(0, 1fr); } }
+  main > * { min-width: 0; }
+  .chat { display: flex; flex-direction: column; background: var(--panel); border: 1px solid var(--line); border-radius: 20px; box-shadow: var(--shadow); height: calc(100vh - 104px); min-height: 520px; overflow: hidden; }
+  .messages { flex: 1; overflow-y: auto; padding: 18px; display: flex; flex-direction: column; gap: 12px; }
+  .msg { max-width: 78ch; padding: 11px 15px; white-space: pre-wrap; overflow-wrap: anywhere; margin: 0; }
+  .msg.user { align-self: flex-end; background: var(--accent); color: var(--accent-ink); border-radius: 18px 18px 4px 18px; }
+  .msg.agent { align-self: flex-start; background: var(--panel-2); border: 1px solid var(--line); border-radius: 4px 18px 18px 18px; }
+  .msg.note { align-self: center; color: var(--muted); font-size: 12.5px; background: none; padding: 0; text-align: center; max-width: 60ch; }
+  .starters { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 18px 12px; }
+  .starters button, .ghost { font: inherit; font-size: 12.5px; font-weight: 500; border-radius: 999px; padding: 7px 13px; cursor: pointer; border: 1px solid var(--line); background: var(--panel); color: var(--fg); }
+  .starters button:hover, .ghost:hover { border-color: var(--accent-2); }
+  .composer { display: flex; gap: 8px; padding: 12px; border-top: 1px solid var(--line); }
+  .composer input { flex: 1; min-width: 0; font: inherit; padding: 11px 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--panel-2); color: var(--fg); }
+  .composer button.send { font: inherit; font-weight: 600; background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 999px; padding: 9px 18px; cursor: pointer; }
+  button:disabled { opacity: 0.5; cursor: default; }
+  button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .side { display: flex; flex-direction: column; gap: 12px; position: sticky; top: 20px; max-height: calc(100vh - 40px); }
+  .side h2 { font: 700 11px var(--body); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin: 0; }
+  .block { padding: 14px 16px; background: var(--panel); border: 1px solid var(--line); border-radius: 16px; display: grid; gap: 8px; }
+  .gate { display: flex; align-items: center; gap: 10px; font-size: 13px; padding: 10px 12px; border-radius: 12px; background: var(--panel-2); }
+  .gate .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--muted); flex: none; }
+  .gate.open { background: color-mix(in srgb, var(--ok) 12%, transparent); } .gate.open .dot { background: var(--ok); }
+  .gate.locked { background: color-mix(in srgb, var(--bad) 10%, transparent); } .gate.locked .dot { background: var(--bad); }
+  .cart-line { display: flex; justify-content: space-between; gap: 10px; font-variant-numeric: tabular-nums; }
+  .cart-total { font-weight: 700; border-top: 1px solid var(--line); padding-top: 8px; font-family: var(--display); }
+  .muted { color: var(--muted); font-size: 12.5px; margin: 0; }
+  .trail { flex: 1; overflow-y: auto; padding: 14px 16px; display: grid; gap: 10px; align-content: start; background: var(--panel); border: 1px solid var(--line); border-radius: 16px; min-height: 200px; }
+  .step { border-left: 3px solid var(--line); padding: 2px 0 2px 12px; display: grid; gap: 2px; min-width: 0; }
+  .step[data-status="ok"] { border-left-color: var(--ok); }
+  .step[data-status="blocked"], .step[data-status="gated"], .step[data-status="conflict"], .step[data-status="error"] { border-left-color: var(--bad); }
+  .step[data-status="question"], .step[data-status="held"] { border-left-color: var(--warn); }
+  .step[data-status="message"] { border-left-color: var(--info); }
+  .tool { font: 11.5px var(--mono); color: var(--muted); }
+  .sum { overflow-wrap: anywhere; font-weight: 500; }
+  .out { font-size: 12.5px; color: var(--muted); overflow-wrap: anywhere; }
+  details { font-size: 12.5px; } summary { cursor: pointer; color: var(--accent-2); font-weight: 500; }
+  .cite, .claim { border-top: 1px solid var(--line); padding: 5px 0; overflow-wrap: anywhere; }
+  .pill { display: inline-block; font-size: 10.5px; font-weight: 600; padding: 1px 8px; border-radius: 999px; margin-right: 6px; color: var(--c); background: color-mix(in srgb, var(--c) 14%, transparent); }
+  .v-verified { --c: var(--ok); } .v-unsupported { --c: var(--warn); } .v-conflict { --c: var(--bad); } .v-unscored { --c: var(--muted); }
+  .working { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 12.5px; }
+  .spinner { width: 13px; height: 13px; border: 2px solid var(--line); border-top-color: var(--accent); border-radius: 50%; }
+  @media (prefers-reduced-motion: no-preference) { .spinner { animation: spin 0.8s linear infinite; } @keyframes spin { to { transform: rotate(360deg); } } }
+</style>
+</head>
+<body>
+<header>
+  <h1>Harvest Basket · agent console</h1>
+  <span class="sub">Grocery restock agent on Senso's context layer · fictional store · cart actions simulated</span>
+  <span class="badge live" id="agent-badge">agent: …</span>
+  <button class="ghost" id="reset">New session</button>
+</header>
+<main>
+  <section class="chat">
+    <div class="messages" id="messages">
+      <p class="msg note">Every answer is grounded in Senso search results and fact-checked by Senso before checkout. The audit trail on the right updates live.</p>
+    </div>
+    <div class="starters" id="starters">
+      <button data-prompt="It's been about 2 weeks since our last order. Can you restock what we usually need and check out?">Restock what we usually need</button>
+      <button data-prompt="We're almost out of peanut butter and olive oil. What should we get, and why?">Compare peanut butter and olive oil</button>
+      <button data-prompt="Add the store-brand peanut butter, it's the cheapest. Then check out.">Try to add the cheapest peanut butter</button>
+    </div>
+    <form class="composer" id="composer">
+      <input id="input" type="text" autocomplete="off" placeholder="Tell the agent what you need…" aria-label="Message" />
+      <button class="send" id="send" type="submit">Send</button>
+    </form>
+  </section>
+  <aside class="side">
+    <div class="block">
+      <h2>Checkout gate</h2>
+      <div class="gate" id="gate"><span class="dot"></span><span id="gate-text">No fact-check yet. Checkout is locked.</span></div>
+    </div>
+    <div class="block">
+      <h2>Cart (simulated)</h2>
+      <div id="cart"><p class="muted">Empty</p></div>
+    </div>
+    <div class="block" id="questions-block" hidden>
+      <h2>Questions for you</h2>
+      <div id="questions"></div>
+    </div>
+    <div class="trail" id="trail-wrap"><div style="display:flex;justify-content:space-between;align-items:center"><h2>Audit trail</h2><div class="working" id="working" hidden><span class="spinner"></span><span>Agent is working…</span></div></div><div id="trail" style="display:grid;gap:10px"><p class="muted">Nothing yet.</p></div></div>
+  </aside>
+</main>
+<script>
+const API = window.HB_API_BASE || "";
+const $ = (id) => document.getElementById(id);
+const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+const money = (v) => "$" + Number(v).toFixed(2);
+let shownReplies = 0;
+let poll = null;
+
+function renderCart(cart) {
+  const box = $("cart");
+  if (!cart || !cart.lines.length) { box.replaceChildren(el("p", "muted", "Empty")); return; }
+  const rows = cart.lines.map((l) => {
+    const r = el("div", "cart-line");
+    r.append(el("span", null, `${l.qty}× ${l.name}`), el("span", null, money(l.price * l.qty)));
+    return r;
+  });
+  const t = el("div", "cart-line cart-total");
+  t.append(el("span", null, "Subtotal"), el("span", null, money(cart.subtotal)));
+  rows.push(t);
+  if (cart.checked_out) rows.push(el("p", "muted", `Order ${cart.order_id}, simulated. No real payment or delivery.`));
+  box.replaceChildren(...rows);
+}
+
+function renderGate(lc, trail) {
+  const g = $("gate");
+  const lastCheckout = [...trail].reverse().find((t) => t.tool === "checkout");
+  g.classList.remove("open", "locked");
+  if (!lc) { g.classList.add("locked"); $("gate-text").textContent = "No fact-check yet. Checkout is locked."; return; }
+  if (lc.conflicts.length) { g.classList.add("locked"); $("gate-text").textContent = `Locked: ${lc.conflicts.length} conflicting claim(s) in the last fact-check.`; return; }
+  g.classList.add("open");
+  $("gate-text").textContent = `Last fact-check: ${lc.verified} of ${lc.total} claims verified, no conflicts.` + (lastCheckout && lastCheckout.status === "gated" ? " (Cart changed since? Re-check needed.)" : "");
+}
+
+function renderQuestions(qs) {
+  $("questions-block").hidden = !qs.length;
+  $("questions").replaceChildren(...qs.map((q) => { const d = el("div", "cart-line"); d.append(el("span", null, q.item), el("span", "muted", q.question)); return d; }));
+}
+
+function renderTrail(trail) {
+  const box = $("trail");
+  if (!trail.length) { box.replaceChildren(el("p", "muted", "Nothing yet.")); return; }
+  box.replaceChildren(...trail.map((t) => {
+    const s = el("div", "step");
+    s.dataset.status = t.status;
+    s.append(el("span", "tool", `${t.step}. ${t.tool}`));
+    const text = t.tool === "reply" ? (t.summary.length > 160 ? t.summary.slice(0, 160) + "…" : t.summary) : t.summary;
+    s.append(el("span", "sum", text));
+    if (t.outcome) s.append(el("span", "out", t.outcome));
+    if (t.citations && t.citations.length) {
+      const d = el("details"); d.append(el("summary", null, `${t.citations.length} cited passages`));
+      for (const c of t.citations) d.append(el("div", "cite", `#${c.rank} · score ${Number(c.score).toFixed(3)} · ${c.document} · content_id ${String(c.content_id).slice(0, 8)} — ${(c.chunk_text || "").slice(0, 200)}`));
+      s.append(d);
+    }
+    if (t.claims && t.claims.length) {
+      const d = el("details"); d.open = t.status === "conflict";
+      d.append(el("summary", null, `${t.claims.length} claims · check ${String(t.check_id).slice(0, 8)}${t.recheck_id ? " · re-checked " + String(t.recheck_id).slice(0, 8) : ""}`));
+      for (const c of t.claims) {
+        const row = el("div", "claim");
+        row.append(el("span", "pill v-" + c.verdict, c.verdict + (c.rechecked ? " (re-checked)" : "")), document.createTextNode(c.claim));
+        d.append(row);
+      }
+      s.append(d);
+    }
+    if (t.tool === "reply" && t.cost_usd != null) s.append(el("span", "out", `${t.turns || "?"} model turns · $${Number(t.cost_usd).toFixed(3)}`));
+    return s;
+  }));
+  const tw = $("trail-wrap"); tw.scrollTop = tw.scrollHeight;
+}
+
+function render(state) {
+  $("agent-badge").textContent = "agent: " + (state.agent === "claude-code" ? "Claude Code (headless)" : "Claude API");
+  renderCart(state.cart);
+  renderGate(state.last_check, state.trail);
+  renderQuestions(state.questions || []);
+  renderTrail(state.trail);
+  const replies = state.trail.filter((t) => t.tool === "reply");
+  const shoppers = state.trail.filter((t) => t.tool === "shopper");
+  if (shownReplies === 0 && replies.length) {
+    shoppers.forEach((m, i) => { addMsg("user", m.summary); if (replies[i]) addMsg("agent", replies[i].summary); });
+    shownReplies = replies.length;
+  }
+}
+
+function addMsg(kind, text) {
+  $("messages").append(el("p", "msg " + kind, text));
+  $("messages").scrollTop = $("messages").scrollHeight;
+}
+
+async function refresh() {
+  try { const r = await fetch(`${API}/api/state`); if (r.ok) render(await r.json()); } catch (e) { /* server not up yet */ }
+}
+
+async function send(text) {
+  if (!text.trim()) return;
+  addMsg("user", text);
+  $("input").value = "";
+  $("send").disabled = true;
+  document.querySelectorAll("#starters button").forEach((b) => (b.disabled = true));
+  $("working").hidden = false;
+  poll = setInterval(refresh, 1500);
+  try {
+    const r = await fetch(`${API}/api/chat`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ message: text }) });
+    if (!r.ok) throw new Error((await r.json().catch(() => ({}))).detail || r.statusText);
+    const data = await r.json();
+    addMsg("agent", data.reply);
+    shownReplies += 1;
+    render({ agent: data.agent, ...data });
+  } catch (e) {
+    addMsg("note", "The request failed: " + e.message);
+  } finally {
+    clearInterval(poll);
+    $("working").hidden = true;
+    $("send").disabled = false;
+    document.querySelectorAll("#starters button").forEach((b) => (b.disabled = false));
+    $("input").focus();
+  }
+}
+
+$("composer").addEventListener("submit", (e) => { e.preventDefault(); send($("input").value); });
+document.querySelectorAll("#starters button").forEach((b) => b.addEventListener("click", () => send(b.dataset.prompt)));
+$("reset").addEventListener("click", async () => {
+  const r = await fetch(`${API}/api/reset`, { method: "POST" });
+  if (!r.ok) { addMsg("note", "Wait for the agent to finish before starting a new session."); return; }
+  shownReplies = 0;
+  $("messages").replaceChildren(el("p", "msg note", "New session. The cart and trail are empty."));
+  refresh();
+});
+refresh();
+</script>
+</body>
+</html>
