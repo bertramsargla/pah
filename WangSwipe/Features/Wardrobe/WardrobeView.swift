@@ -107,6 +107,19 @@ struct WardrobeView: View {
         .frame(height: 60)
         .disabled(wardrobe.outfit.isEmpty)
     }
+
+    private func dress(_ outfit: [Product]) {
+        guard !outfit.isEmpty else { return }
+        appModel.dresser.dress(outfit)
+        withAnimation { mirrorOutfit = outfit }
+    }
+
+    /// The Agent's Dress Me: show its pick in the panels and dress it right away.
+    private func dressRequested() {
+        guard let pieces = wardrobe.dressRequest else { return }
+        wardrobe.dressRequest = nil
+        dress(wardrobe.show(pieces))
+    }
 }
 
 /// One display window with its own back / play / forward controls.
@@ -184,19 +197,6 @@ struct GarmentPanel: View {
             .background(Retro.bar.opacity(0.85))
             .padding(6)
         }
-    }
-
-    private func dress(_ outfit: [Product]) {
-        guard !outfit.isEmpty else { return }
-        appModel.dresser.dress(outfit)
-        withAnimation { mirrorOutfit = outfit }
-    }
-
-    /// The Agent's Dress Me: show its pick in the panels and dress it right away.
-    private func dressRequested() {
-        guard let pieces = wardrobe.dressRequest else { return }
-        wardrobe.dressRequest = nil
-        dress(wardrobe.show(pieces))
     }
 
     private func control(_ systemImage: String, action: @escaping () -> Void) -> some View {
