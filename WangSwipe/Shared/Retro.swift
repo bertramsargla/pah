@@ -106,7 +106,8 @@ struct RetroPanel<Content: View>: View {
 
 /// Title strip: app name on the left, a boxed screen name on the right.
 struct RetroTitleBar: View {
-    var left = "WangSwipe's Wardrobe"
+    static let appName = "WangSwipe's Wardrobe"
+    var left = RetroTitleBar.appName
     var title: String
 
     var body: some View {

@@ -12,7 +12,8 @@ struct AgentView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            RetroTitleBar(title: "Agent")
+            // With a chat going, "New chat" takes the place of the app name on the left.
+            RetroTitleBar(left: agent.messages.isEmpty ? RetroTitleBar.appName : "", title: "Agent")
                 .overlay(alignment: .leading) {
                     if !agent.messages.isEmpty {
                         Button("New chat") { agent.reset() }
@@ -55,6 +56,9 @@ struct AgentView: View {
             inputBar
         }
         .overlay(Scanlines())
+        // The agent needs the wardrobe list (to know the pieces, and for its Dress Me
+        // button), even when this tab is opened before the wardrobe.
+        .task { await appModel.wardrobe.load() }
         .onChange(of: agent.failedQuestion) { _, question in
             if let question, draft.isEmpty { draft = question }
         }
