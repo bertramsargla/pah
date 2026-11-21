@@ -47,7 +47,7 @@ def trim(step: dict) -> dict:
     if step.get("citations"):
         s["citations"] = [{**{k: c.get(k) for k in ("document", "score", "rank", "content_id")}, "chunk_text": (c.get("chunk_text") or "")[:220]} for c in step["citations"]]
     if step.get("claims"):
-        s["claims"] = [{k: c.get(k) for k in ("claim", "verdict", "rechecked")} for c in step["claims"]]
+        s["claims"] = [{**{k: c.get(k) for k in ("claim", "verdict", "rechecked")}, "evidence": " ".join((c.get("evidence") or "").split())[:200]} for c in step["claims"]]
         s["check_id"], s["recheck_id"] = step.get("check_id"), step.get("recheck_id")
     return s
 

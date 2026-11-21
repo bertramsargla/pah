@@ -88,6 +88,30 @@ def cart_add(req: AddRequest):
     return {"cart": box.store.cart.to_dict()}
 
 
+class SetRequest(BaseModel):
+    sku: str
+    qty: float
+    no_substitutions: bool = False
+
+
+@app.post("/api/cart/set")
+def cart_set(req: SetRequest):
+    """Set one item's quantity (0 removes it) and substitution preference, as the shopper."""
+    if _lock.locked():
+        raise HTTPException(409, "The assistant is updating your cart. Try again in a moment.")
+    from tools import ToolBox
+    box = ToolBox(get_agent().state_path)
+    start = len(box.trail)
+    box.remove_from_cart(req.sku)
+    result = box.add_to_cart(req.sku, req.qty, req.no_substitutions) if req.qty > 0 else {}
+    for step in box.trail[start:]:
+        step["by"] = "shopper"
+    box.save()
+    if "error" in result:
+        raise HTTPException(400, result["error"])
+    return {"cart": box.store.cart.to_dict(), "trail": box.trail}
+
+
 @app.post("/api/chat")
 def chat(req: ChatRequest):
     if not _lock.acquire(blocking=False):
