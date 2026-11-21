@@ -5,67 +5,72 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Harvest Basket Agent</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Fraunces:opsz,wght@9..144,500&display=swap" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Inter:wght@400;500;600;700&display=swap" />
 <style>
-  /* Layout: chat column + audit-trail column; stacks under 960px. */
+  /* Layout: chat column + audit-trail column; stacks under 960px. Same palette and type as the shop app. */
   :root {
-    --bg: #f6f7f3; --panel: #ffffff; --line: #e2e4dc; --fg: #1d221b; --muted: #5f6858;
-    --accent: #2f6b3a; --accent-ink: #ffffff; --ok: #2f7a43; --warn: #a86a12; --bad: #b23a32; --info: #2f5f8a;
-    --display: "Fraunces", Georgia, serif; --body: "Inter", system-ui, sans-serif; --mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+    --bg: #eef1ec; --panel: #ffffff; --panel-2: #f6f8f4; --line: #e0e6dc; --fg: #142019; --muted: #5d6a60;
+    --accent: #1d5c39; --accent-2: #2b7a4d; --accent-ink: #ffffff; --soft: #e2efe5;
+    --ok: #2b7a4d; --warn: #b5761a; --bad: #c0402c; --info: #2f6690;
+    --display: "Bricolage Grotesque", "Avenir Next", system-ui, sans-serif; --body: "Inter", system-ui, sans-serif; --mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+    --shadow: 0 1px 2px rgba(20,32,25,.06), 0 8px 24px rgba(20,32,25,.06);
   }
-  @media (prefers-color-scheme: dark) { :root { --bg: #141713; --panel: #1b1f1a; --line: #2c322a; --fg: #e8ece3; --muted: #9aa392; --accent: #7cc48a; --accent-ink: #0f1a11; --ok: #7cc48a; --warn: #e0a64a; --bad: #ef7d74; --info: #8fb8e0; color-scheme: dark; } }
+  @media (prefers-color-scheme: dark) { :root { --bg: #0f1411; --panel: #171e19; --panel-2: #1c241f; --line: #273129; --fg: #e8eee8; --muted: #a0ada3; --accent: #7cc896; --accent-2: #96d6ab; --accent-ink: #0c1a11; --soft: #1d3326; --ok: #7cc896; --warn: #e8ab4f; --bad: #ef8170; --info: #8fb8e0; --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.25); color-scheme: dark; } }
   * { box-sizing: border-box; }
-  body { margin: 0; background: var(--bg); color: var(--fg); font: 14px/1.5 var(--body); }
-  header { padding: 14px max(16px, env(safe-area-inset-left)); border-bottom: 1px solid var(--line); display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; }
-  header h1 { font: 500 20px var(--display); margin: 0; }
-  header .sub { color: var(--muted); font-size: 12px; }
-  .badge { font-size: 11px; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); }
-  .badge.live { color: var(--accent); border-color: currentColor; }
-  main { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 440px); min-height: calc(100vh - 54px); }
-  @media (max-width: 960px) { main { grid-template-columns: 1fr; } }
-  .chat { display: flex; flex-direction: column; min-width: 0; border-right: 1px solid var(--line); }
-  .messages { flex: 1; overflow-y: auto; padding: 18px max(16px, env(safe-area-inset-left)); display: flex; flex-direction: column; gap: 12px; }
-  .msg { max-width: 78ch; padding: 10px 14px; border-radius: 10px; white-space: pre-wrap; overflow-wrap: anywhere; }
-  .msg.user { align-self: flex-end; background: var(--accent); color: var(--accent-ink); }
-  .msg.agent { align-self: flex-start; background: var(--panel); border: 1px solid var(--line); }
-  .msg.note { align-self: center; color: var(--muted); font-size: 12px; background: none; padding: 0; text-align: center; }
-  .starters { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 max(16px, env(safe-area-inset-left)) 10px; }
-  .starters button, .composer button, .ghost { font: inherit; font-size: 12px; border-radius: 999px; padding: 6px 12px; cursor: pointer; border: 1px solid var(--line); background: var(--panel); color: var(--fg); }
-  .composer { display: flex; gap: 8px; padding: 12px max(16px, env(safe-area-inset-left)); border-top: 1px solid var(--line); }
-  .composer input { flex: 1; min-width: 0; font: inherit; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--panel); color: var(--fg); }
-  .composer button.send { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-size: 14px; padding: 8px 16px; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font: 14px/1.5 var(--body); -webkit-font-smoothing: antialiased; }
+  [hidden] { display: none !important; }
+  header { padding: 14px max(20px, env(safe-area-inset-left)); background: var(--panel); border-bottom: 1px solid var(--line); display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; }
+  header h1 { font: 800 21px var(--display); letter-spacing: -0.02em; margin: 0; }
+  header .sub { color: var(--muted); font-size: 12.5px; flex: 1 1 280px; }
+  .badge { font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: var(--soft); color: var(--accent); }
+  main { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 460px); gap: 20px; padding: 20px max(20px, env(safe-area-inset-left)); min-height: calc(100vh - 62px); align-items: start; }
+  @media (max-width: 960px) { main { grid-template-columns: minmax(0, 1fr); } }
+  main > * { min-width: 0; }
+  .chat { display: flex; flex-direction: column; background: var(--panel); border: 1px solid var(--line); border-radius: 20px; box-shadow: var(--shadow); height: calc(100vh - 104px); min-height: 520px; overflow: hidden; }
+  .messages { flex: 1; overflow-y: auto; padding: 18px; display: flex; flex-direction: column; gap: 12px; }
+  .msg { max-width: 78ch; padding: 11px 15px; white-space: pre-wrap; overflow-wrap: anywhere; margin: 0; }
+  .msg.user { align-self: flex-end; background: var(--accent); color: var(--accent-ink); border-radius: 18px 18px 4px 18px; }
+  .msg.agent { align-self: flex-start; background: var(--panel-2); border: 1px solid var(--line); border-radius: 4px 18px 18px 18px; }
+  .msg.note { align-self: center; color: var(--muted); font-size: 12.5px; background: none; padding: 0; text-align: center; max-width: 60ch; }
+  .starters { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 18px 12px; }
+  .starters button, .ghost { font: inherit; font-size: 12.5px; font-weight: 500; border-radius: 999px; padding: 7px 13px; cursor: pointer; border: 1px solid var(--line); background: var(--panel); color: var(--fg); }
+  .starters button:hover, .ghost:hover { border-color: var(--accent-2); }
+  .composer { display: flex; gap: 8px; padding: 12px; border-top: 1px solid var(--line); }
+  .composer input { flex: 1; min-width: 0; font: inherit; padding: 11px 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--panel-2); color: var(--fg); }
+  .composer button.send { font: inherit; font-weight: 600; background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 999px; padding: 9px 18px; cursor: pointer; }
   button:disabled { opacity: 0.5; cursor: default; }
   button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-  .side { display: flex; flex-direction: column; min-width: 0; background: var(--panel); }
-  .side h2 { font: 600 11px var(--body); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin: 0; }
-  .block { padding: 14px 16px; border-bottom: 1px solid var(--line); display: grid; gap: 8px; }
-  .gate { display: flex; align-items: center; gap: 8px; font-size: 13px; }
-  .gate .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--muted); }
-  .gate.open .dot { background: var(--ok); } .gate.locked .dot { background: var(--bad); }
+  .side { display: flex; flex-direction: column; gap: 12px; position: sticky; top: 20px; max-height: calc(100vh - 40px); }
+  .side h2 { font: 700 11px var(--body); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin: 0; }
+  .block { padding: 14px 16px; background: var(--panel); border: 1px solid var(--line); border-radius: 16px; display: grid; gap: 8px; }
+  .gate { display: flex; align-items: center; gap: 10px; font-size: 13px; padding: 10px 12px; border-radius: 12px; background: var(--panel-2); }
+  .gate .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--muted); flex: none; }
+  .gate.open { background: color-mix(in srgb, var(--ok) 12%, transparent); } .gate.open .dot { background: var(--ok); }
+  .gate.locked { background: color-mix(in srgb, var(--bad) 10%, transparent); } .gate.locked .dot { background: var(--bad); }
   .cart-line { display: flex; justify-content: space-between; gap: 10px; font-variant-numeric: tabular-nums; }
-  .cart-total { font-weight: 600; border-top: 1px solid var(--line); padding-top: 6px; }
-  .muted { color: var(--muted); font-size: 12px; }
-  .trail { flex: 1; overflow-y: auto; padding: 8px 16px 16px; display: grid; gap: 8px; align-content: start; }
-  .step { border-left: 3px solid var(--line); padding: 4px 0 4px 10px; display: grid; gap: 2px; min-width: 0; }
+  .cart-total { font-weight: 700; border-top: 1px solid var(--line); padding-top: 8px; font-family: var(--display); }
+  .muted { color: var(--muted); font-size: 12.5px; margin: 0; }
+  .trail { flex: 1; overflow-y: auto; padding: 14px 16px; display: grid; gap: 10px; align-content: start; background: var(--panel); border: 1px solid var(--line); border-radius: 16px; min-height: 200px; }
+  .step { border-left: 3px solid var(--line); padding: 2px 0 2px 12px; display: grid; gap: 2px; min-width: 0; }
   .step[data-status="ok"] { border-left-color: var(--ok); }
-  .step[data-status="blocked"], .step[data-status="gated"], .step[data-status="conflict"] { border-left-color: var(--bad); }
+  .step[data-status="blocked"], .step[data-status="gated"], .step[data-status="conflict"], .step[data-status="error"] { border-left-color: var(--bad); }
   .step[data-status="question"], .step[data-status="held"] { border-left-color: var(--warn); }
   .step[data-status="message"] { border-left-color: var(--info); }
-  .tool { font: 11px var(--mono); color: var(--muted); }
-  .sum { overflow-wrap: anywhere; }
-  .out { font-size: 12px; color: var(--muted); overflow-wrap: anywhere; }
-  details { font-size: 12px; } summary { cursor: pointer; color: var(--muted); }
-  .cite, .claim { border-top: 1px dashed var(--line); padding: 4px 0; overflow-wrap: anywhere; }
-  .pill { display: inline-block; font-size: 10.5px; padding: 0 7px; border-radius: 999px; border: 1px solid currentColor; margin-right: 6px; }
-  .v-verified { color: var(--ok); } .v-unsupported { color: var(--warn); } .v-conflict { color: var(--bad); } .v-unscored { color: var(--muted); }
-  .working { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 12px; }
-  .spinner { width: 12px; height: 12px; border: 2px solid var(--line); border-top-color: var(--accent); border-radius: 50%; }
+  .tool { font: 11.5px var(--mono); color: var(--muted); }
+  .sum { overflow-wrap: anywhere; font-weight: 500; }
+  .out { font-size: 12.5px; color: var(--muted); overflow-wrap: anywhere; }
+  details { font-size: 12.5px; } summary { cursor: pointer; color: var(--accent-2); font-weight: 500; }
+  .cite, .claim { border-top: 1px solid var(--line); padding: 5px 0; overflow-wrap: anywhere; }
+  .pill { display: inline-block; font-size: 10.5px; font-weight: 600; padding: 1px 8px; border-radius: 999px; margin-right: 6px; color: var(--c); background: color-mix(in srgb, var(--c) 14%, transparent); }
+  .v-verified { --c: var(--ok); } .v-unsupported { --c: var(--warn); } .v-conflict { --c: var(--bad); } .v-unscored { --c: var(--muted); }
+  .working { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 12.5px; }
+  .spinner { width: 13px; height: 13px; border: 2px solid var(--line); border-top-color: var(--accent); border-radius: 50%; }
   @media (prefers-reduced-motion: no-preference) { .spinner { animation: spin 0.8s linear infinite; } @keyframes spin { to { transform: rotate(360deg); } } }
 </style>
 </head>
 <body>
 <header>
-  <h1>Harvest Basket</h1>
+  <h1>Harvest Basket · agent console</h1>
   <span class="sub">Grocery restock agent on Senso's context layer · fictional store · cart actions simulated</span>
   <span class="badge live" id="agent-badge">agent: …</span>
   <button class="ghost" id="reset">New session</button>
@@ -98,8 +103,7 @@
       <h2>Questions for you</h2>
       <div id="questions"></div>
     </div>
-    <div class="block"><h2>Audit trail</h2><div class="working" id="working" hidden><span class="spinner"></span><span>Agent is working…</span></div></div>
-    <div class="trail" id="trail"><p class="muted">Nothing yet.</p></div>
+    <div class="trail" id="trail-wrap"><div style="display:flex;justify-content:space-between;align-items:center"><h2>Audit trail</h2><div class="working" id="working" hidden><span class="spinner"></span><span>Agent is working…</span></div></div><div id="trail" style="display:grid;gap:10px"><p class="muted">Nothing yet.</p></div></div>
   </aside>
 </main>
 <script>
@@ -168,7 +172,7 @@ function renderTrail(trail) {
     if (t.tool === "reply" && t.cost_usd != null) s.append(el("span", "out", `${t.turns || "?"} model turns · $${Number(t.cost_usd).toFixed(3)}`));
     return s;
   }));
-  box.scrollTop = box.scrollHeight;
+  const tw = $("trail-wrap"); tw.scrollTop = tw.scrollHeight;
 }
 
 function render(state) {
