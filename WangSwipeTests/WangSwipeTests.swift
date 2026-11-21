@@ -373,19 +373,23 @@ final class StylistTests: XCTestCase {
         return StylistContext(wardrobe: products, showing: Array(products.prefix(2)), kept: [], photo: nil, look: nil)
     }
 
-    func testRequestUsesClaudeWithWardrobeInSystemAndStreaming() throws {
+    func testRequestUsesGeminiNeonWithMediumThinking() throws {
+        XCTAssertTrue(GeminiStylist.endpoint.absoluteString.contains("/models/gemini-4-neon:streamGenerateContent"))
+        XCTAssertTrue(GeminiStylist.endpoint.absoluteString.hasSuffix("alt=sse"))
         let history = [ChatMessage(role: .user, text: "Hi", sentText: "On screen now: x.\n\nHi")]
         let photo = UIGraphicsImageRenderer(size: CGSize(width: 20, height: 30)).image { _ in }
-        let data = try ClaudeStylist.requestBody(history: history, context: context, firstImages: [photo])
+        let data = try GeminiStylist.requestBody(history: history, context: context, firstImages: [photo])
         let body = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
-        XCTAssertEqual(body["model"] as? String, "claude-opus-5-5")
-        XCTAssertEqual(body["stream"] as? Bool, true)
-        XCTAssertEqual(body["fallbacks"] as? String, "default")
-        XCTAssertTrue((body["system"] as? String ?? "").contains("Moncler"))
-        let messages = try XCTUnwrap(body["messages"] as? [[String: Any]])
-        let content = try XCTUnwrap(messages.first?["content"] as? [[String: Any]])
-        XCTAssertEqual(content.map { $0["type"] as? String }, ["image", "text"])
-        XCTAssertEqual(content.last?["text"] as? String, "On screen now: x.\n\nHi")
+        let system = try XCTUnwrap(body["systemInstruction"] as? [String: Any])
+        let systemText = (system["parts"] as? [[String: Any]])?.first?["text"] as? String ?? ""
+        XCTAssertTrue(systemText.contains("Moncler"))
+        let config = try XCTUnwrap(body["generationConfig"] as? [String: Any])
+        let thinking = try XCTUnwrap(config["thinkingConfig"] as? [String: Any])
+        XCTAssertEqual(thinking["thinkingLevel"] as? String, "medium")
+        let contents = try XCTUnwrap(body["contents"] as? [[String: Any]])
+        let parts = try XCTUnwrap(contents.first?["parts"] as? [[String: Any]])
+        XCTAssertNotNil(parts.first?["inlineData"])
+        XCTAssertEqual(parts.last?["text"] as? String, "On screen now: x.\n\nHi")
     }
 
     func testPhotosOnlyOnTheFirstMessage() throws {
@@ -395,25 +399,29 @@ final class StylistTests: XCTestCase {
             ChatMessage(role: .user, text: "And shoes?")
         ]
         let photo = UIGraphicsImageRenderer(size: CGSize(width: 20, height: 30)).image { _ in }
-        let data = try ClaudeStylist.requestBody(history: history, context: context, firstImages: [photo])
+        let data = try GeminiStylist.requestBody(history: history, context: context, firstImages: [photo])
         let body = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
-        let messages = try XCTUnwrap(body["messages"] as? [[String: Any]])
-        XCTAssertEqual(messages.map { $0["role"] as? String }, ["user", "assistant", "user"])
-        let last = try XCTUnwrap(messages.last?["content"] as? [[String: Any]])
-        XCTAssertEqual(last.map { $0["type"] as? String }, ["text"])
+        let contents = try XCTUnwrap(body["contents"] as? [[String: Any]])
+        XCTAssertEqual(contents.map { $0["role"] as? String }, ["user", "model", "user"])
+        let last = try XCTUnwrap(contents.last?["parts"] as? [[String: Any]])
+        XCTAssertEqual(last.count, 1)
+        XCTAssertEqual(last.first?["text"] as? String, "And shoes?")
     }
 
     func testParsesStreamEvents() {
-        XCTAssertEqual(ClaudeStylist.parse(#"data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"Hey"}}"#), .text("Hey"))
-        XCTAssertEqual(ClaudeStylist.parse(#"data: {"type":"content_block_delta","index":0,"delta":{"type":"thinking_delta","thinking":""}}"#), .other)
-        XCTAssertEqual(ClaudeStylist.parse(#"data: {"type":"message_delta","delta":{"stop_reason":"refusal"}}"#), .refused)
-        XCTAssertEqual(ClaudeStylist.parse(#"data: {"type":"message_stop"}"#), .done)
-        XCTAssertEqual(ClaudeStylist.parse(#"data: {"type":"error","error":{"type":"overloaded_error","message":"Overloaded"}}"#), .failed("Overloaded"))
-        XCTAssertEqual(ClaudeStylist.parse("event: ping"), .other)
+        XCTAssertEqual(GeminiStylist.parse(#"data: {"candidates":[{"content":{"role":"model","parts":[{"text":"Hey"}]}}]}"#), .text("Hey"))
+        XCTAssertEqual(GeminiStylist.parse(#"data: {"candidates":[{"content":{"parts":[{"text":"hmm","thought":true}]}}]}"#), .other)
+        XCTAssertEqual(GeminiStylist.parse(#"data: {"candidates":[{"content":{"parts":[{"text":"!"}]},"finishReason":"STOP"}]}"#), .text("!"))
+        XCTAssertEqual(GeminiStylist.parse(#"data: {"candidates":[{"finishReason":"STOP"}]}"#), .done)
+        XCTAssertEqual(GeminiStylist.parse(#"data: {"candidates":[{"finishReason":"SAFETY"}]}"#), .refused)
+        XCTAssertEqual(GeminiStylist.parse(#"data: {"promptFeedback":{"blockReason":"SAFETY"}}"#), .refused)
+        XCTAssertEqual(GeminiStylist.parse(#"data: {"error":{"code":503,"message":"Overloaded"}}"#), .failed("Overloaded"))
+        XCTAssertEqual(GeminiStylist.parse(""), .other)
+        XCTAssertEqual(GeminiStylist.errorMessage(in: #"{"error":{"code":400,"message":"API key not valid"}}"#), "API key not valid")
     }
 
     func testScreenNoteNamesWhatIsShowing() {
-        let note = ClaudeStylist.screenNote(context)
+        let note = GeminiStylist.screenNote(context)
         XCTAssertTrue(note.hasPrefix("On screen now: "))
         XCTAssertTrue(note.contains(" + "))
     }

@@ -8,12 +8,7 @@ struct AgentView: View {
 
     private var agent: AgentModel { appModel.agent }
 
-    private let suggestions = [
-        "Rate the outfit on screen",
-        "What goes with the jacket I'm showing?",
-        "Build me a fall outfit from the wardrobe",
-        "What shoes would finish this look?"
-    ]
+    private let suggestions = ["Find me the perfect match"]
 
     var body: some View {
         VStack(spacing: 0) {
@@ -74,8 +69,8 @@ struct AgentView: View {
                     Text("Your stylist").font(Retro.font(16))
                     Text("Ask about the outfit on screen, what to pair with a piece, or what to add. The agent sees the wardrobe, what you kept, and your photo.")
                         .font(Retro.font(12, weight: .medium))
-                    if !appModel.hasAnthropicKey {
-                        Text("Add your Anthropic API key in Setup first.")
+                    if !appModel.hasGeminiKey {
+                        Text("Add your Gemini API key in Setup first.")
                             .font(Retro.font(12, weight: .bold))
                     }
                 }
@@ -134,7 +129,7 @@ struct AgentView: View {
     }
 
     private func send(_ text: String) {
-        agent.send(text, apiKey: appModel.anthropicAPIKey, context: appModel.stylistContext())
+        agent.send(text, apiKey: appModel.geminiAPIKey, context: appModel.stylistContext())
         draft = ""
     }
 }

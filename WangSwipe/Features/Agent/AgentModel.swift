@@ -25,10 +25,10 @@ final class AgentModel {
             firstImages = [context.photo, context.look].compactMap { $0 }
         }
         messages.append(ChatMessage(role: .user, text: trimmed,
-                                    sentText: ClaudeStylist.screenNote(context) + "\n\n" + trimmed))
+                                    sentText: GeminiStylist.screenNote(context) + "\n\n" + trimmed))
         let body: Data
         do {
-            body = try ClaudeStylist.requestBody(history: messages, context: context, firstImages: firstImages)
+            body = try GeminiStylist.requestBody(history: messages, context: context, firstImages: firstImages)
         } catch {
             errorText = error.localizedDescription
             return
@@ -37,7 +37,7 @@ final class AgentModel {
         isReplying = true
         messages.append(ChatMessage(role: .assistant, text: ""))
         let replyIndex = messages.count - 1
-        let stylist = ClaudeStylist(apiKey: apiKey)
+        let stylist = GeminiStylist(apiKey: apiKey)
 
         task = Task { [weak self] in
             do {

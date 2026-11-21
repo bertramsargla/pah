@@ -20,7 +20,7 @@ enum StylistError: LocalizedError, Equatable {
 
     var errorDescription: String? {
         switch self {
-        case .missingAPIKey: "Add your Anthropic API key in Setup to chat with the agent."
+        case .missingAPIKey: "Add your Gemini API key in Setup to chat with the agent."
         case .httpStatus(let code, let body): "The agent service answered \(code): \(body)"
         case .refused: "The agent declined to answer that one. Try asking another way."
         case .badResponse: "The agent sent back something the app couldn't read."
@@ -38,14 +38,16 @@ struct StylistContext {
     var look: UIImage?
 }
 
-/// Talks to Claude through the Messages API with streaming. Raw HTTP, because
-/// there's no official Swift SDK.
+/// Talks to Google's Gemini API (Gemini 4 Neon, medium thinking) with streaming.
 ///
 /// Prototype only: the key lives in the device Keychain. Before shipping, move
 /// this call behind your own server so the key never leaves it.
-struct ClaudeStylist: Sendable {
-    static let model = "claude-opus-5-5"
-    static let endpoint = URL(string: "https://api.anthropic.com/v1/messages")!
+struct GeminiStylist: Sendable {
+    static let model = "gemini-4-neon"
+    static let thinkingLevel = "medium"
+    static var endpoint: URL {
+        URL(string: "https://generativelanguage.googleapis.com/v1beta/models/\(model):streamGenerateContent?alt=sse")!
+    }
 
     let apiKey: String
     var session: URLSession = .shared
@@ -59,11 +61,8 @@ struct ClaudeStylist: Sendable {
                     var request = URLRequest(url: Self.endpoint)
                     request.httpMethod = "POST"
                     request.timeoutInterval = 120
-                    request.setValue("application/json", forHTTPHeaderField: "content-type")
-                    request.setValue(apiKey, forHTTPHeaderField: "x-api-key")
-                    request.setValue("2026-10-21", forHTTPHeaderField: "anthropic-version")
-                    // If the model declines on a safety check, the API retries on a fallback model.
-                    request.setValue("server-side-fallback-2026-07-01", forHTTPHeaderField: "anthropic-beta")
+                    request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+                    request.setValue(apiKey, forHTTPHeaderField: "x-goog-api-key")
                     request.httpBody = body
 
                     let (bytes, response) = try await session.bytes(for: request)
@@ -72,9 +71,9 @@ struct ClaudeStylist: Sendable {
                         var text = ""
                         for try await line in bytes.lines {
                             text += line
-                            if text.count > 300 { break }
+                            if text.count > 600 { break }
                         }
-                        throw StylistError.httpStatus(http.statusCode, String(text.prefix(300)))
+                        throw StylistError.httpStatus(http.statusCode, Self.errorMessage(in: text) ?? String(text.prefix(300)))
                     }
                     for try await line in bytes.lines {
                         switch Self.parse(line) {
@@ -97,38 +96,32 @@ struct ClaudeStylist: Sendable {
     // MARK: Request
 
     static func requestBody(history: [ChatMessage], context: StylistContext, firstImages: [UIImage]) throws -> Data {
-        var messages: [[String: Any]] = []
+        var contents: [[String: Any]] = []
         for (index, message) in history.enumerated() {
             switch message.role {
             case .assistant:
-                messages.append(["role": "assistant", "content": message.text])
+                contents.append(["role": "model", "parts": [["text": message.text]]])
             case .user:
-                var content: [[String: Any]] = []
+                var parts: [[String: Any]] = []
                 if index == 0 {
-                    // Photos go on the first message only, so the rest of the chat stays cacheable.
+                    // Photos go on the first message only, so later requests repeat the same start.
                     for image in firstImages {
                         if let data = image.normalizedUp().resized(maxDimension: 1024).jpegData(compressionQuality: 0.8) {
-                            content.append(["type": "image", "source": [
-                                "type": "base64", "media_type": "image/jpeg", "data": data.base64EncodedString()
-                            ]])
+                            parts.append(["inlineData": ["mimeType": "image/jpeg", "data": data.base64EncodedString()]])
                         }
                     }
                 }
-                content.append(["type": "text", "text": message.sentText ?? message.text])
-                messages.append(["role": "user", "content": content])
+                parts.append(["text": message.sentText ?? message.text])
+                contents.append(["role": "user", "parts": parts])
             }
         }
         let body: [String: Any] = [
-            "model": model,
-            "max_tokens": 16000,
-            "stream": true,
-            "system": systemPrompt(wardrobe: context.wardrobe),
-            "messages": messages,
-            // Chat replies don't need deep thinking; low effort keeps them quick.
-            "output_config": ["effort": "low"],
-            "fallbacks": "default",
-            // Caches the system prompt and earlier turns, so each new message is cheaper.
-            "cache_control": ["type": "ephemeral"]
+            "systemInstruction": ["parts": [["text": systemPrompt(wardrobe: context.wardrobe)]]],
+            "contents": contents,
+            "generationConfig": [
+                "thinkingConfig": ["thinkingLevel": thinkingLevel],
+                "maxOutputTokens": 8192
+            ]
         ]
         return try JSONSerialization.data(withJSONObject: body)
     }
@@ -144,6 +137,8 @@ struct ClaudeStylist: Sendable {
 
         Give specific, friendly advice in plain text with no Markdown, usually 2 to 5 sentences. \
         Recommend pieces from the wardrobe below by brand and name when they fit the question. \
+        If the user asks for their perfect match, pick the one top and one bottom from the wardrobe \
+        that suit them best (use their photo if attached) and say why in a sentence or two. \
         You can suggest things the wardrobe doesn't have (shoes, accessories, layers), but say they aren't in it. \
         If a photo is attached, it's the user, and a second image is their latest try-on: use them for color, \
         proportion and fit advice. Be kind about their body and don't rate their face or looks.
@@ -172,29 +167,37 @@ struct ClaudeStylist: Sendable {
         case other
     }
 
-    /// Reads one server-sent-events line.
+    /// Reads one server-sent-events line: each `data:` line is a partial response.
     static func parse(_ line: String) -> Event {
         guard line.hasPrefix("data:") else { return .other }
         let payload = line.dropFirst(5).trimmingCharacters(in: .whitespaces)
         guard let data = payload.data(using: .utf8),
-              let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-              let type = json["type"] as? String
+              let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
         else { return .other }
-        switch type {
-        case "content_block_delta":
-            let delta = json["delta"] as? [String: Any]
-            if delta?["type"] as? String == "text_delta", let text = delta?["text"] as? String { return .text(text) }
-            return .other
-        case "message_delta":
-            let delta = json["delta"] as? [String: Any]
-            return delta?["stop_reason"] as? String == "refusal" ? .refused : .other
-        case "message_stop":
-            return .done
-        case "error":
-            let error = json["error"] as? [String: Any]
-            return .failed(error?["message"] as? String ?? "Unknown error")
-        default:
-            return .other
+        if let error = json["error"] as? [String: Any] {
+            return .failed(error["message"] as? String ?? "Unknown error")
         }
+        if let feedback = json["promptFeedback"] as? [String: Any], feedback["blockReason"] != nil {
+            return .refused
+        }
+        guard let candidate = (json["candidates"] as? [[String: Any]])?.first else { return .other }
+        let parts = (candidate["content"] as? [String: Any])?["parts"] as? [[String: Any]] ?? []
+        // Skip thinking summaries; only the answer is shown.
+        let text = parts.filter { ($0["thought"] as? Bool) != true }.compactMap { $0["text"] as? String }.joined()
+        if !text.isEmpty { return .text(text) }
+        switch candidate["finishReason"] as? String {
+        case "SAFETY", "PROHIBITED_CONTENT", "BLOCKLIST", "SPII", "RECITATION": return .refused
+        case .some: return .done
+        case .none: return .other
+        }
+    }
+
+    /// Pulls `error.message` out of an error body, if it's JSON.
+    static func errorMessage(in body: String) -> String? {
+        guard let data = body.data(using: .utf8),
+              let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let error = json["error"] as? [String: Any]
+        else { return nil }
+        return error["message"] as? String
     }
 }

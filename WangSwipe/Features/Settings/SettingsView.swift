@@ -6,8 +6,8 @@ struct SettingsView: View {
     @State private var pickerItem: PhotosPickerItem?
     @State private var apiKeyDraft = ""
     @State private var keySaved = false
-    @State private var anthropicKeyDraft = ""
-    @State private var anthropicKeySaved = false
+    @State private var geminiKeyDraft = ""
+    @State private var geminiKeySaved = false
     @State private var newDomain = ""
 
     var body: some View {
@@ -25,7 +25,7 @@ struct SettingsView: View {
             .tint(Retro.tint)
             .onAppear {
                 apiKeyDraft = appModel.falAPIKey
-                anthropicKeyDraft = appModel.anthropicAPIKey
+                geminiKeyDraft = appModel.geminiAPIKey
             }
             .onChange(of: pickerItem) { _, item in
                 guard let item else { return }
@@ -106,20 +106,20 @@ struct SettingsView: View {
 
     private var agentSection: some View {
         Section {
-            SecureField("Anthropic API key", text: $anthropicKeyDraft)
+            SecureField("Gemini API key", text: $geminiKeyDraft)
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled()
-            Button(anthropicKeySaved ? "Saved" : "Save key") {
-                appModel.setAnthropicAPIKey(anthropicKeyDraft)
-                anthropicKeySaved = true
+            Button(geminiKeySaved ? "Saved" : "Save key") {
+                appModel.setGeminiAPIKey(geminiKeyDraft)
+                geminiKeySaved = true
             }
-            .disabled(anthropicKeyDraft.isEmpty)
-            .onChange(of: anthropicKeyDraft) { anthropicKeySaved = false }
+            .disabled(geminiKeyDraft.isEmpty)
+            .onChange(of: geminiKeyDraft) { geminiKeySaved = false }
         } header: {
             Text("Agent")
         } footer: {
             Text("""
-            The Agent tab uses Claude (\(ClaudeStylist.model)) and charges your Anthropic account per message, \
+            The Agent tab uses Google Gemini (\(GeminiStylist.model), \(GeminiStylist.thinkingLevel) thinking) and charges your Google account per message, \
             roughly a few cents per reply. Your photo, latest try-on and the wardrobe are sent with the chat. \
             The key is kept in this phone's Keychain.
             """)

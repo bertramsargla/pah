@@ -17,7 +17,7 @@ final class AppModel {
     @ObservationIgnored private let photoStore: PhotoStore
 
     static let falKeyAccount = "fal-api-key"
-    static let anthropicKeyAccount = "anthropic-api-key"
+    static let geminiKeyAccount = "gemini-api-key"
     /// The hosted try-on model. Nano Banana dresses the whole outfit in one call and was
     /// the fastest in romeo's side-by-side test (Nov 2026). The other models stay in
     /// `FalTryOnModel` so switching back is a one-line change.
@@ -115,16 +115,16 @@ final class AppModel {
         )
     }
 
-    var anthropicAPIKey: String {
-        KeychainStore.get(Self.anthropicKeyAccount) ?? ""
+    var geminiAPIKey: String {
+        KeychainStore.get(Self.geminiKeyAccount) ?? ""
     }
 
     /// Observable mirror of whether a key is saved, so screens update when one is added.
-    private(set) var hasAnthropicKey = !(KeychainStore.get(AppModel.anthropicKeyAccount) ?? "").isEmpty
+    private(set) var hasGeminiKey = !(KeychainStore.get(AppModel.geminiKeyAccount) ?? "").isEmpty
 
-    func setAnthropicAPIKey(_ key: String) {
-        KeychainStore.set(key.trimmingCharacters(in: .whitespacesAndNewlines), for: Self.anthropicKeyAccount)
-        hasAnthropicKey = !anthropicAPIKey.isEmpty
+    func setGeminiAPIKey(_ key: String) {
+        KeychainStore.set(key.trimmingCharacters(in: .whitespacesAndNewlines), for: Self.geminiKeyAccount)
+        hasGeminiKey = !geminiAPIKey.isEmpty
     }
 
     /// What the Agent tab's stylist gets to see.

@@ -74,11 +74,11 @@ WangSwipe/
     Launch/       hanger loading screen
     Onboarding/   add your photo (library or camera)
     Wardrobe/     two-panel wardrobe screen, its model, and the Dress Me mirror
-    Agent/        chat with an AI stylist (Claude) about the wardrobe and your outfit
+    Agent/        chat with an AI stylist (Gemini) about the wardrobe and your outfit
     Settings/     change photo, pick try-on engine and key, turn stores on/off
   Services/
     Products/     ProductProvider protocol, ProductCatalog (mixes stores), curated FWRD, Grailed + Farfetch picks, Shopify
-    Agent/        ClaudeStylist: streams replies from the Claude Messages API
+    Agent/        GeminiStylist: streams replies from the Gemini API
     TryOn/        TryOnService protocol, mock (on device), fal.ai (hosted models), Dresser (puts on a whole outfit)
     Storage/      photo on disk, API key in Keychain
 ```
@@ -106,11 +106,13 @@ a little. The other models are still in `FalTryOnModel` if you want to switch ba
 
 ## The Agent tab
 
-The Agent tab is a chat with a stylist powered by Claude (`claude-opus-5-5`
-through the Messages API, streamed, low effort for quick replies). It gets the
-wardrobe list, what's on screen, the pieces you kept, and (on the first
-message) your photo and latest try-on. Add an Anthropic API key in Setup; it's
-stored in the Keychain and each reply is billed to that account. As with
+The Agent tab is a chat with a stylist powered by Google's Gemini 4 Neon
+(`gemini-4-neon` through the Gemini API's `streamGenerateContent`, medium
+thinking level). It gets the wardrobe list, what's on screen, the pieces you
+kept, and (on the first message) your photo and latest try-on. Its one starter
+chip is "Find me the perfect match". Add a Gemini API key in Setup; it's
+stored in the Keychain and each reply is billed to that Google account
+(about $3 per million input tokens and $15 per million output tokens). As with
 try-on, move this call to your own server before a public release.
 
 ## Turning on real try-on
