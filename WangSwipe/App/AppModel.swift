@@ -51,6 +51,22 @@ final class AppModel {
         if userPhoto == nil, defaults.bool(forKey: "demoMode"), let demo = Self.demoPhoto {
             setPhoto(demo)
         }
+
+        #if DEBUG
+        // `-agentDemo YES` opens the Agent tab on a canned outfit pick, for screenshots
+        // of its Dress Me button without a paid Gemini call.
+        if defaults.bool(forKey: "agentDemo") {
+            let pieces = CuratedStores.all.flatMap(\.products)
+            if let top = pieces.first(where: { OutfitSlot($0.category) == .upper }),
+               let bottom = pieces.first(where: { OutfitSlot($0.category) == .lower }) {
+                agent.showDemo(question: "Find me the perfect match", reply: """
+                    Go with the \(top.brand ?? top.storeName) \(top.title) and the \(bottom.brand ?? bottom.storeName) \(bottom.title). (Canned demo reply.)
+                    OUTFIT: \(top.id) | \(bottom.id)
+                    """)
+                tab = .agent
+            }
+        }
+        #endif
     }
 
     /// The bundled sample photo, so the app can be shown without taking one.

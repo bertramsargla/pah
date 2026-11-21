@@ -68,6 +68,13 @@ final class AgentModel {
         }
     }
 
+    #if DEBUG
+    /// A canned exchange for screenshots (`-agentDemo YES`); nothing is sent.
+    func showDemo(question: String, reply: String) {
+        messages = [ChatMessage(role: .user, text: question), ChatMessage(role: .assistant, text: reply)]
+    }
+    #endif
+
     func reset() {
         task?.cancel()
         task = nil
