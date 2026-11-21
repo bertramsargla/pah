@@ -274,6 +274,23 @@
   .subs input { accent-color: var(--brand); width: 15px; height: 15px; margin: 0; }
   .slot { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 12px; background: var(--surface-2); font-size: 12.5px; }
   .slot svg { flex: none; color: var(--brand); }
+  /* rules and approve-then-pay */
+  .applied .hint { font-weight: 500; letter-spacing: 0; text-transform: none; color: var(--faint); margin-left: 4px; }
+  .rules { display: flex; flex-wrap: wrap; gap: 6px; }
+  .rules:empty::before { content: "No rules yet."; font-size: 12px; color: var(--faint); }
+  .rule { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 600; padding: 3px 4px 3px 10px; border-radius: 999px; background: var(--accent-soft); color: var(--accent-ink); border: 1px solid color-mix(in srgb, var(--accent) 50%, var(--line)); }
+  .rule button { width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; color: inherit; }
+  .rule button:hover { background: color-mix(in srgb, var(--accent) 30%, transparent); }
+  .rule-form { display: flex; gap: 6px; }
+  .rule-form input { flex: 1; min-width: 0; font: inherit; font-size: 12.5px; padding: 7px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface-2); color: var(--ink); }
+  .receipt.await { border-color: color-mix(in srgb, var(--brand) 55%, var(--line)); box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand) 12%, transparent); }
+  .tagline.await { color: var(--brand); background: var(--brand-soft); }
+  .plan-lines { display: grid; gap: 3px; font-size: 12.5px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 8px 0; font-variant-numeric: tabular-nums; }
+  .plan-lines div { display: flex; justify-content: space-between; gap: 10px; }
+  .approve-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .approve-row .btn.primary { padding: 9px 16px; font-size: 13px; }
+  .act.awaiting .ic { background: var(--brand-soft); color: var(--brand); }
+  .act.void .ic { background: var(--accent-soft); color: var(--warn); }
 </style>
 
 <header class="top">
@@ -313,6 +330,9 @@
       <div class="applied">
         <div class="lbl">Applied from your household profile</div>
         <div class="chips"><span class="safety">Tree-nut safe only</span><span>Store brand for basics</span><span>Terra Verde olive oil OK</span><span>Budget $450 / month</span></div>
+        <div class="lbl">Your rules <span class="hint">Changing them voids a plan waiting for approval</span></div>
+        <div class="rules" id="rules"></div>
+        <form class="rule-form" id="rule-form"><input id="rule-input" type="text" maxlength="200" autocomplete="off" placeholder="Add a rule, e.g. Eggs must be cage-free" aria-label="Add a rule for the assistant"><button class="btn" type="submit">Add</button></form>
       </div>
       <div class="demo" id="demo">
         <div class="demo-label"><span>Recorded live sessions</span><span id="demo-date"></span></div>
@@ -353,7 +373,7 @@
   const DELIVERY_FEE = 5.99, FREE_OVER = 100, MINIMUM = 35;
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const sleep = (ms) => new Promise((r) => setTimeout(r, reduce ? 0 : ms));
-  const S = { catalog: [], examples: [], live: false, cart: { lines: [], subtotal: 0, checked_out: false, order_id: null }, gate: null, busy: false, cat: "All", query: "", playToken: 0, exId: null, trail: [], mine: new Set() };
+  const S = { catalog: [], examples: [], live: false, cart: { lines: [], subtotal: 0, checked_out: false, order_id: null }, gate: null, busy: false, cat: "All", query: "", playToken: 0, exId: null, trail: [], mine: new Set(), prefs: [], plan: null };
   const USUAL = [["MILK-STORE-1G", 2, "Whole milk ×2"], ["EGG-STORE-12", 1, "Large eggs"], ["BREAD-STORE-WHT", 1, "White bread"], ["PB-SUNFLOWER-16", 1, "Sunflower seed butter"], ["PASTA-STORE-16", 2, "Spaghetti ×2"], ["OLIVEOIL-NAME-17OZ", 1, "Terra Verde olive oil"], ["PAPERTOWEL-STORE-6", 1, "Paper towels"]];
   const PLUS = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>';
   const MINUS = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M5 12h14"/></svg>';
@@ -596,7 +616,8 @@
     $("totals").replaceChildren(row("Subtotal", money(sub)), row("Delivery", fee ? money(fee) : sub ? "Free" : "—"), row("Total before tax", money(sub + fee), "grand"));
     const st = $("order-status");
     st.className = "status";
-    if (S.cart.checked_out) { st.classList.add("ok"); st.textContent = `Order ${S.cart.order_id} placed (simulated). Senso fact-checked it before checkout.`; }
+    if (S.cart.checked_out) { st.classList.add("ok"); st.textContent = `Order ${S.cart.order_id} placed (simulated) after you approved the plan. Senso fact-checked it first.`; }
+    else if (S.plan) { st.classList.add("ok"); st.textContent = `Plan v${S.plan.version} is waiting for your approval in the assistant panel.`; }
     else if (S.gate && S.gate.status === "gated") { st.classList.add("locked"); st.textContent = S.gate.outcome; }
     else if (S.gate && S.gate.status === "held") { st.classList.add("held"); st.textContent = S.gate.outcome; }
     else st.textContent = sub ? "Ask the assistant to check out. It fact-checks your basket with Senso first." : "Nothing to check out yet.";
@@ -610,7 +631,11 @@
     remove_from_cart: ["minus", (s) => ["Removed ", s.summary, ""]],
     ask_shopper: ["q", (s) => ["Needs your call on ", s.summary, ""]],
     fact_check: ["check", (s) => ["Senso fact-check · ", s.outcome, s.status === "conflict" ? " · fixing the draft" : ""]],
-    checkout: ["bag", (s) => (s.status === "ok" ? ["Checked out · ", s.outcome, ""] : ["Checkout refused · ", s.outcome, ""])],
+    checkout: ["bag", (s) => (s.status === "ok" ? ["Checked out · ", s.outcome, ""] : s.status === "awaiting" ? ["Prepared ", `plan v${s.plan_version || ""}`, " · waiting for your approval"] : ["Checkout refused · ", s.outcome, ""])],
+    get_preferences: ["list", (s) => ["Read your rules · ", s.outcome, ""]],
+    plan: ["minus", (s) => ["", s.summary, " · " + s.outcome]],
+    approve_plan: ["check", (s) => ["You approved ", s.summary, " · " + s.outcome]],
+    preference: ["list", (s) => ["Rule ", "“" + s.summary + "”", " · " + s.outcome.toLowerCase()]],
   };
   const ACT_ICON = {
     search: '<circle cx="11" cy="11" r="6"/><path d="m20 20-4-4"/>', list: '<path d="M5 6h14M5 12h14M5 18h9"/>', plus: '<path d="M12 5v14M5 12h14"/>',
@@ -759,6 +784,7 @@
     scroll();
   }
   function receipt(step, steps, cart) {
+    if (step.status === "awaiting") return planCard(step, steps, cart);
     const ok = step.status === "ok";
     const check = [...steps].reverse().find((s) => s.tool === "fact_check");
     const r = el("div", "receipt " + (ok ? "ok" : "held"));
@@ -781,6 +807,95 @@
     else r.append(el("div", "fine", "Nothing was charged and nothing ships. In a real store this is where payment would be confirmed."));
     return r;
   }
+  function planCard(step, steps, cart) {
+    const version = step.plan_version || 1;
+    const check = [...steps].reverse().find((s) => s.tool === "fact_check");
+    S.plan = { version, status: "awaiting_approval", cartKey: JSON.stringify(cart.lines.map((l) => [l.sku, l.qty])) };
+    const r = el("div", "receipt await");
+    const h = el("div", "rh");
+    h.append(el("span", null, `Plan v${version} is ready`), el("span", "tagline await", "Needs your approval"));
+    const lines = el("div", "plan-lines");
+    for (const l of cart.lines) { const d = el("div"); d.append(el("span", null, `${l.qty}× ${l.name}`), el("span", null, money(l.price * l.qty))); lines.append(d); }
+    const dl = el("dl");
+    const row = (k, v) => dl.append(el("dt", null, k), el("dd", null, v));
+    const sub = cart.subtotal || 0;
+    row("Seller", "Harvest Basket (demo store)");
+    row("Subtotal", money(sub));
+    row("Delivery", sub > FREE_OVER ? "Free" : money(DELIVERY_FEE));
+    row("Total before tax", money(sub + (sub > FREE_OVER ? 0 : DELIVERY_FEE)));
+    if (check && check.claims) row("Checked by Senso", `${check.claims.filter((c) => c.verdict === "verified").length} of ${check.claims.length} claims verified`);
+    const act = el("div", "approve-row");
+    const yes = el("button", "btn primary", "Approve and place order");
+    yes.type = "button";
+    act.append(yes, el("span", "fine", "Only you can approve. Changing the basket or your rules voids this plan."));
+    yes.onclick = async () => {
+      yes.disabled = true;
+      if (S.plan && S.plan.cartKey !== JSON.stringify(S.cart.lines.map((l) => [l.sku, l.qty]))) {
+        r.replaceChildren(el("div", "rh", `Plan v${version} was voided`), el("div", "next", "Your basket changed after this plan was made. Ask the assistant for a new plan."));
+        r.className = "receipt held";
+        S.plan = null;
+        return;
+      }
+      if (!S.live) {
+        const placed = { ...S.cart, checked_out: true, order_id: "DEMO-ORDER-0001" };
+        S.plan = null;
+        r.replaceWith(receipt({ status: "ok", tool: "checkout" }, steps, placed));
+        setCart(placed);
+        return;
+      }
+      try {
+        const res = await api("api/plan/approve", { version });
+        S.trail = res.trail || S.trail;
+        S.plan = null;
+        r.replaceWith(receipt({ status: "ok", tool: "checkout" }, steps, res.cart));
+        setCart(res.cart);
+      } catch (e) {
+        yes.disabled = false;
+        sysMsg("Couldn't approve: " + e.message);
+      }
+    };
+    r.append(h, lines, dl, act);
+    return r;
+  }
+
+  // ---- your rules (shopper preferences) ----
+  function renderRules() {
+    $("rules").replaceChildren(...S.prefs.map((p) => {
+      const c = el("span", "rule", p.text);
+      const x = el("button");
+      x.type = "button";
+      x.setAttribute("aria-label", `Remove rule: ${p.text}`);
+      x.innerHTML = '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>';
+      x.onclick = () => removeRule(p.id);
+      c.append(x);
+      return c;
+    }));
+  }
+  function voidPlanCards(reason) {
+    if (!S.plan) return;
+    document.querySelectorAll(".receipt.await").forEach((r) => {
+      r.className = "receipt held";
+      r.replaceChildren(el("div", "rh", "Plan voided"), el("div", "next", reason + " Ask the assistant for a new plan."));
+    });
+    S.plan = null;
+  }
+  async function addRule(text) {
+    text = text.trim();
+    if (!text) return;
+    if (!S.live) {
+      S.prefs = [...S.prefs, { id: "p" + (S.prefs.length + 1) + "-" + Date.now(), text }];
+      renderRules();
+      voidPlanCards("Your rules changed.");
+      return;
+    }
+    try { const res = await api("api/preferences", { text }); S.prefs = res.preferences; S.trail = res.trail || S.trail; renderRules(); voidPlanCards("Your rules changed."); }
+    catch (e) { sysMsg("Couldn't add that rule: " + e.message); }
+  }
+  async function removeRule(id) {
+    if (!S.live) { S.prefs = S.prefs.filter((p) => p.id !== id); renderRules(); voidPlanCards("Your rules changed."); return; }
+    try { const res = await api("api/preferences/remove", { id }); S.prefs = res.preferences; S.trail = res.trail || S.trail; renderRules(); voidPlanCards("Your rules changed."); }
+    catch (e) { sysMsg("Couldn't remove that rule: " + e.message); }
+  }
 
   // ---- examples ----
   function renderExamples() {
@@ -798,7 +913,10 @@
     const token = ++S.playToken;
     $("convo").replaceChildren();
     S.gate = null;
+    S.plan = null;
     S.mine.clear();
+    S.prefs = (ex.preferences || []).map((p) => ({ ...p }));
+    renderRules();
     setCart({ lines: [], subtotal: 0, checked_out: false, order_id: null });
     for (let t = 0; t < ex.turns.length; t++) {
       const turn = ex.turns[t];
@@ -858,6 +976,8 @@
       for (const s of res.trail.slice(shown)) if (!skip(s)) addAct(box, s);
       working.remove();
       S.trail = res.trail;
+      S.prefs = res.preferences || S.prefs;
+      renderRules();
       const steps = res.trail.slice(before).filter((s) => !skip(s));
       afterTurn(steps, res.reply, res.cart);
       questionCards(steps, liveSend);
@@ -873,6 +993,7 @@
     const current = S.cart.lines.find((l) => l.sku === p.sku);
     const keepNoSubs = noSubs == null ? !!(current && current.no_substitutions) : noSubs;
     S.gate = null;
+    voidPlanCards("Your basket changed.");
     if (!S.live) {
       let lines = S.cart.lines.filter((l) => l.sku !== p.sku);
       if (qty > 0) {
@@ -909,6 +1030,7 @@
   $("play").onclick = () => { const ex = S.examples.find((e) => e.id === S.exId); if (ex) play(ex, false); };
   $("skip").onclick = () => { const ex = S.examples.find((e) => e.id === S.exId); if (ex) play(ex, true); };
   $("search").addEventListener("input", (e) => { S.query = e.target.value; renderAisles(); });
+  $("rule-form").addEventListener("submit", (e) => { e.preventDefault(); const v = $("rule-input").value; $("rule-input").value = ""; addRule(v); });
   $("open-cart").onclick = () => { $("drawer").hidden = false; $("close-cart").focus(); };
   $("close-cart").onclick = () => { $("drawer").hidden = true; };
   $("drawer").addEventListener("click", (e) => { if (e.target === $("drawer")) $("drawer").hidden = true; });
@@ -928,10 +1050,12 @@
         $("live-dot").classList.add("on");
         $("demo").hidden = true;
         S.trail = st.trail;
+        S.prefs = st.preferences || [];
         setCart(st.cart);
       }
     } catch (e) { /* no backend: examples mode */ }
     renderRail();
+    renderRules();
     renderExamples();
     setCart(S.cart);
     $("convo").replaceChildren(hello());

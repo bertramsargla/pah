@@ -37,6 +37,16 @@ citations, verdicts, cart actions) is shown to the shopper.
    what still fails is shown to the shopper as unconfirmed.
 3. **Allergy hard-block.** The store refuses any item tagged with the household's tree-nut allergy
    flag, whatever the agent asks for.
+4. **Approve, then pay.** The agent's `checkout` only prepares a plan version (basket, subtotal,
+   the Senso check behind it). Placing the order takes `approve_plan`, which only the shopper's app
+   calls (`POST /api/plan/approve`); it is not one of the agent's tools. Any change to the basket or
+   to the shopper's rules voids a waiting plan, and approving the same plan twice returns the same
+   order instead of placing a second one.
+5. **Your rules.** Shoppers add rules in plain words in the app ("Eggs must be cage-free"). The
+   agent reads them with `get_preferences` at the start of every turn and treats them as hard
+   requirements, checking the product facts they depend on with Senso.
+
+Tests for all of the above, with Senso stubbed: `cd backend && python -m pytest -q tests`.
 
 ## Two agent backends, same tools
 
@@ -112,5 +122,8 @@ Then open `http://localhost:8000/shop`.
 
 ## Notes
 
+- The `reference/occasions-agent` branch is an unmodified copy of another team's project (Pantry by
+  Shivay Lamba), kept for reference only. It has no license, so none of its code is in `main`; the
+  approve-then-pay and rules ideas above were re-implemented here.
 - All brands, products, prices and policies are invented for the demo.
 - One demo session per server process, no auth. Fine for a hackathon, not for production.

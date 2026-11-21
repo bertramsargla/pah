@@ -6,6 +6,12 @@ the same thing. Every call reloads the file and saves it after.
 
 The fact-check gate is enforced here, in code: checkout refuses unless a
 fact-check ran after the last cart change and found no conflicting claims.
+
+Approve-then-pay: the agent's checkout only prepares a plan version. Placing
+the order takes approve_plan, which is called from the shopper's app and is
+never offered to the agent. Any change to the basket or the shopper's
+preferences voids a plan that is waiting for approval, and approving a plan
+that was already placed returns the same order instead of placing another.
 """
 
 import difflib
@@ -51,6 +57,8 @@ class ToolBox:
         self.cart_version = 0
         self.last_check: dict | None = None
         self.turn = 0
+        self.plans: list[dict] = []
+        self.preferences: list[dict] = []
         self.load()
 
     @property
@@ -70,6 +78,8 @@ class ToolBox:
         self.cart_version = s.get("cart_version", 0)
         self.last_check = s.get("last_check")
         self.turn = s.get("turn", 0)
+        self.plans = s.get("plans", [])
+        self.preferences = s.get("preferences", [])
 
     def save(self):
         self.state_path.parent.mkdir(parents=True, exist_ok=True)
@@ -82,11 +92,21 @@ class ToolBox:
             "cart_version": self.cart_version,
             "last_check": self.last_check,
             "turn": self.turn,
+            "plans": self.plans,
+            "preferences": self.preferences,
         }, indent=1, default=str))
         tmp.replace(self.state_path)
 
     def snapshot(self) -> dict:
-        return {"trail": self.trail, "cart": self.store.cart.to_dict(), "questions": self.questions, "last_check": self.last_check}
+        return {"trail": self.trail, "cart": self.store.cart.to_dict(), "questions": self.questions, "last_check": self.last_check,
+                "plan": self.plans[-1] if self.plans else None, "preferences": self.preferences}
+
+    def _void_plan(self, reason: str):
+        if self.plans and self.plans[-1]["status"] == "awaiting_approval":
+            plan = self.plans[-1]
+            plan["status"] = "void"
+            plan["void_reason"] = reason
+            self.log("plan", f"Plan v{plan['version']}", f"Voided: {reason}. A new plan needs a fresh fact-check and approval.", "void")
 
     def log(self, tool: str, summary: str, outcome: str, status: str, **details):
         self.trail.append({"step": len(self.trail) + 1, "turn": self.turn, "ts": time.time(), "tool": tool, "summary": summary, "outcome": outcome, "status": status, **details})
@@ -129,6 +149,7 @@ class ToolBox:
         else:
             self.cart_version += 1
             self.log("add_to_cart", f"{name} ×{qty:g}", f"Added. Subtotal ${self.store.cart.subtotal:.2f}", "ok")
+            self._void_plan("the basket changed")
         return r
 
     def remove_from_cart(self, sku: str) -> dict:
@@ -139,7 +160,36 @@ class ToolBox:
             self.cart_version += 1
         name = CATALOG.get(sku.upper(), {}).get("name", sku)
         self.log("remove_from_cart", name, "Removed" if removed else "Not in cart", "ok" if removed else "noop")
+        if removed:
+            self._void_plan("the basket changed")
         return {"cart": self.store.cart.to_dict(), "removed": removed, "mode": "simulated"}
+
+    def get_preferences(self) -> dict:
+        self.log("get_preferences", "Shopper preferences", f"{len(self.preferences)} set in the app", "ok")
+        return {
+            "preferences": [{"id": p["id"], "text": p["text"]} for p in self.preferences],
+            "note": ("These were set by the shopper in the app and are hard requirements on top of the household profile. "
+                     "Check each product attribute they depend on with search_context, and remove any cart item that breaks one."),
+        }
+
+    def add_preference(self, text: str, by: str = "shopper") -> dict:
+        text = " ".join(text.split())[:200]
+        if not text:
+            return {"error": "Write the preference in a few words."}
+        pref = {"id": f"p{max([int(p['id'][1:]) for p in self.preferences] + [0]) + 1}", "text": text, "by": by, "ts": time.time()}
+        self.preferences.append(pref)
+        self.log("preference", text, "Added by the shopper", "ok", by=by)
+        self._void_plan("your preferences changed")
+        return {"preference": pref, "preferences": self.preferences}
+
+    def remove_preference(self, pref_id: str, by: str = "shopper") -> dict:
+        hit = next((p for p in self.preferences if p["id"] == pref_id), None)
+        if not hit:
+            return {"error": f"No preference {pref_id}."}
+        self.preferences = [p for p in self.preferences if p["id"] != pref_id]
+        self.log("preference", hit["text"], "Removed by the shopper", "ok", by=by)
+        self._void_plan("your preferences changed")
+        return {"preferences": self.preferences}
 
     def ask_shopper(self, item: str, question: str) -> dict:
         self.questions.append({"turn": self.turn, "item": item, "question": question})
@@ -220,9 +270,47 @@ class ToolBox:
             reason = "Checkout locked: no fact_check since the last cart change named these cart items: " + "; ".join(missing)
             self.log("checkout", f"Subtotal ${self.store.cart.subtotal:.2f}", reason, "gated")
             return {"error": reason, "mode": "simulated"}
+        sub = self.store.cart.subtotal
+        if not self.store.cart.lines or sub < 35:
+            reason = "Cart is empty" if not self.store.cart.lines else f"Order subtotal ${sub:.2f} is below the $35 delivery minimum"
+            self.log("checkout", f"Subtotal ${sub:.2f}", reason, "held")
+            return {"error": reason, "mode": "simulated"}
+        latest = self.plans[-1] if self.plans else None
+        if latest and latest["status"] == "awaiting_approval" and latest["cart_version"] == self.cart_version and latest["check_id"] == lc["check_id"]:
+            plan = latest
+        else:
+            plan = {
+                "version": len(self.plans) + 1, "cart_version": self.cart_version, "check_id": lc["check_id"],
+                "verified": lc["verified"], "claims": lc["total"], "subtotal": sub,
+                "lines": [{"sku": l.sku, "name": l.name, "qty": l.qty, "price": l.price} for l in self.store.cart.lines],
+                "status": "awaiting_approval", "created_ts": time.time(), "order_id": None,
+            }
+            self.plans.append(plan)
+        self.log("checkout", f"Subtotal ${sub:.2f}", f"Plan v{plan['version']} ready, waiting for the shopper's approval", "awaiting", plan_version=plan["version"])
+        return {
+            "status": "awaiting_approval", "plan_version": plan["version"], "subtotal": sub, "mode": "simulated",
+            "note": (f"Only the shopper can approve. Tell them to review and approve plan v{plan['version']} in the app. "
+                     "Any change to the basket or their preferences voids it."),
+        }
+
+    def approve_plan(self, version: int, by: str = "shopper") -> dict:
+        """Called from the shopper's app only. Never offered to the agent as a tool."""
+        plan = next((p for p in self.plans if p["version"] == version), None)
+        if not plan:
+            return {"error": f"There is no plan v{version}."}
+        if plan["status"] == "placed":
+            return {"order_id": plan["order_id"], "already_placed": True, "plan": plan, "mode": "simulated"}
+        if plan["status"] == "void":
+            return {"error": f"Plan v{version} was voided because {plan.get('void_reason', 'something changed')}. Ask the assistant for a new plan."}
+        if plan["cart_version"] != self.cart_version:
+            self._void_plan("the basket changed")
+            return {"error": f"Plan v{version} no longer matches your basket. Ask the assistant for a new plan."}
         r = self.store.checkout()
         if "error" in r:
-            self.log("checkout", f"Subtotal ${self.store.cart.subtotal:.2f}", r["error"], "held")
-        else:
-            self.log("checkout", f"Subtotal ${self.store.cart.subtotal:.2f}", f"{r['order']['order_id']} (simulated, fact-check {lc['check_id'][:8]})", "ok")
-        return r
+            self.log("approve_plan", f"Plan v{version}", r["error"], "held", by=by)
+            return r
+        plan["status"] = "placed"
+        plan["order_id"] = r["order"]["order_id"]
+        plan["approved_ts"] = time.time()
+        self.log("approve_plan", f"Plan v{version}", f"Approved by the shopper. {plan['order_id']} placed (simulated)", "ok", by=by)
+        return {"order_id": plan["order_id"], "already_placed": False, "plan": plan, **r}

@@ -94,6 +94,12 @@
     <div class="block">
       <h2>Checkout gate</h2>
       <div class="gate" id="gate"><span class="dot"></span><span id="gate-text">No fact-check yet. Checkout is locked.</span></div>
+      <div id="plan-box" hidden><p class="muted" id="plan-text"></p><button class="send ghost" id="approve" type="button">Approve plan</button></div>
+    </div>
+    <div class="block">
+      <h2>Your rules</h2>
+      <div id="prefs"><p class="muted">None</p></div>
+      <form class="composer" id="pref-form" style="padding:0;border:0"><input id="pref-input" type="text" maxlength="200" autocomplete="off" placeholder="e.g. Eggs must be cage-free" aria-label="Add a rule"><button class="ghost" type="submit">Add</button></form>
     </div>
     <div class="block">
       <h2>Cart (simulated)</h2>
@@ -175,9 +181,38 @@ function renderTrail(trail) {
   const tw = $("trail-wrap"); tw.scrollTop = tw.scrollHeight;
 }
 
+function renderPlan(plan) {
+  const waiting = plan && plan.status === "awaiting_approval";
+  $("plan-box").hidden = !waiting;
+  if (waiting) {
+    $("plan-text").textContent = `Plan v${plan.version}: ${plan.lines.length} lines, ${money(plan.subtotal)}, ${plan.verified} of ${plan.claims} claims verified. Only you can approve it.`;
+    $("approve").onclick = async () => {
+      const r = await fetch(`${API}/api/plan/approve`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ version: plan.version }) });
+      const d = await r.json();
+      if (!r.ok) addMsg("note", "Couldn't approve: " + d.detail); else render({ agent: d.agent, ...d });
+      refresh();
+    };
+  }
+}
+
+function renderPrefs(prefs) {
+  const box = $("prefs");
+  if (!prefs.length) { box.replaceChildren(el("p", "muted", "None")); return; }
+  box.replaceChildren(...prefs.map((p) => {
+    const row = el("div", "cart-line");
+    const x = el("button", "ghost", "Remove");
+    x.type = "button";
+    x.onclick = async () => { await fetch(`${API}/api/preferences/remove`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: p.id }) }); refresh(); };
+    row.append(el("span", null, p.text), x);
+    return row;
+  }));
+}
+
 function render(state) {
   $("agent-badge").textContent = "agent: " + (state.agent === "claude-code" ? "Claude Code (headless)" : "Claude API");
   renderCart(state.cart);
+  renderPlan(state.plan);
+  renderPrefs(state.preferences || []);
   renderGate(state.last_check, state.trail);
   renderQuestions(state.questions || []);
   renderTrail(state.trail);
@@ -226,6 +261,15 @@ async function send(text) {
 
 $("composer").addEventListener("submit", (e) => { e.preventDefault(); send($("input").value); });
 document.querySelectorAll("#starters button").forEach((b) => b.addEventListener("click", () => send(b.dataset.prompt)));
+$("pref-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const text = $("pref-input").value.trim();
+  if (!text) return;
+  $("pref-input").value = "";
+  const r = await fetch(`${API}/api/preferences`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text }) });
+  if (!r.ok) addMsg("note", "Couldn't add the rule: " + (await r.json()).detail);
+  refresh();
+});
 $("reset").addEventListener("click", async () => {
   const r = await fetch(`${API}/api/reset`, { method: "POST" });
   if (!r.ok) { addMsg("note", "Wait for the agent to finish before starting a new session."); return; }

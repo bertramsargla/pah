@@ -16,6 +16,7 @@ from mock_store import CATALOG
 FRONTEND = pathlib.Path(__file__).parent.parent / "frontend"
 TITLES = {
     "restock": "Restock the usual order",
+    "rules": "Your rule changes the plan",
     "compare": "Compare peanut butter and olive oil",
     "unsafe": "Shopper asks for an unsafe item",
 }
@@ -43,7 +44,7 @@ def catalog() -> list[dict]:
 
 
 def trim(step: dict) -> dict:
-    s = {k: step[k] for k in ("step", "turn", "tool", "summary", "outcome", "status") if k in step}
+    s = {k: step[k] for k in ("step", "turn", "tool", "summary", "outcome", "status", "plan_version", "by") if k in step}
     if step.get("citations"):
         s["citations"] = [{**{k: c.get(k) for k in ("document", "score", "rank", "content_id")}, "chunk_text": (c.get("chunk_text") or "")[:220]} for c in step["citations"]]
     if step.get("claims"):
@@ -65,7 +66,8 @@ def main(rec_dir: pathlib.Path):
             steps = [trim(t) for t in d["trail"] if t["turn"] == i and t["tool"] not in ("shopper", "reply")]
             turns.append({"message": message, "steps": steps, "reply": d["reply"], "cart": d["cart"]})
         recorded = datetime.datetime.fromtimestamp(files[0].stat().st_mtime, datetime.timezone.utc).strftime("%b %-d, %Y")
-        examples.append({"id": name, "title": TITLES[name], "recorded": recorded, "turns": turns})
+        prefs = [{"id": p["id"], "text": p["text"]} for p in json.loads(files[-1].read_text()).get("preferences", [])]
+        examples.append({"id": name, "title": TITLES[name], "recorded": recorded, "preferences": prefs, "turns": turns})
     out = FRONTEND / "examples.json"
     out.write_text(json.dumps({"catalog": catalog(), "examples": examples}, indent=1))
     print(f"wrote {out} with {len(examples)} examples")

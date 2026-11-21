@@ -64,8 +64,14 @@ def fact_check(text: str, question: str = "") -> dict:
 
 
 @server.tool()
+def get_preferences() -> dict:
+    """Read the preferences the shopper set in the app. Hard requirements; call at the start of every turn."""
+    return _call("get_preferences")
+
+
+@server.tool()
 def checkout() -> dict:
-    """Check out the simulated cart. Locked until a fact_check after the last cart change has no conflicts."""
+    """Prepare a plan version of the simulated cart for the shopper to approve. Locked until a fact_check after the last cart change names every item with no conflicts. You cannot approve or pay."""
     return _call("checkout")
 
 

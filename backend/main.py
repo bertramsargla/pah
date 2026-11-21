@@ -88,6 +88,46 @@ def cart_add(req: AddRequest):
     return {"cart": box.store.cart.to_dict()}
 
 
+def _shopper_action(method: str, **kwargs):
+    if _lock.locked():
+        raise HTTPException(409, "The assistant is working. Try again in a moment.")
+    from tools import ToolBox
+    box = ToolBox(get_agent().state_path)
+    result = getattr(box, method)(**kwargs)
+    box.save()
+    if "error" in result:
+        raise HTTPException(400, result["error"])
+    return {**result, **box.snapshot()}
+
+
+class ApproveRequest(BaseModel):
+    version: int
+
+
+@app.post("/api/plan/approve")
+def plan_approve(req: ApproveRequest):
+    """The shopper approves an exact plan version. The agent has no route to this."""
+    return _shopper_action("approve_plan", version=req.version)
+
+
+class PreferenceRequest(BaseModel):
+    text: str
+
+
+@app.post("/api/preferences")
+def preference_add(req: PreferenceRequest):
+    return _shopper_action("add_preference", text=req.text)
+
+
+class PreferenceRemove(BaseModel):
+    id: str
+
+
+@app.post("/api/preferences/remove")
+def preference_remove(req: PreferenceRemove):
+    return _shopper_action("remove_preference", pref_id=req.id)
+
+
 class SetRequest(BaseModel):
     sku: str
     qty: float
