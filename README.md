@@ -95,9 +95,9 @@ Two seams make the app pluggable:
   and `FalTryOnService` (calls Google Virtual Try-On, FASHN, Nano Banana or Kling Kolors on fal.ai).
   `AppModel.makeTryOnService()` picks one.
 
-`Dresser` runs try-on only when you press Dress Me, one garment after the
-other (top, then bottom on the result), and keeps each finished look so the
-same outfit is never paid for twice. The app uses Nano Banana on fal.ai
+`Dresser` runs try-on only when you press Dress Me, either in one call for the
+whole outfit or one garment after the other (the free preview), and keeps each
+finished look so the same outfit is never paid for twice. The app uses Nano Banana on fal.ai
 (`AppModel.tryOnModel`): it dresses the whole outfit in one call, about $0.04,
 and was the fastest when compared side by side with Google's try-on (about 35 s
 per piece) and FASHN. It's a general image editor, so faces and poses can drift
